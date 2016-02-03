@@ -23,7 +23,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="bottom">
 
@@ -32,21 +32,28 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Clear"/>
+            android:text="Clear map"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/button_ruian_min"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RUIAN Min"/>
 
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/button_ruian"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="RUIAN"/>
+            android:text="RUIAN Max"/>
 
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/button_doubleshot"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="DoubleShot"/>
+            android:text="Double Shot"/>
 
     </LinearLayout>
 

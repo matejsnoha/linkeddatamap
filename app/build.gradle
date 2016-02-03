@@ -37,6 +37,6 @@ dependencies {
     compile 'com.google.code.gson:gson:+'
     compile 'commons-io:commons-io:+'
     compile 'commons-lang:commons-lang:+'
-    compile 'org.apache.jena:jena:+'
+    //compile 'org.apache.jena:jena:+'
     compile('com.github.afollestad.material-dialogs:core:0.8.5.3@aar') { transitive = true }
 }

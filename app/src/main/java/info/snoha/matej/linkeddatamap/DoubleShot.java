@@ -29,13 +29,13 @@ public class DoubleShot {
         String[] formattedAddress;
     }
 
-    public static class SimpleShop {
+    public static class SimplePlace {
         String name;
         String address;
         Double latitude;
         Double longitude;
 
-        public SimpleShop(String name, String address, Double latitude, Double longitude) {
+        public SimplePlace(String name, String address, Double latitude, Double longitude) {
             this.name = name;
             this.address = address;
             this.latitude = latitude;
@@ -43,25 +43,25 @@ public class DoubleShot {
         }
     }
 
-    public static List<SimpleShop> getShops(Context context) {
+    public static List<SimplePlace> getPlaces(Context context) {
 
         try {
 
             String shopsString = IOUtils.toString(context.getResources().openRawResource(R.raw.shops));
-            List<Shop> shops = new Gson().fromJson(shopsString, new TypeToken<List<Shop>>() {
-                    }.getType());
+            List<Shop> shops = new Gson().fromJson(shopsString,
+                    new TypeToken<List<Shop>>() {}.getType());
 
-            List<SimpleShop> simpleShops = new ArrayList<>();
+            List<SimplePlace> simplePlaces = new ArrayList<>();
             for (Shop shop : shops) {
 
-                simpleShops.add(new SimpleShop(
+                simplePlaces.add(new SimplePlace(
                         shop.venue.name,
                         StringUtils.join(shop.venue.location.formattedAddress, ", "),
                         shop.venue.location.lat,
                         shop.venue.location.lng
                         ));
             }
-            return simpleShops;
+            return simplePlaces;
 
         } catch (Exception e) {
             return Collections.emptyList();

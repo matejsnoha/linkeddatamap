@@ -1,6 +1,8 @@
 package info.snoha.matej.linkeddatamap;
 
+import android.content.Intent;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -22,8 +24,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
@@ -34,8 +36,9 @@ import java.util.TimerTask;
 public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final int LAYER_NONE = 0;
-    private static final int LAYER_RUIAN = 1;
-    private static final int LAYER_DOUBLESHOT = 2;
+    private static final int LAYER_RUIAN_MIN = 1;
+    private static final int LAYER_RUIAN = 2;
+    private static final int LAYER_DOUBLESHOT = 3;
 
     private static final int POSITION_TRACKING_FREQUENCY = 1000;
 
@@ -101,7 +104,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             public boolean onLongClick(View v) {
 
                 new MaterialDialog.Builder(MapsActivity.this)
-                        .title("Turn " + (positionTracking ? "OFF" : "ON") + " position tracking?")
+                        .title("Turn position tracking " + (positionTracking ? "OFF" : "ON") + "?")
                         .neutralText("Cancel")
                         .positiveText("OK")
                         .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -144,6 +147,13 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             }
         });
 
+        findViewById(R.id.button_ruian_min).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchLayer(LAYER_RUIAN_MIN);
+            }
+        });
+
         findViewById(R.id.button_ruian).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,10 +174,45 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         map = googleMap;
 
         map.getUiSettings().setMyLocationButtonEnabled(false);
+        map.getUiSettings().setMapToolbarEnabled(false);
         try {
             map.setMyLocationEnabled(true);
         } catch (SecurityException e) {
         }
+
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(final Marker marker) {
+
+                if (marker.getSnippet().contains("<http")) {
+
+                    new MaterialDialog.Builder(MapsActivity.this)
+                            .title(marker.getTitle())
+                            .content(marker.getSnippet())
+                            .positiveText("WEB")
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    startActivity(new Intent(Intent.ACTION_VIEW,
+                                            Uri.parse(marker.getSnippet().substring(
+                                                    marker.getSnippet().indexOf("<") + 1,
+                                                    marker.getSnippet().indexOf(">")
+                                            ))));
+                                }
+                            })
+                            .neutralText("Cancel")
+                            .show();
+                } else {
+
+                    new MaterialDialog.Builder(MapsActivity.this)
+                            .title(marker.getTitle())
+                            .content(marker.getSnippet())
+                            .neutralText("Cancel")
+                            .show();
+                }
+                return true;
+            }
+        });
 
         LatLng mapCenter = new LatLng(50.0819015, 14.4326654);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(mapCenter, 6));
@@ -176,25 +221,80 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     private void switchLayer(int layer) {
 
+        final MaterialDialog progressDialog = new MaterialDialog.Builder(this)
+                .title("Please wait ...")
+                .progress(true, 0)
+                .progressIndeterminateStyle(true)
+                .show();
+
         map.clear();
+
         switch (layer) {
             case LAYER_NONE:
+                progressDialog.hide();
+                break;
+            case LAYER_RUIAN_MIN:
+                progressDialog.show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final List<MarkerModel> markers = getRuianMarkers(10000);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (MarkerModel marker : markers) {
+                                    map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
+                                            .title(marker.getName())
+                                            .snippet(marker.getText()));
+                                }
+                                progressDialog.hide();
+                            }
+                        });
+                    }
+                }).start();
                 break;
             case LAYER_RUIAN:
-                for (MarkerModel marker : getRuianMarkers()) {
-                    map.addMarker(new MarkerOptions()
-                            .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
-                            .title(marker.getName())
-                            .snippet(marker.getAddress()));
-                }
+                progressDialog.show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final List<MarkerModel> markers = getRuianMarkers(null);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (MarkerModel marker : markers) {
+                                    map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
+                                            .title(marker.getName())
+                                            .snippet(marker.getText()));
+                                }
+                                progressDialog.hide();
+                            }
+                        });
+                    }
+                }).start();
                 break;
             case LAYER_DOUBLESHOT:
-                for (MarkerModel marker : getDoubleShotMarkers()) {
-                    map.addMarker(new MarkerOptions()
-                            .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
-                            .title(marker.getName())
-                            .snippet(marker.getAddress()));
-                }
+                progressDialog.show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final List<MarkerModel> markers = getDoubleShotMarkers();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (MarkerModel marker : markers) {
+                                    map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
+                                            .title(marker.getName())
+                                            .snippet(marker.getText()));
+                                }
+                                progressDialog.hide();
+                            }
+                        });
+                    }
+                }).start();
                 break;
         }
     }
@@ -214,7 +314,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     @Override
     public void onConnected(Bundle bundle) {
-        Snackbar.make(getRootView(), "Google APIs connected", Snackbar.LENGTH_LONG).show();
+        // Snackbar.make(getRootView(), "Google APIs connected", Snackbar.LENGTH_LONG).show();
 
         LocationRequest request = new LocationRequest();
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -245,24 +345,13 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         private double latitude;
         private double longitude;
         private String name;
-        private String address;
-        private String description;
-        private String url;
+        private String text;
 
-        public MarkerModel(double latitude, double longitude, String name, String address) {
+        public MarkerModel(double latitude, double longitude, String name, String text) {
             this.latitude = latitude;
             this.longitude = longitude;
             this.name = name;
-            this.address = address;
-        }
-
-        public MarkerModel(double latitude, double longitude, String name, String description, String url, String address) {
-            this.latitude = latitude;
-            this.longitude = longitude;
-            this.name = name;
-            this.description = description;
-            this.url = url;
-            this.address = address;
+            this.text = text;
         }
 
         public double getLatitude() {
@@ -289,45 +378,29 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             this.name = name;
         }
 
-        public String getDescription() {
-            return description;
+        public String getText() {
+            return text;
         }
 
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public void setAddress(String address) {
-            this.address = address;
+        public void setText(String text) {
+            this.text = text;
         }
     }
 
     private List<MarkerModel> getDoubleShotMarkers() {
 
         List<MarkerModel> markers = new ArrayList<>();
-        for (DoubleShot.SimpleShop shop : DoubleShot.getShops(this)) {
+        for (DoubleShot.SimplePlace shop : DoubleShot.getPlaces(this)) {
             markers.add(new MarkerModel(shop.latitude, shop.longitude, shop.name, shop.address));
         }
         return markers;
     }
 
-    private List<MarkerModel> getRuianMarkers() {
+    private List<MarkerModel> getRuianMarkers(Integer limit) {
 
         List<MarkerModel> markers = new ArrayList<>();
-        for (Ruian.Place place : Ruian.getPlaces(this)) {
-            //markers.add(new MarkerModel(shop.latitude, shop.longitude, shop.name, shop.address));
+        for (Ruian.SimplePlace place : Ruian.getPlaces(this, limit)) {
+            markers.add(new MarkerModel(place.latitude, place.longitude, place.name, place.address));
         }
         return markers;
     }
