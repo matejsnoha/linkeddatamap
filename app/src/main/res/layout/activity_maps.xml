@@ -35,18 +35,11 @@
             android:text="Clear map"/>
 
         <android.support.v7.widget.AppCompatButton
-            android:id="@+id/button_ruian_min"
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="RUIAN Min"/>
-
-        <android.support.v7.widget.AppCompatButton
             android:id="@+id/button_ruian"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="RUIAN Max"/>
+            android:text="RUIAN"/>
 
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/button_doubleshot"

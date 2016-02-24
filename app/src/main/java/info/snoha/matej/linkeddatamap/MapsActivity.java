@@ -24,28 +24,28 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    private static final int LAYER_NONE = 0;
-    private static final int LAYER_RUIAN_MIN = 1;
-    private static final int LAYER_RUIAN = 2;
-    private static final int LAYER_DOUBLESHOT = 3;
-
     private static final int POSITION_TRACKING_FREQUENCY = 1000;
+    private static final int CAMERA_TRACKING_FREQUENCY = 3000;
 
     private GoogleMap map;
     private GoogleApiClient apiClient;
+
     private boolean positionTracking;
     private Timer positionTrackingTimer;
+
+    private CameraPosition cameraPosition;
+    private Timer cameraTrackingTimer;
 
     protected void onStart() {
         super.onStart();
@@ -143,28 +143,21 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         findViewById(R.id.button_clear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchLayer(LAYER_NONE);
-            }
-        });
-
-        findViewById(R.id.button_ruian_min).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchLayer(LAYER_RUIAN_MIN);
+                MapManager.setLayer(MapManager.LAYER_NONE, cameraPosition);
             }
         });
 
         findViewById(R.id.button_ruian).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchLayer(LAYER_RUIAN);
+                MapManager.setLayer(MapManager.LAYER_RUIAN, cameraPosition);
             }
         });
 
         findViewById(R.id.button_doubleshot).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchLayer(LAYER_DOUBLESHOT);
+                MapManager.setLayer(MapManager.LAYER_DOUBLE_SHOT, cameraPosition);
             }
         });
     }
@@ -214,89 +207,32 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             }
         });
 
+        map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                MapsActivity.this.cameraPosition = cameraPosition;
+            }
+        });
+
         LatLng mapCenter = new LatLng(50.0819015, 14.4326654);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(mapCenter, 6));
 
-    }
+        MapManager.with(this, map);
 
-    private void switchLayer(int layer) {
+        cameraTrackingTimer = new Timer("Camera Tracking Timer");
+        cameraTrackingTimer.scheduleAtFixedRate(new TimerTask() {
 
-        final MaterialDialog progressDialog = new MaterialDialog.Builder(this)
-                .title("Please wait ...")
-                .progress(true, 0)
-                .progressIndeterminateStyle(true)
-                .show();
+            CameraPosition lastPosition = cameraPosition;
 
-        map.clear();
-
-        switch (layer) {
-            case LAYER_NONE:
-                progressDialog.hide();
-                break;
-            case LAYER_RUIAN_MIN:
-                progressDialog.show();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final List<MarkerModel> markers = getRuianMarkers(10000);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                for (MarkerModel marker : markers) {
-                                    map.addMarker(new MarkerOptions()
-                                            .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
-                                            .title(marker.getName())
-                                            .snippet(marker.getText()));
-                                }
-                                progressDialog.hide();
-                            }
-                        });
-                    }
-                }).start();
-                break;
-            case LAYER_RUIAN:
-                progressDialog.show();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final List<MarkerModel> markers = getRuianMarkers(null);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                for (MarkerModel marker : markers) {
-                                    map.addMarker(new MarkerOptions()
-                                            .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
-                                            .title(marker.getName())
-                                            .snippet(marker.getText()));
-                                }
-                                progressDialog.hide();
-                            }
-                        });
-                    }
-                }).start();
-                break;
-            case LAYER_DOUBLESHOT:
-                progressDialog.show();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final List<MarkerModel> markers = getDoubleShotMarkers();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                for (MarkerModel marker : markers) {
-                                    map.addMarker(new MarkerOptions()
-                                            .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
-                                            .title(marker.getName())
-                                            .snippet(marker.getText()));
-                                }
-                                progressDialog.hide();
-                            }
-                        });
-                    }
-                }).start();
-                break;
-        }
+            @Override
+            public void run() {
+                if (!ObjectUtils.equals(lastPosition, cameraPosition)) {
+                    lastPosition = cameraPosition;
+                    MapManager.updateLayer(cameraPosition);
+                }
+            }
+        }, 0, CAMERA_TRACKING_FREQUENCY);
     }
 
     private Location getCurrentLocation() {
@@ -338,70 +274,5 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Snackbar.make(getRootView(), "Google APIs failed to connect", Snackbar.LENGTH_LONG).show();
-    }
-
-    static class MarkerModel {
-
-        private double latitude;
-        private double longitude;
-        private String name;
-        private String text;
-
-        public MarkerModel(double latitude, double longitude, String name, String text) {
-            this.latitude = latitude;
-            this.longitude = longitude;
-            this.name = name;
-            this.text = text;
-        }
-
-        public double getLatitude() {
-            return latitude;
-        }
-
-        public void setLatitude(double latitude) {
-            this.latitude = latitude;
-        }
-
-        public double getLongitude() {
-            return longitude;
-        }
-
-        public void setLongitude(double longitude) {
-            this.longitude = longitude;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-    }
-
-    private List<MarkerModel> getDoubleShotMarkers() {
-
-        List<MarkerModel> markers = new ArrayList<>();
-        for (DoubleShot.SimplePlace shop : DoubleShot.getPlaces(this)) {
-            markers.add(new MarkerModel(shop.latitude, shop.longitude, shop.name, shop.address));
-        }
-        return markers;
-    }
-
-    private List<MarkerModel> getRuianMarkers(Integer limit) {
-
-        List<MarkerModel> markers = new ArrayList<>();
-        for (Ruian.SimplePlace place : Ruian.getPlaces(this, limit)) {
-            markers.add(new MarkerModel(place.latitude, place.longitude, place.name, place.address));
-        }
-        return markers;
     }
 }
