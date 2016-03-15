@@ -95,7 +95,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                                 new LatLng(location.getLatitude(), location.getLongitude())));
                     }
                 } else {
-                    Snackbar.make(getRootView(), "Location not available", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(getCoordinatorView(), "Location not available", Snackbar.LENGTH_LONG).show();
                 }
             }
         });
@@ -239,18 +239,18 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         try {
             return LocationServices.FusedLocationApi.getLastLocation(apiClient);
         } catch (SecurityException e) {
-            Snackbar.make(getRootView(), "Missing location permission", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getCoordinatorView(), "Missing location permission", Snackbar.LENGTH_LONG).show();
             return null;
         }
     }
 
-    private View getRootView() {
-        return getWindow().getDecorView().getRootView();
+    private View getCoordinatorView() {
+        return findViewById(R.id.buttons); //getWindow().getDecorView().getRootView();
     }
 
     @Override
     public void onConnected(Bundle bundle) {
-        // Snackbar.make(getRootView(), "Google APIs connected", Snackbar.LENGTH_LONG).show();
+        // Snackbar.make(getCoordinatorView(), "Google APIs connected", Snackbar.LENGTH_LONG).show();
 
         LocationRequest request = new LocationRequest();
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -268,11 +268,11 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     @Override
     public void onConnectionSuspended(int i) {
-        Snackbar.make(getRootView(), "Google APIs disconnected", Snackbar.LENGTH_LONG).show();
+        Snackbar.make(getCoordinatorView(), "Google APIs disconnected", Snackbar.LENGTH_LONG).show();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Snackbar.make(getRootView(), "Google APIs failed to connect", Snackbar.LENGTH_LONG).show();
+        Snackbar.make(getCoordinatorView(), "Google APIs failed to connect", Snackbar.LENGTH_LONG).show();
     }
 }

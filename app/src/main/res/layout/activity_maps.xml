@@ -1,4 +1,4 @@
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -12,44 +12,53 @@
         android:layout_height="match_parent"
         tools:context="info.snoha.matej.linkeddatamap.MapsActivity">
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_my_location_black_24dp"
-            app:elevation="4dp"/>
-
     </fragment>
 
-    <LinearLayout
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_my_location_black_24dp"
+        app:elevation="4dp"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"/>
+
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom">
+        android:layout_alignParentBottom="true">
 
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/button_clear"
-            android:layout_weight="1"
+        <LinearLayout
+            android:id="@+id/buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Clear map"/>
+            android:orientation="horizontal">
 
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/button_ruian"
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="RUIAN"/>
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/button_clear"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Clear map"/>
 
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/button_doubleshot"
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Double Shot"/>
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/button_ruian"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="RUIAN"/>
 
-    </LinearLayout>
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/button_doubleshot"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Double Shot"/>
 
-</FrameLayout>
+        </LinearLayout>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+</RelativeLayout>
 
 
