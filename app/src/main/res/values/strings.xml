@@ -1,6 +1,22 @@
 <resources>
+
     <string name="app_name">Linked Data Map</string>
-    <string name="title_activity_maps">Linked Data Map</string>
-    <string name="shops"></string>
+
+    <string name="title_activity_maps">Linked Data Map 0.4</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string-array name="pref_cache_list_titles">
+        <item>Use only offline cache</item>
+        <item>Prefer offline cache</item>
+        <item>Prefer online data</item>
+        <item>Use only online data</item>
+    </string-array>
+    <string-array name="pref_cache_list_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
 </resources>
 

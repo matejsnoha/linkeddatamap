@@ -10,6 +10,9 @@ import android.support.design.widget.Snackbar;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -33,7 +36,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MapsActivity extends ActionBarActivity
+        implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private static final int POSITION_TRACKING_FREQUENCY = 1000;
     private static final int CAMERA_TRACKING_FREQUENCY = 3000;
@@ -65,8 +70,9 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(true);
-            actionBar.setIcon(R.mipmap.ic_launcher);
+            //actionBar.setDisplayShowHomeEnabled(true);
+            //actionBar.setIcon(R.drawable.ic_map_white_24dp);
+            //actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
         apiClient = new GoogleApiClient.Builder(this)
@@ -87,7 +93,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                 Location location = getCurrentLocation();
                 if (location != null) {
 
-                    if (map.getCameraPosition().zoom <= 10) {
+                    if (map.getCameraPosition().zoom <= 12) {
                         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
                                 new LatLng(location.getLatitude(), location.getLongitude()), 16));
                     } else {
@@ -95,7 +101,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                                 new LatLng(location.getLatitude(), location.getLongitude())));
                     }
                 } else {
-                    Snackbar.make(getCoordinatorView(), "Location not available", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(getSnackView(), "Location not available", Snackbar.LENGTH_LONG).show();
                 }
             }
         });
@@ -143,23 +149,63 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         findViewById(R.id.button_clear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MapManager.setLayer(MapManager.LAYER_NONE, cameraPosition);
+                MapManager.setLayers(cameraPosition, MapManager.LAYER_NONE);
             }
         });
 
-        findViewById(R.id.button_ruian).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button_layers).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MapManager.setLayer(MapManager.LAYER_RUIAN, cameraPosition);
+
+                new MaterialDialog.Builder(MapsActivity.this)
+                        .title("Choose layers")
+                        .items("RUIAN", "Double Shot", "Custom 1", "Custom 2")
+                        .itemsCallbackMultiChoice(MapManager.getLayers().toArray(new Integer[0]),
+                                new MaterialDialog.ListCallbackMultiChoice() {
+
+                            @Override
+                            public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
+
+                                // items in dialog have the same indexes as ints representing layers
+                                MapManager.setLayers(cameraPosition, which);
+                                return true;
+                            }
+                        })
+                        .positiveText("OK")
+                        .neutralText("Cancel")
+                        .show();
+
             }
         });
 
-        findViewById(R.id.button_doubleshot).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button_nearby).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MapManager.setLayer(MapManager.LAYER_DOUBLE_SHOT, cameraPosition);
+                Snackbar.make(getSnackView(), "Not implemented yet", Snackbar.LENGTH_LONG).show();
             }
         });
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                MapManager.setLayers(cameraPosition, MapManager.getLayers());
+                return true;
+            case R.id.settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -171,6 +217,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         try {
             map.setMyLocationEnabled(true);
         } catch (SecurityException e) {
+            Snackbar.make(getSnackView(), "Missing location permission", Snackbar.LENGTH_LONG).show();
         }
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -229,7 +276,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             public void run() {
                 if (!ObjectUtils.equals(lastPosition, cameraPosition)) {
                     lastPosition = cameraPosition;
-                    MapManager.updateLayer(cameraPosition);
+                    MapManager.updateLayers(cameraPosition);
                 }
             }
         }, 0, CAMERA_TRACKING_FREQUENCY);
@@ -239,18 +286,19 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         try {
             return LocationServices.FusedLocationApi.getLastLocation(apiClient);
         } catch (SecurityException e) {
-            Snackbar.make(getCoordinatorView(), "Missing location permission", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getSnackView(), "Missing location permission", Snackbar.LENGTH_LONG).show();
             return null;
         }
     }
 
-    private View getCoordinatorView() {
+    private View getSnackView() {
         return findViewById(R.id.buttons); //getWindow().getDecorView().getRootView();
     }
 
     @Override
     public void onConnected(Bundle bundle) {
-        // Snackbar.make(getCoordinatorView(), "Google APIs connected", Snackbar.LENGTH_LONG).show();
+
+        //Snackbar.make(getSnackView(), "Google APIs connected", Snackbar.LENGTH_LONG).show();
 
         LocationRequest request = new LocationRequest();
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -263,16 +311,17 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                 }
             }, Looper.getMainLooper());
         } catch (SecurityException e) {
+            Snackbar.make(getSnackView(), "Missing location permission", Snackbar.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Snackbar.make(getCoordinatorView(), "Google APIs disconnected", Snackbar.LENGTH_LONG).show();
+        Snackbar.make(getSnackView(), "Google APIs disconnected", Snackbar.LENGTH_LONG).show();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Snackbar.make(getCoordinatorView(), "Google APIs failed to connect", Snackbar.LENGTH_LONG).show();
+        Snackbar.make(getSnackView(), "Google APIs failed to connect", Snackbar.LENGTH_LONG).show();
     }
 }

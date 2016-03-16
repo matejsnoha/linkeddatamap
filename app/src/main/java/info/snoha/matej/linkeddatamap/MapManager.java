@@ -1,6 +1,7 @@
 package info.snoha.matej.linkeddatamap;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -10,6 +11,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
+import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -22,9 +24,11 @@ import java.util.List;
 
 public class MapManager {
 
-    public static final int LAYER_NONE = 0;
-    public static final int LAYER_RUIAN = 1;
-    public static final int LAYER_DOUBLE_SHOT = 2;
+    public static final int LAYER_NONE = -1;
+    public static final int LAYER_RUIAN = 0;
+    public static final int LAYER_DOUBLE_SHOT = 1;
+    public static final int LAYER_CUSTOM_1 = 2;
+    public static final int LAYER_CUSTOM_2 = 3;
 
     public static final int MARKER_DISTANCE_SCREENS = 1; // number of screens away from center
     public static final int MARKER_MIN_DISTANCE_METERS = 100; // always show markers this far
@@ -33,18 +37,27 @@ public class MapManager {
     private static Context context;
     private static GoogleMap map;
 
-    private static int layer;
+    private static volatile List<Integer> layers = Collections.emptyList();
 
-    private static List<MarkerModel> allMarkers;
-    private static TileProvider heatmapTileProvider;
-    private static boolean heatmapMode;
+    private static volatile List<MarkerModel> allMarkers;
+
+    private static volatile TileProvider heatmapTileProvider;
+    private static volatile boolean heatmapMode;
 
     public static void with(Context context, GoogleMap map) {
         MapManager.context = context;
         MapManager.map = map;
     }
 
-    public static void setLayer(int layer, final CameraPosition position) {
+    public static List<Integer> getLayers() {
+        return layers;
+    }
+
+    public static void setLayers(final CameraPosition position, List<Integer> layers) {
+        setLayers(position, layers.toArray(new Integer[0]));
+    }
+
+    public static void setLayers(final CameraPosition position, final Integer... layers) {
 
         final MaterialDialog progressDialog = new MaterialDialog.Builder(context)
                 .title("Please wait ...")
@@ -53,67 +66,81 @@ public class MapManager {
                 .show();
 
         map.clear();
-        MapManager.layer = layer;
-        allMarkers = Collections.emptyList();
 
-        switch (layer) {
-            case LAYER_NONE:
-                progressDialog.hide();
-                break;
-            case LAYER_RUIAN:
-                progressDialog.show();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setMarkers(MapManager.getRuianMarkers());
-                        updateLayer(position, new Runnable() {
-                            @Override
-                            public void run() {
-                                progressDialog.hide();
-                            }
-                        });
-                    }
-                }).start();
-                break;
-            case LAYER_DOUBLE_SHOT:
-                progressDialog.show();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setMarkers(MapManager.getDoubleShotMarkers());
-                        updateLayer(position, new Runnable() {
-                            @Override
-                            public void run() {
-                                progressDialog.hide();
-                            }
-                        });
-                    }
-                }).start();
-                break;
+        final List<MarkerModel> newMarkers = new ArrayList<>();
+        final List<Integer> newLayers = new ArrayList<>();
+
+        if (layers.length == 0 || (layers.length == 1 && layers[0] == LAYER_NONE)) {
+            MapManager.layers = newLayers;
+            setMarkers(newMarkers);
+            progressDialog.hide();
+            return;
         }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                List<Integer> newLayers = new ArrayList<>();
+
+                for (int layer : layers) {
+                    switch (layer) {
+                        case LAYER_RUIAN:
+                            newLayers.add(layer);
+                            newMarkers.addAll(MapManager.getRuianMarkers());
+                            break;
+                        case LAYER_DOUBLE_SHOT:
+                            newLayers.add(layer);
+                            newMarkers.addAll(MapManager.getDoubleShotMarkers());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                MapManager.layers = newLayers;
+                setMarkers(newMarkers);
+                updateLayers(position, new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.hide();
+                    }
+                });
+
+            }
+        }).start();
     }
 
     private static void setMarkers(List<MarkerModel> markers) {
 
         allMarkers = markers;
 
-        heatmapTileProvider = new HeatmapTileProvider.Builder()
-                .data(CollectionUtils.collect(allMarkers, new Transformer<MarkerModel, LatLng>() {
-                    @Override
-                    public LatLng transform(MarkerModel input) {
-                        return new LatLng(
-                                input.getPosition().getLatitude(),
-                                input.getPosition().getLongitude());
-                    }
-                }))
-                .build();
+        if (markers.size() > 0) {
+            heatmapMode = false;
+            heatmapTileProvider = new HeatmapTileProvider.Builder()
+                    .data(CollectionUtils.collect(allMarkers, new Transformer<MarkerModel, LatLng>() {
+                        @Override
+                        public LatLng transform(MarkerModel input) {
+                            return new LatLng(
+                                    input.getPosition().getLatitude(),
+                                    input.getPosition().getLongitude());
+                        }
+                    }))
+                    .opacity(0.5)
+                    .gradient(new Gradient(
+                            new int[] {
+                                context.getResources().getColor(R.color.primaryDark)},
+                            new float[]{
+                                0.01f}))
+                    .build();
+        }
     }
 
-    public static void updateLayer(CameraPosition position) {
-        updateLayer(position, null);
+    public static void updateLayers(CameraPosition position) {
+        updateLayers(position, null);
     }
 
-    public static void updateLayer(CameraPosition position, Runnable callback) {
+    public static void updateLayers(CameraPosition position, Runnable callback) {
 
         final List<MarkerModel> filteredMarkers = getClosestMarkers(allMarkers, position);
 
@@ -165,7 +192,7 @@ public class MapManager {
                 filtered.add(marker);
         }
 
-        Log.i("Map layer " + layer, "Showing " + filtered.size() + " markers up to "
+        Log.i("Map layers " + layers, "Showing " + filtered.size() + " markers up to "
                 + new DecimalFormat("#.#").format(range / 1000f) + "km away from " + center);
 
         return filtered;
