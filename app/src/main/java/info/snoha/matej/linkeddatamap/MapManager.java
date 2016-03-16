@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class MapManager {
 
@@ -211,9 +212,11 @@ public class MapManager {
     public static List<MarkerModel> getRuianMarkers() {
 
         List<MarkerModel> markers = new ArrayList<>();
+        Map<String, String> map = Ruian.getPlaceToObjectMapping(context);
         for (Ruian.SimplePlace place : Ruian.getPlaces(context)) {
             markers.add(new MarkerModel(new Position(place.latitude, place.longitude),
-                    place.name, place.address));
+                    place.name, place.address
+                    + "\n\nPlace: <" + map.get(place.url) + ">"));
         }
         return markers;
     }
