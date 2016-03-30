@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "24 rc1"
+    buildToolsVersion "24 rc2"
 
     defaultConfig {
         applicationId "info.snoha.matej.linkeddatamap"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 4
-        versionName "0.4"
+        versionCode 5
+        versionName "0.5"
         //multiDexEnabled true
     }
 
@@ -20,8 +20,8 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // minifyEnabled true
+            // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled true
@@ -40,11 +40,12 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    //testCompile 'junit:junit:4.12'
     //compile 'org.apache.jena:jena:+'
-    compile('com.github.afollestad.material-dialogs:core:0.8.5.6@aar') { transitive = true }
+    compile 'com.squareup.okhttp3:okhttp:+'
+    compile('com.github.afollestad.material-dialogs:core:0.8.5.6@aar') { transitive = true } // 0.8.5.7 crashes on API 19
     compile 'com.android.support:appcompat-v7:+'
-    compile 'com.google.android.gms:play-services:+'
+    compile 'com.google.android.gms:play-services-maps:+'
+    compile 'com.google.android.gms:play-services-location:+'
     compile 'com.google.maps.android:android-maps-utils:+'
     compile 'com.android.support:design:+'
     compile 'com.google.code.gson:gson:+'

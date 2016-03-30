@@ -1,0 +1,170 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="pref_layer_1"
+        android:title="Layer 1"
+        android:enabled="false">
+
+        <CheckBoxPreference
+            android:key="pref_layer_1_enabled"
+            android:defaultValue="true"
+            android:title="Enabled" />
+
+        <EditTextPreference
+            android:key="pref_layer_1_name"
+            android:defaultValue="RUIAN"
+            android:inputType="textCapWords"
+            android:title="Name" />
+
+        <EditTextPreference
+            android:key="pref_layer_1_endpoint"
+            android:defaultValue="https://matej.snoha.info/dp/sparql"
+            android:inputType="textUri"
+            android:title="Endpoint" />
+
+        <EditTextPreference
+            android:key="pref_layer_1_query"
+            android:defaultValue=""
+            android:inputType="textMultiLine"
+            android:title="Query" />
+
+        <Preference
+            android:key="pref_layer_1_test"
+            android:title="Test" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_layer_2"
+        android:title="Layer 2"
+        android:enabled="false">
+
+        <CheckBoxPreference
+            android:key="pref_layer_2_enabled"
+            android:defaultValue="true"
+            android:title="Enabled" />
+
+        <EditTextPreference
+            android:key="pref_layer_2_name"
+            android:defaultValue="Double Shot"
+            android:inputType="textCapWords"
+            android:title="Name" />
+
+        <EditTextPreference
+            android:key="pref_layer_2_endpoint"
+            android:defaultValue="https://matej.snoha.info/dp/sparql"
+            android:inputType="textUri"
+            android:title="Endpoint" />
+
+        <EditTextPreference
+            android:key="pref_layer_2_query"
+            android:defaultValue=""
+            android:inputType="textMultiLine"
+            android:title="Query" />
+
+        <Preference
+            android:key="pref_layer_2_test"
+            android:title="Test" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_layer_3"
+        android:title="Layer 3">
+
+        <CheckBoxPreference
+            android:key="pref_layer_3_enabled"
+            android:defaultValue="true"
+            android:title="Enabled" />
+
+        <EditTextPreference
+            android:key="pref_layer_3_name"
+            android:defaultValue="Layer 3"
+            android:inputType="textCapWords"
+            android:title="Name" />
+
+        <EditTextPreference
+            android:key="pref_layer_3_endpoint"
+            android:defaultValue="https://matej.snoha.info/dp/sparql"
+            android:inputType="textUri"
+            android:title="Endpoint" />
+
+        <EditTextPreference
+            android:key="pref_layer_3_query"
+            android:defaultValue=""
+            android:inputType="textMultiLine"
+            android:title="Query" />
+
+        <Preference
+            android:key="pref_layer_3_test"
+            android:title="Test" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_layer_4"
+        android:title="Layer 4">
+
+        <CheckBoxPreference
+            android:key="pref_layer_4_enabled"
+            android:defaultValue="false"
+            android:title="Enabled" />
+
+        <EditTextPreference
+            android:key="pref_layer_4_name"
+            android:defaultValue="Layer 4"
+            android:inputType="textCapWords"
+            android:title="Name" />
+
+        <EditTextPreference
+            android:key="pref_layer_4_endpoint"
+            android:defaultValue="http://"
+            android:inputType="textUri"
+            android:title="Endpoint" />
+
+        <EditTextPreference
+            android:key="pref_layer_4_query"
+            android:defaultValue=""
+            android:inputType="textMultiLine"
+            android:title="Query" />
+
+        <Preference
+            android:key="pref_layer_4_test"
+            android:title="Test" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_layer_5"
+        android:title="Layer 5">
+
+        <CheckBoxPreference
+            android:key="pref_layer_5_enabled"
+            android:defaultValue="false"
+            android:title="Enabled" />
+
+        <EditTextPreference
+            android:key="pref_layer_5_name"
+            android:defaultValue="Layer 5"
+            android:inputType="textCapWords"
+            android:title="Name" />
+
+        <EditTextPreference
+            android:key="pref_layer_5_endpoint"
+            android:defaultValue="http://"
+            android:inputType="textUri"
+            android:title="Endpoint" />
+
+        <EditTextPreference
+            android:key="pref_layer_5_query"
+            android:defaultValue=""
+            android:inputType="textMultiLine"
+            android:title="Query" />
+
+        <Preference
+            android:key="pref_layer_5_test"
+            android:title="Test" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

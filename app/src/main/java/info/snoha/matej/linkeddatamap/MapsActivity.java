@@ -1,6 +1,7 @@
 package info.snoha.matej.linkeddatamap;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Looper;
@@ -10,6 +11,7 @@ import android.support.design.widget.Snackbar;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -74,6 +76,8 @@ public class MapsActivity extends ActionBarActivity
             //actionBar.setIcon(R.drawable.ic_map_white_24dp);
             //actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        actionBar.setTitle(getTitle() + " " + Utils.getVersion(this));
 
         apiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -146,20 +150,22 @@ public class MapsActivity extends ActionBarActivity
             }
         });
 
+        ((AppCompatButton) findViewById(R.id.button_clear)).setTextColor(Color.BLACK); // < API21
         findViewById(R.id.button_clear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MapManager.setLayers(cameraPosition, MapManager.LAYER_NONE);
+                MapManager.setLayers(cameraPosition, LayerManager.LAYER_NONE);
             }
         });
 
+        ((AppCompatButton) findViewById(R.id.button_layers)).setTextColor(Color.BLACK); // < API21
         findViewById(R.id.button_layers).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 new MaterialDialog.Builder(MapsActivity.this)
                         .title("Choose layers")
-                        .items("RUIAN", "Double Shot", "Custom 1", "Custom 2")
+                        .items(LayerManager.getLayerNames(true))
                         .itemsCallbackMultiChoice(MapManager.getLayers().toArray(new Integer[0]),
                                 new MaterialDialog.ListCallbackMultiChoice() {
 
@@ -178,13 +184,13 @@ public class MapsActivity extends ActionBarActivity
             }
         });
 
+        ((AppCompatButton) findViewById(R.id.button_nearby)).setTextColor(Color.BLACK); // < API21
         findViewById(R.id.button_nearby).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Snackbar.make(getSnackView(), "Not implemented yet", Snackbar.LENGTH_LONG).show();
             }
         });
-
     }
 
     @Override
@@ -265,6 +271,7 @@ public class MapsActivity extends ActionBarActivity
         LatLng mapCenter = new LatLng(50.0819015, 14.4326654);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(mapCenter, 6));
 
+        LayerManager.with(this);
         MapManager.with(this, map);
 
         cameraTrackingTimer = new Timer("Camera Tracking Timer");

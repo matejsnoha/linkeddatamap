@@ -2,7 +2,7 @@
 
     <string name="app_name">Linked Data Map</string>
 
-    <string name="title_activity_maps">Linked Data Map 0.4</string>
+    <string name="title_activity_maps">Linked Data Map</string>
     <string name="title_activity_settings">Settings</string>
 
     <string-array name="pref_cache_list_titles">

@@ -1,7 +1,6 @@
 package info.snoha.matej.linkeddatamap;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -21,15 +20,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class MapManager {
-
-    public static final int LAYER_NONE = -1;
-    public static final int LAYER_RUIAN = 0;
-    public static final int LAYER_DOUBLE_SHOT = 1;
-    public static final int LAYER_CUSTOM_1 = 2;
-    public static final int LAYER_CUSTOM_2 = 3;
 
     public static final int MARKER_DISTANCE_SCREENS = 1; // number of screens away from center
     public static final int MARKER_MIN_DISTANCE_METERS = 100; // always show markers this far
@@ -64,6 +56,7 @@ public class MapManager {
                 .title("Please wait ...")
                 .progress(true, 0)
                 .progressIndeterminateStyle(true)
+                .cancelable(false)
                 .show();
 
         map.clear();
@@ -71,7 +64,7 @@ public class MapManager {
         final List<MarkerModel> newMarkers = new ArrayList<>();
         final List<Integer> newLayers = new ArrayList<>();
 
-        if (layers.length == 0 || (layers.length == 1 && layers[0] == LAYER_NONE)) {
+        if (layers.length == 0 || (layers.length == 1 && layers[0] == LayerManager.LAYER_NONE)) {
             MapManager.layers = newLayers;
             setMarkers(newMarkers);
             progressDialog.hide();
@@ -85,18 +78,8 @@ public class MapManager {
                 List<Integer> newLayers = new ArrayList<>();
 
                 for (int layer : layers) {
-                    switch (layer) {
-                        case LAYER_RUIAN:
-                            newLayers.add(layer);
-                            newMarkers.addAll(MapManager.getRuianMarkers());
-                            break;
-                        case LAYER_DOUBLE_SHOT:
-                            newLayers.add(layer);
-                            newMarkers.addAll(MapManager.getDoubleShotMarkers());
-                            break;
-                        default:
-                            break;
-                    }
+                    newLayers.add(layer);
+                    newMarkers.addAll(LayerManager.getMarkers(layer));
                 }
 
                 MapManager.layers = newLayers;
@@ -197,28 +180,6 @@ public class MapManager {
                 + new DecimalFormat("#.#").format(range / 1000f) + "km away from " + center);
 
         return filtered;
-    }
-
-    public static List<MarkerModel> getDoubleShotMarkers() {
-
-        List<MarkerModel> markers = new ArrayList<>();
-        for (DoubleShot.SimplePlace shop : DoubleShot.getPlaces(context)) {
-            markers.add(new MarkerModel(new Position(shop.latitude, shop.longitude),
-                    shop.name, shop.address));
-        }
-        return markers;
-    }
-
-    public static List<MarkerModel> getRuianMarkers() {
-
-        List<MarkerModel> markers = new ArrayList<>();
-        Map<String, String> map = Ruian.getPlaceToObjectMapping(context);
-        for (Ruian.SimplePlace place : Ruian.getPlaces(context)) {
-            markers.add(new MarkerModel(new Position(place.latitude, place.longitude),
-                    place.name, place.address
-                    + "\n\nPlace: <" + map.get(place.url) + ">"));
-        }
-        return markers;
     }
 
     private static Position toPosition(CameraPosition cameraPosition) {

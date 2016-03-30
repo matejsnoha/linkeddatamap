@@ -1,18 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <EditTextPreference
-        android:defaultValue="http://ruian.linked.opendata.cz/sparql"
-        android:inputType="textUri"
-        android:key="endpoint"
-        android:title="SPARQL Endpoint" />
-
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="multiple_layers"
-        android:summary="Allow more than one layer to be shown at once"
-        android:title="Multiple layers" />
-
     <ListPreference
+        android:enabled="false"
         android:defaultValue="2"
         android:entries="@array/pref_cache_list_titles"
         android:entryValues="@array/pref_cache_list_values"
