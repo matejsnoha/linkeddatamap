@@ -32,13 +32,19 @@ public class Utils {
         }
     }
 
-    public static String getPreferenceValue(Context context, String key) {
+    public static Boolean getBooleanPreferenceValue(Context context, String key) {
+        return PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getBoolean(key, false);
+    }
+
+    public static String getStringPreferenceValue(Context context, String key) {
         return PreferenceManager
                 .getDefaultSharedPreferences(context)
                 .getString(key, "");
     }
 
-    public static String getPreferenceValue(Preference preference) {
+    public static String getStringPreferenceValue(Preference preference) {
         return PreferenceManager
                 .getDefaultSharedPreferences(preference.getContext())
                 .getString(preference.getKey(), "");

@@ -35,6 +35,8 @@ import com.google.android.gms.maps.model.Marker;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -163,17 +165,35 @@ public class MapsActivity extends ActionBarActivity
             @Override
             public void onClick(View v) {
 
+                if (LayerManager.getLayerIDs(true).size() == 0) {
+                    Snackbar.make(getSnackView(), "No layers.\n" +
+                            "Please open Settings --> Layers to load defaults",
+                            Snackbar.LENGTH_LONG).show();
+                    return;
+                }
+
+                List<String> enabledLayerNames = LayerManager.getLayerNames(true);
+                List<Integer> selectedLayerDialogIndexes = new ArrayList<>();
+                for (int layerID : MapManager.getLayers()) {
+                    selectedLayerDialogIndexes.add(enabledLayerNames.indexOf(
+                            LayerManager.getLayerName(layerID)
+                    ));
+                }
+
                 new MaterialDialog.Builder(MapsActivity.this)
                         .title("Choose layers")
-                        .items(LayerManager.getLayerNames(true))
-                        .itemsCallbackMultiChoice(MapManager.getLayers().toArray(new Integer[0]),
+                        .items(enabledLayerNames)
+                        .itemsCallbackMultiChoice(selectedLayerDialogIndexes.toArray(new Integer[0]),
                                 new MaterialDialog.ListCallbackMultiChoice() {
 
                             @Override
                             public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
 
-                                // items in dialog have the same indexes as ints representing layers
-                                MapManager.setLayers(cameraPosition, which);
+                                List<String> layerNames = new ArrayList<>(text.length);
+                                for (CharSequence name : text) {
+                                    layerNames.add(name.toString());
+                                }
+                                MapManager.setLayers(cameraPosition, LayerManager.getLayerIDs(layerNames));
                                 return true;
                             }
                         })

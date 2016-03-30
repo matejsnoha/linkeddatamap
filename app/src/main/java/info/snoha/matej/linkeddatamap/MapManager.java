@@ -50,7 +50,12 @@ public class MapManager {
         setLayers(position, layers.toArray(new Integer[0]));
     }
 
-    public static void setLayers(final CameraPosition position, final Integer... layers) {
+    public static void setLayers(final CameraPosition position, final String... layerNames) {
+        List<Integer> layerIDs = new ArrayList<>();
+
+    }
+
+    public static void setLayers(final CameraPosition position, final Integer... layerIDs) {
 
         final MaterialDialog progressDialog = new MaterialDialog.Builder(context)
                 .title("Please wait ...")
@@ -64,7 +69,7 @@ public class MapManager {
         final List<MarkerModel> newMarkers = new ArrayList<>();
         final List<Integer> newLayers = new ArrayList<>();
 
-        if (layers.length == 0 || (layers.length == 1 && layers[0] == LayerManager.LAYER_NONE)) {
+        if (layerIDs.length == 0 || (layerIDs.length == 1 && layerIDs[0] == LayerManager.LAYER_NONE)) {
             MapManager.layers = newLayers;
             setMarkers(newMarkers);
             progressDialog.hide();
@@ -77,7 +82,7 @@ public class MapManager {
 
                 List<Integer> newLayers = new ArrayList<>();
 
-                for (int layer : layers) {
+                for (int layer : layerIDs) {
                     newLayers.add(layer);
                     newMarkers.addAll(LayerManager.getMarkers(layer));
                 }

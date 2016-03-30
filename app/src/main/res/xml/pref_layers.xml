@@ -91,7 +91,7 @@
 
         <EditTextPreference
             android:key="pref_layer_3_query"
-            android:defaultValue=""
+            android:defaultValue="@string/ruian_live_query"
             android:inputType="textMultiLine"
             android:title="Query" />
 

@@ -4,23 +4,17 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
-import android.util.Base64;
 import android.view.MenuItem;
-import android.webkit.WebView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 
@@ -105,7 +99,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         // Trigger the listener immediately with the preference's
         // current value.
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                Utils.getPreferenceValue(preference.getContext(), preference.getKey()));
+                Utils.getStringPreferenceValue(preference.getContext(), preference.getKey()));
     }
 
     @Override
@@ -189,8 +183,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static class LayerPreferenceFragment extends PreferenceFragment {
 
-
-
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -208,88 +200,40 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 final Preference queryPreference = findPreference("pref_layer_" + i + "_query");
                 bindPreferenceSummaryToValue(queryPreference);
 
+                final int fi = i;
                 findPreference("pref_layer_" + i + "_test").setOnPreferenceClickListener(
 
-                        new Preference.OnPreferenceClickListener() {
-                            @Override
-                            public boolean onPreferenceClick(Preference preference) {
+                    new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
 
-                                try {
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
 
-                                    final String url = Utils.getPreferenceValue(endpointPreference).trim();
-
-                                    if (url.isEmpty() || url.equals("http://")) {
-                                        Snackbar.make(LayerPreferenceFragment.this.getView(),
-                                                "Invalid endpoint URL", Snackbar.LENGTH_LONG).show();
-                                        return true;
-                                    }
-
-                                    String queryPreferenceValue = Utils.getPreferenceValue(queryPreference).trim();
-                                    if (queryPreferenceValue.isEmpty()) {
-                                        Snackbar.make(LayerPreferenceFragment.this.getView(),
-                                                "Invalid query", Snackbar.LENGTH_LONG).show();
-                                        return true;
-                                    }
-
-                                    final String postBody = queryPreferenceValue
-                                            + (queryPreferenceValue.toLowerCase(Locale.US).contains("limit") ?
-                                                "" : "\nLIMIT 100");
-
-                                    Snackbar.make(getView(), "Wait please", Snackbar.LENGTH_LONG).show();
-
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-
-                                            try {
-
-                                                OkHttpClient client = new OkHttpClient();
-
-                                                RequestBody body = RequestBody.create(
-                                                        MediaType.parse("application/sparql-query; charset=utf-8"),
-                                                        postBody);
-                                                Request request = new Request.Builder()
-                                                        .url(url)
-                                                        .addHeader("Accept", "text/csv; charset=utf-8")
-                                                        .post(body)
-                                                        .build();
-                                                final Response response = client.newCall(request).execute();
-                                                final String content = response.body().string().replace("\n", "\n\n");
+                                    SparqlClient.getLayer(getActivity(), fi, true,
+                                        new SparqlClient.StringResultCallback() {
+                                            @Override
+                                            public void run(final String result) {
 
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
-
                                                         new MaterialDialog.Builder(getActivity())
-                                                                .title(Utils.getPreferenceValue(namePreference))
-                                                                .content(content)
+                                                                .title(Utils.getStringPreferenceValue(namePreference))
+                                                                .content(result)
                                                                 .positiveText("Back")
                                                                 .show();
                                                     }
                                                 });
-
-                                            } catch (final Exception e) {
-
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-
-                                                        Snackbar.make(getView(), e.toString() + ": " +
-                                                                e.getMessage(), Snackbar.LENGTH_LONG).show();
-                                                    }
-                                                });
                                             }
                                         }
-                                    }).start();
-                                    return true;
-
-                                } catch (Exception e) {
-                                    Snackbar.make(getView(), e.toString() + ": " +
-                                            e.getMessage(), Snackbar.LENGTH_LONG).show();
-                                    return true;
+                                    );
                                 }
-                            }
+                            }).start();
+                            return true;
                         }
+                    }
                 );
             }
         }

@@ -18,5 +18,58 @@
         <item>4</item>
     </string-array>
 
+<string name="ruian_live_query"><![CDATA[
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>\n
+PREFIX s: <http://schema.org/>\n
+PREFIX gml: <http://www.opengis.net/ont/gml#>\n
+PREFIX ruian-o: <http://ruian.linked.opendata.cz/ontology/>\n
+PREFIX ruian-r: <http://ruian.linked.opendata.cz/resource/>\n
+\n
+SELECT\n
+  ?latitude\n
+  ?longitude\n
+  ?address\n
+  ?description\n
+\n
+FROM <http://ruian>\n
+\n
+WHERE {\n
+\n
+  ?addrPlace a ruian-o:AdresniMisto ;\n
+         ruian-o:adresniBod ?point ;\n
+         ruian-o:ulice ?street ;\n
+         ruian-o:cisloDomovni ?streetNumberFullStr ;\n
+         ruian-o:cisloOrientacni ?streetNumberShortStr ;\n
+         ruian-o:ulice ?street ;\n
+         ruian-o:stavebniObjekt ?place .\n
+\n
+  BIND (xsd:integer(?streetNumberFullStr) AS ?streetNumberFull) .\n
+  BIND (xsd:integer(?streetNumberShortStr) AS ?streetNumberShort) .\n
+\n
+  ?street s:name ?streetName .\n
+\n
+  BIND (CONCAT(STR(?streetName), \" \", STR(?streetNumberFull), \"/\", STR(?streetNumberShort)) AS ?address) .\n
+\n
+  ?place a ruian-o:StavebniObjekt ;\n
+         ruian-o:castObce ?townSection ;\n
+         ruian-o:pocetBytu ?flatsStr ;\n
+         ruian-o:pocetPodlazi ?floorsStr .\n
+\n
+  BIND (xsd:integer(?flatsStr) AS ?flats) .\n
+  BIND (xsd:integer(?floorsStr) AS ?floors) .\n
+\n
+  ?townSection ruian-o:obec <http://ruian.linked.opendata.cz/resource/obce/554782> . # Praha\n
+\n
+  ?point a      gml:Point ;\n
+         s:geo  ?geo .\n
+  ?geo s:latitude ?lat ; s:longitude ?long .\n
+\n
+  BIND (xsd:float(?lat) AS ?latitude) .\n
+  BIND (xsd:float(?long) AS ?longitude) .\n
+\n
+  BIND (CONCAT(STR(?flats), \" flats, \", STR(?floors), \" floors, <\", STR(?addrPlace), \">\") AS ?description) .\n
+}\n
+]]></string>
+
 </resources>
 

@@ -29,6 +29,11 @@ public class Position {
         this.longitude = longitude;
     }
 
+    public Position(String latitude, String longitude) {
+        this.latitude = Double.valueOf(latitude);
+        this.longitude = Double.valueOf(longitude);
+    }
+
     public Position() {
         this.latitude = Double.NaN;
         this.longitude = Double.NaN;
