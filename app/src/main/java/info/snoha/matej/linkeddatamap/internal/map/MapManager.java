@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap;
+package info.snoha.matej.linkeddatamap.internal.map;
 
 import android.content.Context;
 import android.util.Log;
@@ -20,6 +20,12 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import info.snoha.matej.linkeddatamap.internal.model.MarkerModel;
+import info.snoha.matej.linkeddatamap.internal.model.Position;
+import info.snoha.matej.linkeddatamap.R;
+import info.snoha.matej.linkeddatamap.gui.utils.UI;
+import info.snoha.matej.linkeddatamap.internal.utils.Utils;
 
 public class MapManager {
 
@@ -136,7 +142,7 @@ public class MapManager {
         if (filteredMarkers.size() <= MARKER_MAX_DISPLAY_COUNT) {
 
             heatmapMode = false;
-            Utils.runOnUIThread(new Runnable() {
+            UI.run(new Runnable() {
                 @Override
                 public void run() {
                     map.clear();
@@ -153,7 +159,7 @@ public class MapManager {
         } else if (!heatmapMode) {
 
             heatmapMode = true;
-            Utils.runOnUIThread(new Runnable() {
+            UI.run(new Runnable() {
                 @Override
                 public void run() {
                     map.clear();
@@ -163,7 +169,7 @@ public class MapManager {
         } // else do nothing, heatmap persists on camera change
 
         if (callback != null)
-            Utils.runOnUIThread(callback);
+            UI.run(callback);
     }
 
     public static List<MarkerModel> getClosestMarkers(List<MarkerModel> allMarkers, CameraPosition position) {

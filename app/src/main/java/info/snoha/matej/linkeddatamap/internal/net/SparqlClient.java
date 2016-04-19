@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap;
+package info.snoha.matej.linkeddatamap.internal.net;
 
 import android.app.Activity;
 import android.support.design.widget.Snackbar;
@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
+import info.snoha.matej.linkeddatamap.internal.utils.Utils;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -56,7 +58,10 @@ public class SparqlClient {
 
         try {
 
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(5, TimeUnit.SECONDS)
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .build();
 
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/sparql-query; charset=utf-8"),

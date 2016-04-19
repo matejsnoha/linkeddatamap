@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap;
+package info.snoha.matej.linkeddatamap.internal.model;
 
 import android.content.Context;
 
@@ -10,14 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import info.snoha.matej.linkeddatamap.R;
+
 public class Ruian {
 
     public static class SimplePlace {
-        String name;
-        String address;
-        Double latitude;
-        Double longitude;
-        String url;
+        public String name;
+        public String address;
+        public Double latitude;
+        public Double longitude;
+        public String url;
 
         public SimplePlace(String url, String name, String address, Double latitude, Double longitude) {
             this.name = name;

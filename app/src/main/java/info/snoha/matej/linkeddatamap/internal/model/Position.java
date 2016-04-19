@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap;
+package info.snoha.matej.linkeddatamap.internal.model;
 
 /**
  * Geographic position in latitude / longitude format.

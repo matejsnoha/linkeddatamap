@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap;
+package info.snoha.matej.linkeddatamap.internal.map;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,6 +7,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import info.snoha.matej.linkeddatamap.internal.model.MarkerModel;
+import info.snoha.matej.linkeddatamap.internal.model.Position;
+import info.snoha.matej.linkeddatamap.internal.net.SparqlClient;
+import info.snoha.matej.linkeddatamap.internal.utils.Utils;
+import info.snoha.matej.linkeddatamap.internal.model.DoubleShot;
+import info.snoha.matej.linkeddatamap.internal.model.Ruian;
 
 public class LayerManager {
 

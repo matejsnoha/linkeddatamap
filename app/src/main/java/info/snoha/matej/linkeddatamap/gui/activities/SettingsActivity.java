@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap;
+package info.snoha.matej.linkeddatamap.gui.activities;
 
 import android.app.ActionBar;
 import android.content.Context;
@@ -9,20 +9,17 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.List;
-import java.util.Locale;
 
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import info.snoha.matej.linkeddatamap.R;
+import info.snoha.matej.linkeddatamap.internal.net.SparqlClient;
+import info.snoha.matej.linkeddatamap.internal.utils.Utils;
+import info.snoha.matej.linkeddatamap.internal.map.LayerManager;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On

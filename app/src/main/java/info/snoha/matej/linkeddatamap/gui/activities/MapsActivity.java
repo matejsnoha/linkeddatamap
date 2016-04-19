@@ -1,16 +1,18 @@
-package info.snoha.matej.linkeddatamap;
+package info.snoha.matej.linkeddatamap.gui.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,7 +42,13 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MapsActivity extends ActionBarActivity
+import info.snoha.matej.linkeddatamap.internal.map.LayerManager;
+import info.snoha.matej.linkeddatamap.internal.map.MapManager;
+import info.snoha.matej.linkeddatamap.R;
+import info.snoha.matej.linkeddatamap.gui.utils.UI;
+import info.snoha.matej.linkeddatamap.internal.utils.Utils;
+
+public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
@@ -74,12 +82,11 @@ public class MapsActivity extends ActionBarActivity
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(true);
-            //actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(true);
             //actionBar.setIcon(R.drawable.ic_map_white_24dp);
             //actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(getTitle() + " " + Utils.getVersion(this));
         }
-
-        actionBar.setTitle(getTitle() + " " + Utils.getVersion(this));
 
         apiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -106,8 +113,6 @@ public class MapsActivity extends ActionBarActivity
                         map.animateCamera(CameraUpdateFactory.newLatLng(
                                 new LatLng(location.getLatitude(), location.getLongitude())));
                     }
-                } else {
-                    Snackbar.make(getSnackView(), "Location not available", Snackbar.LENGTH_LONG).show();
                 }
             }
         });
@@ -166,9 +171,8 @@ public class MapsActivity extends ActionBarActivity
             public void onClick(View v) {
 
                 if (LayerManager.getLayerIDs(true).size() == 0) {
-                    Snackbar.make(getSnackView(), "No layers.\n" +
-                            "Please open Settings --> Layers to load defaults",
-                            Snackbar.LENGTH_LONG).show();
+                    UI.message(MapsActivity.this, "No layers.\n" +
+                            "Please open Settings --> Layers to load defaults");
                     return;
                 }
 
@@ -208,7 +212,7 @@ public class MapsActivity extends ActionBarActivity
         findViewById(R.id.button_nearby).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(getSnackView(), "Not implemented yet", Snackbar.LENGTH_LONG).show();
+                UI.message(MapsActivity.this, "Not implemented yet");
             }
         });
     }
@@ -243,7 +247,7 @@ public class MapsActivity extends ActionBarActivity
         try {
             map.setMyLocationEnabled(true);
         } catch (SecurityException e) {
-            Snackbar.make(getSnackView(), "Missing location permission", Snackbar.LENGTH_LONG).show();
+            UI.message(this, "Missing location permission");
         }
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -288,6 +292,7 @@ public class MapsActivity extends ActionBarActivity
             }
         });
 
+        // TODO
         LatLng mapCenter = new LatLng(50.0819015, 14.4326654);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(mapCenter, 6));
 
@@ -311,21 +316,29 @@ public class MapsActivity extends ActionBarActivity
 
     private Location getCurrentLocation() {
         try {
-            return LocationServices.FusedLocationApi.getLastLocation(apiClient);
+            Location location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
+
+            if (location == null && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                throw new SecurityException("Missing location permission");
+            }
+            return location;
+
         } catch (SecurityException e) {
-            Snackbar.make(getSnackView(), "Missing location permission", Snackbar.LENGTH_LONG).show();
+
+            if (hasWindowFocus()) {
+                UI.message(this, "Missing location permission");
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        0);
+            }
             return null;
         }
     }
 
-    private View getSnackView() {
-        return findViewById(R.id.buttons); //getWindow().getDecorView().getRootView();
-    }
-
     @Override
     public void onConnected(Bundle bundle) {
-
-        //Snackbar.make(getSnackView(), "Google APIs connected", Snackbar.LENGTH_LONG).show();
 
         LocationRequest request = new LocationRequest();
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -338,17 +351,17 @@ public class MapsActivity extends ActionBarActivity
                 }
             }, Looper.getMainLooper());
         } catch (SecurityException e) {
-            Snackbar.make(getSnackView(), "Missing location permission", Snackbar.LENGTH_LONG).show();
+            UI.message(this, "Missing location permission");
         }
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Snackbar.make(getSnackView(), "Google APIs disconnected", Snackbar.LENGTH_LONG).show();
+        UI.message(this, "Google APIs disconnected");
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Snackbar.make(getSnackView(), "Google APIs failed to connect", Snackbar.LENGTH_LONG).show();
+        UI.message(this, "Google APIs failed to connect");
     }
 }

@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap;
+package info.snoha.matej.linkeddatamap.internal.model;
 
 import android.content.Context;
 
@@ -12,28 +12,30 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import info.snoha.matej.linkeddatamap.R;
+
 public class DoubleShot {
 
     public static class Shop {
-        Venue venue;
+        public Venue venue;
     }
 
     public static class Venue {
-        String name;
-        Location location;
+        public String name;
+        public Location location;
     }
 
     public static class Location {
-        Double lat;
-        Double lng;
-        String[] formattedAddress;
+        public Double lat;
+        public Double lng;
+        public String[] formattedAddress;
     }
 
     public static class SimplePlace {
-        String name;
-        String address;
-        Double latitude;
-        Double longitude;
+        public String name;
+        public String address;
+        public Double latitude;
+        public Double longitude;
 
         public SimplePlace(String name, String address, Double latitude, Double longitude) {
             this.name = name;

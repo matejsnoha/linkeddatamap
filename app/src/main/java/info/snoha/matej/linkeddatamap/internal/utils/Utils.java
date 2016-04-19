@@ -1,17 +1,17 @@
-package info.snoha.matej.linkeddatamap;
+package info.snoha.matej.linkeddatamap.internal.utils;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 
-public class Utils {
+import org.apache.commons.io.FilenameUtils;
 
-    public static void runOnUIThread(Runnable runnable) {
-        new Handler(Looper.getMainLooper()).post(runnable);
-    }
+import java.io.File;
+import java.io.FileOutputStream;
+
+public class Utils {
 
     public static int dipToPixels(Context context, float dip){
         int dpi = context.getResources().getDisplayMetrics().densityDpi;
@@ -48,5 +48,21 @@ public class Utils {
         return PreferenceManager
                 .getDefaultSharedPreferences(preference.getContext())
                 .getString(preference.getKey(), "");
+    }
+
+    public static FileOutputStream getFileOutputStream(String path) {
+        try {
+            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                File root = Environment.getExternalStorageDirectory();
+                File dir = new File(root.getAbsolutePath() + FilenameUtils.getPathNoEndSeparator(path));
+                dir.mkdirs();
+                File file = new File(dir, FilenameUtils.getName(path));
+                return new FileOutputStream(file);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
