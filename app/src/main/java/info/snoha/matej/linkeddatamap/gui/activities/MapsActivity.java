@@ -221,45 +221,59 @@ public class MapsActivity extends AppCompatActivity
             public void onClick(View v) {
                 //DoubleShot.dump(MapsActivity.this, "LinkedDataMap/doubleshot.nt");
 
-                Location location = getCurrentLocation();
-                if (location == null) {
-                    UI.message(MapsActivity.this, "Unknown location");
-                    return;
-                }
+                UI.message(MapsActivity.this, "Please wait");
 
-                final List<MarkerModel> nearbyMarkers = MapManager.getNearbyMarkers(
-                        new Position(location.getLatitude(), location.getLongitude())
-                );
-                if (nearbyMarkers.isEmpty()) {
-                    UI.message(MapsActivity.this, "Nothing near your location");
-                    return;
-                }
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                new MaterialDialog.Builder(MapsActivity.this)
-                        .title("Near map center")
-                        .items(CollectionUtils.collect(nearbyMarkers,
-                                new Transformer<MarkerModel, String>() {
+                        Location location = getCurrentLocation();
+                        if (location == null) {
+                            UI.message(MapsActivity.this, "Unknown location");
+                            return;
+                        }
+
+                        final List<MarkerModel> nearbyMarkers = MapManager.getNearbyMarkers(
+                                new Position(location.getLatitude(), location.getLongitude())
+                        );
+                        if (nearbyMarkers.isEmpty()) {
+                            UI.message(MapsActivity.this, "Nothing near your location");
+                            return;
+                        }
+
+                        UI.run(new Runnable() {
                             @Override
-                            public String transform(MarkerModel input) {
-                                return input.getName() + "\n" + input.getPosition().toShortString();
-                            }
-                        }))
-                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            public void run() {
 
-                            @Override
-                            public void onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
-                                MarkerModel marker = nearbyMarkers.get(which);
-                                UI.message(MapsActivity.this, "Launching navigation to " + marker.getName());
-                                String uri = String.format(Locale.US,
-                                        "http://maps.google.com/maps?daddr=%f,%f",
-                                        marker.getPosition().getLatitude(),
-                                        marker.getPosition().getLongitude());
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                                startActivity(intent);
+                            new MaterialDialog.Builder(MapsActivity.this)
+                                .title("Near your location")
+                                .items(CollectionUtils.collect(nearbyMarkers,
+                                        new Transformer<MarkerModel, String>() {
+                                            @Override
+                                            public String transform(MarkerModel input) {
+                                                return input.getName() + "\n" + input.getPosition().toShortString();
+                                            }
+                                        }))
+                                .itemsCallback(new MaterialDialog.ListCallback() {
+
+                                    @Override
+                                    public void onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                                        MarkerModel marker = nearbyMarkers.get(which);
+                                        UI.message(MapsActivity.this, "Launching navigation to " + marker.getName());
+                                        String uri = String.format(Locale.US,
+                                                "http://maps.google.com/maps?daddr=%f,%f",
+                                                marker.getPosition().getLatitude(),
+                                                marker.getPosition().getLongitude());
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                        startActivity(intent);
+                                    }
+                                })
+                                .neutralText("Cancel")
+                                .show();
                             }
-                        })
-                        .neutralText("Cancel")
-                        .show();
+                        });
+                    }
+                }, "Nearby places").start();
             }
         });
     }
