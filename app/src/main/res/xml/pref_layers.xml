@@ -2,8 +2,7 @@
 
     <PreferenceCategory
         android:key="pref_layer_1"
-        android:title="Layer 1"
-        android:enabled="false">
+        android:title="Layer 1">
 
         <CheckBoxPreference
             android:key="pref_layer_1_enabled"
@@ -18,13 +17,13 @@
 
         <EditTextPreference
             android:key="pref_layer_1_endpoint"
-            android:defaultValue="https://matej.snoha.info/dp/sparql"
+            android:defaultValue="https://matej.snoha.info/dpm/sparql"
             android:inputType="textUri"
             android:title="Endpoint" />
 
         <EditTextPreference
             android:key="pref_layer_1_query"
-            android:defaultValue=""
+            android:defaultValue="@string/ruian_live_query"
             android:inputType="textMultiLine"
             android:title="Query" />
 
@@ -36,8 +35,7 @@
 
     <PreferenceCategory
         android:key="pref_layer_2"
-        android:title="Layer 2"
-        android:enabled="false">
+        android:title="Layer 2">
 
         <CheckBoxPreference
             android:key="pref_layer_2_enabled"
@@ -52,13 +50,13 @@
 
         <EditTextPreference
             android:key="pref_layer_2_endpoint"
-            android:defaultValue="https://matej.snoha.info/dp/sparql"
+            android:defaultValue="https://matej.snoha.info/dpm/sparql"
             android:inputType="textUri"
             android:title="Endpoint" />
 
         <EditTextPreference
             android:key="pref_layer_2_query"
-            android:defaultValue=""
+            android:defaultValue="@string/doubleshot_live_query"
             android:inputType="textMultiLine"
             android:title="Query" />
 
@@ -74,7 +72,7 @@
 
         <CheckBoxPreference
             android:key="pref_layer_3_enabled"
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:title="Enabled" />
 
         <EditTextPreference
@@ -85,13 +83,13 @@
 
         <EditTextPreference
             android:key="pref_layer_3_endpoint"
-            android:defaultValue="https://matej.snoha.info/dp/sparql"
+            android:defaultValue=""
             android:inputType="textUri"
             android:title="Endpoint" />
 
         <EditTextPreference
             android:key="pref_layer_3_query"
-            android:defaultValue="@string/ruian_live_query"
+            android:defaultValue=""
             android:inputType="textMultiLine"
             android:title="Query" />
 

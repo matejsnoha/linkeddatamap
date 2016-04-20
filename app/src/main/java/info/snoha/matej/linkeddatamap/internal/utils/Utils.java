@@ -9,7 +9,6 @@ import android.util.DisplayMetrics;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 
 public class Utils {
 
@@ -50,18 +49,19 @@ public class Utils {
                 .getString(preference.getKey(), "");
     }
 
-    public static FileOutputStream getFileOutputStream(String path) {
+    public static File getFile(String path) {
         try {
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 File root = Environment.getExternalStorageDirectory();
-                File dir = new File(root.getAbsolutePath() + FilenameUtils.getPathNoEndSeparator(path));
+                File dir = new File(root.getAbsolutePath() + File.separator
+                        + FilenameUtils.getPathNoEndSeparator(path));
                 dir.mkdirs();
-                File file = new File(dir, FilenameUtils.getName(path));
-                return new FileOutputStream(file);
+                return new File(dir, FilenameUtils.getName(path));
             } else {
                 return null;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }

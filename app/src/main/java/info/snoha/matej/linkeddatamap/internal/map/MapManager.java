@@ -19,6 +19,7 @@ import org.apache.commons.collections4.Transformer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import info.snoha.matej.linkeddatamap.internal.model.MarkerModel;
@@ -135,7 +136,7 @@ public class MapManager {
         updateLayers(position, null);
     }
 
-    public static void updateLayers(CameraPosition position, Runnable callback) {
+    public static void updateLayers(final CameraPosition position, Runnable callback) {
 
         final List<MarkerModel> filteredMarkers = getClosestMarkers(allMarkers, position);
 
@@ -191,6 +192,22 @@ public class MapManager {
                 + new DecimalFormat("#.#").format(range / 1000f) + "km away from " + center);
 
         return filtered;
+    }
+
+    public static List<MarkerModel> getNearbyMarkers(final Position position) {
+
+        if (allMarkers == null || position == null)
+            return Collections.emptyList();
+
+        List<MarkerModel> top10 = new ArrayList<>(allMarkers);
+        Collections.sort(top10, new Comparator<MarkerModel>() {
+            @Override
+            public int compare(MarkerModel lhs, MarkerModel rhs) {
+                return lhs.getPosition().distanceTo(position).compareTo(
+                        rhs.getPosition().distanceTo(position));
+            }
+        });
+        return top10.subList(0, Math.min(10, top10.size()));
     }
 
     private static Position toPosition(CameraPosition cameraPosition) {

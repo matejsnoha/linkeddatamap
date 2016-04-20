@@ -14,10 +14,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -35,10 +37,13 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -46,6 +51,8 @@ import info.snoha.matej.linkeddatamap.internal.map.LayerManager;
 import info.snoha.matej.linkeddatamap.internal.map.MapManager;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.gui.utils.UI;
+import info.snoha.matej.linkeddatamap.internal.model.MarkerModel;
+import info.snoha.matej.linkeddatamap.internal.model.Position;
 import info.snoha.matej.linkeddatamap.internal.utils.Utils;
 
 public class MapsActivity extends AppCompatActivity
@@ -212,7 +219,47 @@ public class MapsActivity extends AppCompatActivity
         findViewById(R.id.button_nearby).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UI.message(MapsActivity.this, "Not implemented yet");
+                //DoubleShot.dump(MapsActivity.this, "LinkedDataMap/doubleshot.nt");
+
+                Location location = getCurrentLocation();
+                if (location == null) {
+                    UI.message(MapsActivity.this, "Unknown location");
+                    return;
+                }
+
+                final List<MarkerModel> nearbyMarkers = MapManager.getNearbyMarkers(
+                        new Position(location.getLatitude(), location.getLongitude())
+                );
+                if (nearbyMarkers.isEmpty()) {
+                    UI.message(MapsActivity.this, "Nothing near your location");
+                    return;
+                }
+
+                new MaterialDialog.Builder(MapsActivity.this)
+                        .title("Near map center")
+                        .items(CollectionUtils.collect(nearbyMarkers,
+                                new Transformer<MarkerModel, String>() {
+                            @Override
+                            public String transform(MarkerModel input) {
+                                return input.getName() + "\n" + input.getPosition().toShortString();
+                            }
+                        }))
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                                MarkerModel marker = nearbyMarkers.get(which);
+                                UI.message(MapsActivity.this, "Launching navigation to " + marker.getName());
+                                String uri = String.format(Locale.US,
+                                        "http://maps.google.com/maps?daddr=%f,%f",
+                                        marker.getPosition().getLatitude(),
+                                        marker.getPosition().getLongitude());
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                startActivity(intent);
+                            }
+                        })
+                        .neutralText("Cancel")
+                        .show();
             }
         });
     }
@@ -254,32 +301,16 @@ public class MapsActivity extends AppCompatActivity
             @Override
             public boolean onMarkerClick(final Marker marker) {
 
-                if (marker.getSnippet().contains("<http")) {
+                TextView textView = new TextView(MapsActivity.this);
+                textView.setAutoLinkMask(Linkify.WEB_URLS);
+                textView.setText(marker.getSnippet());
 
-                    new MaterialDialog.Builder(MapsActivity.this)
-                            .title(marker.getTitle())
-                            .content(marker.getSnippet())
-                            .positiveText("WEB")
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    startActivity(new Intent(Intent.ACTION_VIEW,
-                                            Uri.parse(marker.getSnippet().substring(
-                                                    marker.getSnippet().indexOf("<") + 1,
-                                                    marker.getSnippet().indexOf(">")
-                                            ))));
-                                }
-                            })
-                            .neutralText("Cancel")
-                            .show();
-                } else {
+                new MaterialDialog.Builder(MapsActivity.this)
+                        .title(marker.getTitle())
+                        .customView(textView, true)
+                        .neutralText("Cancel")
+                        .show();
 
-                    new MaterialDialog.Builder(MapsActivity.this)
-                            .title(marker.getTitle())
-                            .content(marker.getSnippet())
-                            .neutralText("Cancel")
-                            .show();
-                }
                 return true;
             }
         });

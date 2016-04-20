@@ -48,6 +48,10 @@ public class Position {
         return getLatitude() + " " + getLongitude();
     }
 
+    public String toShortString() {
+        return getLatitude().floatValue() + " " + getLongitude().floatValue();
+    }
+
     /**
      * Calculates approximate geodetic distance to another Position using Haversine formula.
      * @return distance in meters with approx. 0.5% precision

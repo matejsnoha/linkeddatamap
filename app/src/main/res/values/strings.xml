@@ -30,6 +30,8 @@ SELECT\n
   ?longitude\n
   ?address\n
   ?description\n
+  ?addrPlace\n
+  ?place\n
 \n
 FROM <http://ruian>\n
 \n
@@ -67,7 +69,39 @@ WHERE {\n
   BIND (xsd:float(?lat) AS ?latitude) .\n
   BIND (xsd:float(?long) AS ?longitude) .\n
 \n
-  BIND (CONCAT(STR(?flats), \" flats, \", STR(?floors), \" floors, <\", STR(?addrPlace), \">\") AS ?description) .\n
+  BIND (CONCAT(STR(?flats), \" flats, \", STR(?floors), \" floors\") AS ?description) .\n
+}\n
+]]></string>
+
+<string name="doubleshot_live_query"><![CDATA[
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>\n
+PREFIX s: <http://schema.org/>\n
+\n
+SELECT\n
+  ?latitude\n
+  ?longitude\n
+  ?name\n
+  ?description\n
+  ?address\n
+\n
+FROM <http://doubleshot>\n
+\n
+WHERE {\n
+\n
+  ?shop a			s:Place ;\n
+    	s:name		?name ;\n
+		s:geo  		?geo .\n
+  \n
+  OPTIONAL { ?shop s:aggregateRating ?rating . }\n
+  \n
+  ?geo 	s:address	?address ;\n
+    	s:latitude 	?lat ;\n
+    	s:longitude ?long .\n
+\n
+  BIND (xsd:float(?lat) AS ?latitude) .\n
+  BIND (xsd:float(?long) AS ?longitude) .\n
+\n
+  BIND (CONCAT(\"Rating \", STR(?rating)) AS ?description) .\n
 }\n
 ]]></string>
 

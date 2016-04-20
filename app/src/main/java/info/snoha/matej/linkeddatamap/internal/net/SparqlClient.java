@@ -1,16 +1,18 @@
 package info.snoha.matej.linkeddatamap.internal.net;
 
-import android.app.Activity;
-import android.support.design.widget.Snackbar;
+import android.content.Context;
 import android.util.Log;
-import android.view.View;
+
+import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import info.snoha.matej.linkeddatamap.gui.utils.UI;
 import info.snoha.matej.linkeddatamap.internal.utils.Utils;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -31,22 +33,20 @@ public class SparqlClient {
         void run(List<List<String>> result);
     }
 
-    public static void getLayer(final Activity activity, int layerID, boolean addLimit, final ResultCallback callback) {
+    public static void getLayer(Context context, int layerID, boolean addLimit, final ResultCallback callback) {
 
-        final String url = Utils.getStringPreferenceValue(activity,
+        final String url = Utils.getStringPreferenceValue(context,
                 "pref_layer_" + layerID + "_endpoint").trim();
 
         if (url.isEmpty() || url.equals("http://")) {
-            Snackbar.make(getSnackView(activity),
-                    "Invalid endpoint URL", Snackbar.LENGTH_LONG).show();
+            UI.message(context, "Invalid endpoint URL");
             return;
         }
 
-        String queryPreferenceValue = Utils.getStringPreferenceValue(activity,
+        String queryPreferenceValue = Utils.getStringPreferenceValue(context,
                 "pref_layer_" + layerID + "_query").trim();
         if (queryPreferenceValue.isEmpty()) {
-            Snackbar.make(getSnackView(activity),
-                    "Invalid query", Snackbar.LENGTH_LONG).show();
+            UI.message(context, "Invalid query");
             return;
         }
 
@@ -54,7 +54,7 @@ public class SparqlClient {
                 + (!queryPreferenceValue.toLowerCase(Locale.US).contains("limit") ?
                 (addLimit ? "\nLIMIT 100" : "\nLIMIT 100000") : "");
 
-        Snackbar.make(getSnackView(activity), "Wait please", Snackbar.LENGTH_LONG).show();
+        UI.message(context, "Please wait");
 
         try {
 
@@ -76,7 +76,7 @@ public class SparqlClient {
             if (callback instanceof StringResultCallback) {
 
                 final String content = response.body().string().replace("\n", "\n\n");
-                activity.runOnUiThread(new Runnable() {
+                UI.run(new Runnable() {
                     @Override
                     public void run() {
                         ((StringResultCallback) callback).run(content);
@@ -84,10 +84,11 @@ public class SparqlClient {
                 });
 
             } else if (callback instanceof ListResultCallback) {
-                final String content = response.body().string();
+
                 final List<List<String>> result = new ArrayList<>();
-                for (String line : content.split("\n")) {
-                    result.add(Arrays.asList(line.split("\\,")));
+                Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(response.body().charStream());
+                for (CSVRecord record : records) {
+                    result.add(IteratorUtils.toList(record.iterator()));
                 }
 
                 Log.i("SPARQL", result.size() - 1 + " results");
@@ -95,20 +96,9 @@ public class SparqlClient {
                 ((ListResultCallback) callback).run(result);
             }
 
-        } catch (final Exception e) {
+        } catch (Exception e) {
 
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    Snackbar.make(getSnackView(activity), e.toString() + ": " +
-                            e.getMessage(), Snackbar.LENGTH_LONG).show();
-                }
-            });
+            UI.message(context, e.toString() + ": " +  e.getMessage());
         }
-    }
-
-    private static View getSnackView(Activity activity) {
-        return activity.getWindow().getDecorView().getRootView();
     }
 }
