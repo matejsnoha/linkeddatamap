@@ -76,12 +76,7 @@ public class SparqlClient {
             if (callback instanceof StringResultCallback) {
 
                 final String content = response.body().string().replace("\n", "\n\n");
-                UI.run(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((StringResultCallback) callback).run(content);
-                    }
-                });
+                UI.run(() -> ((StringResultCallback) callback).run(content)); // TODO why on UI?
 
             } else if (callback instanceof ListResultCallback) {
 

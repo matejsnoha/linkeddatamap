@@ -7,12 +7,12 @@ import android.widget.Toast;
 
 public class UI {
 
-    public static boolean onUiThread() {
+    public static boolean isUiThread() {
         return Looper.getMainLooper().getThread() == Thread.currentThread();
     }
 
     public static void run(Runnable runnable) {
-        if (onUiThread()) {
+        if (isUiThread()) {
             runnable.run();
         } else {
             new Handler(Looper.getMainLooper()).post(runnable);
@@ -20,11 +20,6 @@ public class UI {
     }
 
     public static void message(final Context context, final String text) {
-        run(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-            }
-        });
+        run(() -> Toast.makeText(context, text, Toast.LENGTH_LONG).show());
     }
 }

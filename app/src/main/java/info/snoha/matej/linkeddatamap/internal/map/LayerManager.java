@@ -74,24 +74,21 @@ public class LayerManager {
 
         final List<MarkerModel> markers = new ArrayList<>();
 
-        SparqlClient.getLayer((Activity) context, layerID, false, new SparqlClient.ListResultCallback() {
-            @Override
-            public void run(List<List<String>> content) {
+        SparqlClient.getLayer(context, layerID, false, (SparqlClient.ListResultCallback) content -> {
 
-                for (List<String> row : content) {
-                    try {
-                        Position pos = new Position(row.get(0), row.get(1));
-                        String name = row.get(2);
-                        String descr = "";
-                        for (int i = 3; i < row.size(); i++) {
-                            descr += descr.isEmpty() ? row.get(i) : "\n\n" + row.get(i);
-                        }
-                        markers.add(new MarkerModel(pos, name, descr));
-                    } catch (Exception e) {
-                    }
-                }
-            }
-        });
+			for (List<String> row : content) {
+				try {
+					Position pos = new Position(row.get(0), row.get(1));
+					String name = row.get(2);
+					String description = "";
+					for (int i = 3; i < row.size(); i++) {
+						description += description.isEmpty() ? row.get(i) : "\n\n" + row.get(i);
+					}
+					markers.add(new MarkerModel(pos, name, description));
+				} catch (Exception e) {
+				}
+			}
+		});
 
         return markers;
     }

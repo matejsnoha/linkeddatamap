@@ -44,6 +44,10 @@ public class MapManager {
     private static volatile TileProvider heatmapTileProvider;
     private static volatile boolean heatmapMode;
 
+	public static void with(Context context) {
+		MapManager.context = context;
+	}
+
     public static void with(Context context, GoogleMap map) {
         MapManager.context = context;
         MapManager.map = map;
@@ -64,6 +68,10 @@ public class MapManager {
 
     public static void setLayers(final CameraPosition position, final Integer... layerIDs) {
 
+		if (map == null) {
+			return;
+		}
+
         final MaterialDialog progressDialog = new MaterialDialog.Builder(context)
                 .title("Please wait ...")
                 .progress(true, 0)
@@ -71,7 +79,7 @@ public class MapManager {
                 .cancelable(false)
                 .show();
 
-        map.clear();
+		map.clear();
 
         final List<MarkerModel> newMarkers = new ArrayList<>();
         final List<Integer> newLayers = new ArrayList<>();
@@ -83,28 +91,20 @@ public class MapManager {
             return;
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+        new Thread(() -> {
 
-                List<Integer> newLayers = new ArrayList<>();
+			List<Integer> newLayers1 = new ArrayList<>();
 
-                for (int layer : layerIDs) {
-                    newLayers.add(layer);
-                    newMarkers.addAll(LayerManager.getMarkers(layer));
-                }
+			for (int layer : layerIDs) {
+				newLayers1.add(layer);
+				newMarkers.addAll(LayerManager.getMarkers(layer));
+			}
 
-                MapManager.layers = newLayers;
-                setMarkers(newMarkers);
-                updateLayers(position, new Runnable() {
-                    @Override
-                    public void run() {
-                        progressDialog.hide();
-                    }
-                });
+			MapManager.layers = newLayers1;
+			setMarkers(newMarkers);
+			updateLayers(position, () -> progressDialog.hide());
 
-            }
-        }).start();
+		}).start();
     }
 
     private static void setMarkers(List<MarkerModel> markers) {
@@ -114,14 +114,9 @@ public class MapManager {
         if (markers.size() > 0) {
             heatmapMode = false;
             heatmapTileProvider = new HeatmapTileProvider.Builder()
-                    .data(CollectionUtils.collect(allMarkers, new Transformer<MarkerModel, LatLng>() {
-                        @Override
-                        public LatLng transform(MarkerModel input) {
-                            return new LatLng(
-                                    input.getPosition().getLatitude(),
-                                    input.getPosition().getLongitude());
-                        }
-                    }))
+                    .data(CollectionUtils.collect(allMarkers, input -> new LatLng(
+							input.getPosition().getLatitude(),
+							input.getPosition().getLongitude())))
                     .opacity(0.5)
                     .gradient(new Gradient(
                             new int[] {
@@ -138,35 +133,34 @@ public class MapManager {
 
     public static void updateLayers(final CameraPosition position, Runnable callback) {
 
+		if (map == null) {
+			// TODO log
+			return;
+		}
+
         final List<MarkerModel> filteredMarkers = getClosestMarkers(allMarkers, position);
 
         if (filteredMarkers.size() <= MARKER_MAX_DISPLAY_COUNT) {
 
             heatmapMode = false;
-            UI.run(new Runnable() {
-                @Override
-                public void run() {
-                    map.clear();
-                    for (MarkerModel marker : filteredMarkers) {
-                        map.addMarker(new MarkerOptions()
-                                .position(new LatLng(marker.getPosition().getLatitude(),
-                                        marker.getPosition().getLongitude()))
-                                .title(marker.getName())
-                                .snippet(marker.getText()));
-                    }
-                }
-            });
+            UI.run(() -> {
+				map.clear();
+				for (MarkerModel marker : filteredMarkers) {
+					map.addMarker(new MarkerOptions()
+							.position(new LatLng(marker.getPosition().getLatitude(),
+									marker.getPosition().getLongitude()))
+							.title(marker.getName())
+							.snippet(marker.getText()));
+				}
+			});
 
         } else if (!heatmapMode) {
 
             heatmapMode = true;
-            UI.run(new Runnable() {
-                @Override
-                public void run() {
-                    map.clear();
-                    map.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
-                }
-            });
+            UI.run(() -> {
+				map.clear();
+				map.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
+			});
         } // else do nothing, heatmap persists on camera change
 
         if (callback != null)
@@ -200,13 +194,8 @@ public class MapManager {
             return Collections.emptyList();
 
         List<MarkerModel> top10 = new ArrayList<>(allMarkers);
-        Collections.sort(top10, new Comparator<MarkerModel>() {
-            @Override
-            public int compare(MarkerModel lhs, MarkerModel rhs) {
-                return lhs.getPosition().distanceTo(position).compareTo(
-                        rhs.getPosition().distanceTo(position));
-            }
-        });
+        Collections.sort(top10, (lhs, rhs) -> lhs.getPosition().distanceTo(position).compareTo(
+				rhs.getPosition().distanceTo(position)));
         return top10.subList(0, Math.min(10, top10.size()));
     }
 

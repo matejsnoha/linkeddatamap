@@ -17,6 +17,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import java.util.List;
 
 import info.snoha.matej.linkeddatamap.R;
+import info.snoha.matej.linkeddatamap.gui.utils.UI;
 import info.snoha.matej.linkeddatamap.internal.net.SparqlClient;
 import info.snoha.matej.linkeddatamap.internal.utils.Utils;
 import info.snoha.matej.linkeddatamap.internal.map.LayerManager;
@@ -153,37 +154,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 final int fi = i;
                 findPreference("pref_layer_" + i + "_test").setOnPreferenceClickListener(
 
-                    new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
+                        preference -> {
 
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    SparqlClient.getLayer(getActivity(), fi, true,
-                                        new SparqlClient.StringResultCallback() {
-                                            @Override
-                                            public void run(final String result) {
-
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        new MaterialDialog.Builder(getActivity())
-                                                                .title(Utils.getStringPreferenceValue(namePreference))
-                                                                .content(result)
-                                                                .positiveText("Back")
-                                                                .show();
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    );
-                                }
-                            }).start();
+                            new Thread(() -> SparqlClient.getLayer(getActivity(), fi, true,
+                                    (SparqlClient.StringResultCallback) result -> UI.run(() ->
+                                            new MaterialDialog.Builder(getActivity())
+                                                    .title(Utils.getStringPreferenceValue(namePreference))
+                                                    .content(result)
+                                                    .positiveText("Back")
+                                                    .show())
+                            )).start();
                             return true;
                         }
-                    }
                 );
             }
         }
