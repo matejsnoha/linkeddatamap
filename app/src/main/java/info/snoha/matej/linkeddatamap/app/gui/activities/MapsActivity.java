@@ -1,11 +1,10 @@
-package info.snoha.matej.linkeddatamap.gui.activities;
+package info.snoha.matej.linkeddatamap.app.gui.activities;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
@@ -13,10 +12,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.common.ConnectionResult;
@@ -31,19 +33,20 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
-import info.snoha.matej.linkeddatamap.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.internal.map.LayerManager;
-import info.snoha.matej.linkeddatamap.internal.map.MapManager;
-import info.snoha.matej.linkeddatamap.internal.model.MarkerModel;
-import info.snoha.matej.linkeddatamap.internal.model.Position;
-import info.snoha.matej.linkeddatamap.internal.utils.Utils;
-import org.apache.commons.collections4.CollectionUtils;
+import info.snoha.matej.linkeddatamap.app.gui.nearby.NearbyAdapter;
+import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
+import info.snoha.matej.linkeddatamap.app.internal.map.LayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.map.MapManager;
+import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
+import info.snoha.matej.linkeddatamap.app.internal.model.Position;
+import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -51,17 +54,28 @@ public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private static final int POSITION_TRACKING_FREQUENCY = 1000;
-    private static final int CAMERA_TRACKING_FREQUENCY = 3000;
+    /** MAP **/
 
     private GoogleMap map;
     private GoogleApiClient apiClient;
 
+	/** Position tracking **/
+
     private boolean positionTracking;
     private Timer positionTrackingTimer;
+	private static final int POSITION_TRACKING_FREQUENCY = 1_000;
+
+	/** Map camera tracking **/
 
     private CameraPosition cameraPosition;
     private Timer cameraTrackingTimer;
+	private static final int CAMERA_TRACKING_FREQUENCY = 3_000;
+
+	/** Nearby tracking **/
+
+	private boolean nearbyTracking;
+    private Timer nearbyTrackingTimer;
+	private static final int NEARBY_TRACKING_FREQUENCY = 5_000;
 
     protected void onStart() {
         super.onStart();
@@ -74,6 +88,8 @@ public class MapsActivity extends AppCompatActivity
             apiClient.disconnect();
     }
 
+    // TODO onPause, onResume - timers wait&notify?
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +100,7 @@ public class MapsActivity extends AppCompatActivity
             actionBar.setDisplayShowHomeEnabled(true);
             //actionBar.setIcon(R.drawable.ic_map_white_24dp);
             //actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getTitle() + " " + Utils.getVersion(this));
+            actionBar.setTitle(getTitle() + " " + AndroidUtils.getVersion(this));
         }
 
         apiClient = new GoogleApiClient.Builder(this)
@@ -107,9 +123,9 @@ public class MapsActivity extends AppCompatActivity
 			Location location = getCurrentLocation();
 			if (location != null) {
 
-				if (map.getCameraPosition().zoom <= 12) {
+				if (map.getCameraPosition().zoom <= 14) {
 					map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-							new LatLng(location.getLatitude(), location.getLongitude()), 16));
+							new LatLng(location.getLatitude(), location.getLongitude()), 15));
 				} else {
 					map.animateCamera(CameraUpdateFactory.newLatLng(
 							new LatLng(location.getLatitude(), location.getLongitude())));
@@ -130,7 +146,8 @@ public class MapsActivity extends AppCompatActivity
 									new TimerTask() {
 										@Override
 										public void run() {
-											runOnUiThread(() -> fab.callOnClick());
+											// TODO
+											UI.run(() -> fab.callOnClick());
 										}
 									}, 0, POSITION_TRACKING_FREQUENCY
 							);
@@ -147,8 +164,10 @@ public class MapsActivity extends AppCompatActivity
 		});
 
         ((AppCompatButton) findViewById(R.id.button_clear)).setTextColor(Color.BLACK); // < API21
-        findViewById(R.id.button_clear).setOnClickListener(v ->
-                MapManager.setLayers(cameraPosition, LayerManager.LAYER_NONE));
+        findViewById(R.id.button_clear).setOnClickListener(v -> {
+			MapManager.setLayers(cameraPosition, LayerManager.LAYER_NONE);
+			hideNearby();
+		});
 
         ((AppCompatButton) findViewById(R.id.button_layers)).setTextColor(Color.BLACK); // < API21
         findViewById(R.id.button_layers).setOnClickListener(v -> {
@@ -186,45 +205,31 @@ public class MapsActivity extends AppCompatActivity
 
 		});
 
-        ((AppCompatButton) findViewById(R.id.button_nearby)).setTextColor(Color.BLACK); // < API21
-        findViewById(R.id.button_nearby).setOnClickListener(v -> {
-			//DoubleShot.dump(MapsActivity.this, "LinkedDataMap/doubleshot.nt");
+        AppCompatButton nearbyButton = (AppCompatButton) findViewById(R.id.button_nearby);
+        nearbyButton.setTextColor(Color.BLACK); // < API21
+        nearbyButton.setOnClickListener((View v) -> {
 
-			UI.message(MapsActivity.this, "Please wait");
+        	nearbyTracking = !nearbyTracking;
 
-			new Thread(() -> {
+        	if (nearbyTracking) {
+        		nearbyTrackingTimer = new Timer("Nearby Tracking Timer");
+        		nearbyTrackingTimer.scheduleAtFixedRate(new TimerTask() {
 
-				Location location = getCurrentLocation();
-				if (location == null) {
-					UI.message(MapsActivity.this, "Unknown location");
-					return;
+        			private boolean firstRun = true;
+
+					@Override
+					public void run() {
+						showAndRefreshNearby(firstRun);
+						firstRun = false;
+					}
+				}, 0, NEARBY_TRACKING_FREQUENCY);
+			} else {
+        		if (nearbyTrackingTimer != null) {
+					nearbyTrackingTimer.cancel();
+					nearbyTrackingTimer = null;
 				}
-
-				final List<MarkerModel> nearbyMarkers = MapManager.getNearbyMarkers(
-						new Position(location.getLatitude(), location.getLongitude())
-				);
-				if (nearbyMarkers.isEmpty()) {
-					UI.message(MapsActivity.this, "Nothing near your location");
-					return;
-				}
-
-				UI.run(() -> new MaterialDialog.Builder(MapsActivity.this)
-					.title("Near your location")
-					.items(CollectionUtils.collect(nearbyMarkers,
-                            input -> input.getName() + "\n" + input.getPosition().toShortString()))
-					.itemsCallback((dialog, itemView, which, text) -> {
-						MarkerModel marker = nearbyMarkers.get(which);
-						UI.message(MapsActivity.this, "Launching navigation to " + marker.getName());
-						String uri = String.format(Locale.US,
-								"http://maps.google.com/maps?daddr=%f,%f",
-								marker.getPosition().getLatitude(),
-								marker.getPosition().getLongitude());
-						Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-						startActivity(intent);
-					})
-					.neutralText("Cancel")
-					.show());
-			}, "Nearby places").start();
+        		hideNearby();
+			}
 		});
     }
 
@@ -349,4 +354,54 @@ public class MapsActivity extends AppCompatActivity
     public void onConnectionFailed(ConnectionResult connectionResult) {
         UI.message(this, "Google APIs failed to connect");
     }
+
+	private void hideNearby() {
+		RecyclerView listView = (RecyclerView) findViewById(R.id.nearby);
+		UI.run(() -> {
+			listView.setVisibility(View.GONE);
+			listView.setAdapter(new NearbyAdapter(this, Collections.emptyList()));
+		});
+	}
+
+	private void showAndRefreshNearby(boolean showMessages) {
+
+		Log.debug("Refreshing nearby");
+		if (showMessages) {
+			UI.message(MapsActivity.this, "Please wait");
+		}
+
+		Location location = getCurrentLocation();
+		if (location == null) {
+			if (showMessages) {
+				UI.message(MapsActivity.this, "Unknown location");
+			}
+			hideNearby();
+			return;
+		}
+
+		Position myPosition = new Position(location.getLatitude(), location.getLongitude());
+		List<MarkerModel> nearbyMarkers = MapManager.getNearbyMarkers(myPosition, 10);
+
+		Log.debug("Found " + nearbyMarkers.size() + " nearby");
+
+		if (nearbyMarkers.isEmpty()) {
+			if (showMessages) {
+				UI.message(MapsActivity.this, "Nothing near your location");
+			}
+			hideNearby();
+			return;
+		}
+
+		RecyclerView listView = (RecyclerView) findViewById(R.id.nearby);
+
+		UI.run(() -> {
+			listView.setVisibility(View.VISIBLE);
+			if (listView.getAdapter() == null
+					|| !nearbyMarkers.equals(((NearbyAdapter) listView.getAdapter()).getItems())) {
+
+				listView.setLayoutManager(new LinearLayoutManager(this));
+				listView.setAdapter(new NearbyAdapter(this, nearbyMarkers, myPosition));
+			}
+		});
+	}
 }

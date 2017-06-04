@@ -10,15 +10,27 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".gui.activities.MapsActivity">
+        tools:context=".app.gui.activities.MapsActivity">
 
     </fragment>
+
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/nearby"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:background="@color/background">
+
+    </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
         android:id="@+id/buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_above="@id/nearby"
         android:orientation="horizontal">
 
         <android.support.v7.widget.AppCompatButton

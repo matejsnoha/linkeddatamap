@@ -1,16 +1,15 @@
-package info.snoha.matej.linkeddatamap.internal.map;
+package info.snoha.matej.linkeddatamap.app.internal.map;
 
-import android.app.Activity;
 import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import info.snoha.matej.linkeddatamap.internal.model.MarkerModel;
-import info.snoha.matej.linkeddatamap.internal.model.Position;
-import info.snoha.matej.linkeddatamap.internal.net.SparqlClient;
-import info.snoha.matej.linkeddatamap.internal.utils.Utils;
+import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
+import info.snoha.matej.linkeddatamap.app.internal.model.Position;
+import info.snoha.matej.linkeddatamap.app.internal.net.SparqlClient;
+import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 
 public class LayerManager {
 
@@ -27,8 +26,8 @@ public class LayerManager {
     public static List<String> getLayerNames(boolean onlyEnabled) {
         List<String> names = new ArrayList<>(LAYER_COUNT);
         for (int i = 1; i <= LAYER_COUNT; i++) {
-            if (!onlyEnabled || Utils.getBooleanPreferenceValue(context, "pref_layer_" + i + "_enabled")) {
-                names.add(Utils.getStringPreferenceValue(context, "pref_layer_" + i + "_name"));
+            if (!onlyEnabled || AndroidUtils.getBooleanPreferenceValue(context, "pref_layer_" + i + "_enabled")) {
+                names.add(AndroidUtils.getStringPreferenceValue(context, "pref_layer_" + i + "_name"));
             }
         }
         return names;
@@ -37,7 +36,7 @@ public class LayerManager {
     public static List<Integer> getLayerIDs(boolean onlyEnabled) {
         List<Integer> ids = new ArrayList<>(LAYER_COUNT);
         for (int i = 1; i <= LAYER_COUNT; i++) {
-            if (!onlyEnabled || Utils.getBooleanPreferenceValue(context, "pref_layer_" + i + "_enabled")) {
+            if (!onlyEnabled || AndroidUtils.getBooleanPreferenceValue(context, "pref_layer_" + i + "_enabled")) {
                 ids.add(i);
             }
         }

@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap.internal.net;
+package info.snoha.matej.linkeddatamap.app.internal.net;
 
 import android.content.Context;
 import android.util.Log;
@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import info.snoha.matej.linkeddatamap.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.internal.utils.Utils;
+import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
+import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -21,6 +21,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class SparqlClient {
+
+    private static final int CONNECT_TIMEOUT = 5_000;
+    private static final int DATA_TIMEOUT = 120_000;
 
     public interface ResultCallback {
     }
@@ -35,7 +38,7 @@ public class SparqlClient {
 
     public static void getLayer(Context context, int layerID, boolean addLimit, final ResultCallback callback) {
 
-        final String url = Utils.getStringPreferenceValue(context,
+        final String url = AndroidUtils.getStringPreferenceValue(context,
                 "pref_layer_" + layerID + "_endpoint").trim();
 
         if (url.isEmpty() || url.equals("http://")) {
@@ -43,7 +46,7 @@ public class SparqlClient {
             return;
         }
 
-        String queryPreferenceValue = Utils.getStringPreferenceValue(context,
+        String queryPreferenceValue = AndroidUtils.getStringPreferenceValue(context,
                 "pref_layer_" + layerID + "_query").trim();
         if (queryPreferenceValue.isEmpty()) {
             UI.message(context, "Invalid query");
@@ -59,8 +62,8 @@ public class SparqlClient {
         try {
 
             OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(5, TimeUnit.SECONDS)
-                    .readTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
+                    .readTimeout(DATA_TIMEOUT, TimeUnit.MILLISECONDS)
                     .build();
 
             RequestBody body = RequestBody.create(

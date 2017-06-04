@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap.internal.utils;
+package info.snoha.matej.linkeddatamap.app.internal.utils;
 
 import android.content.Context;
 import android.os.Environment;
@@ -10,7 +10,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 
-public class Utils {
+public class AndroidUtils {
 
     public static int dipToPixels(Context context, float dip){
         int dpi = context.getResources().getDisplayMetrics().densityDpi;

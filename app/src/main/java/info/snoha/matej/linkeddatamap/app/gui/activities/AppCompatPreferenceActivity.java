@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package info.snoha.matej.linkeddatamap.gui.activities;
+package info.snoha.matej.linkeddatamap.app.gui.activities;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

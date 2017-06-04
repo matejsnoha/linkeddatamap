@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap.gui.utils;
+package info.snoha.matej.linkeddatamap.app.gui.utils;
 
 import android.content.Context;
 import android.os.Handler;

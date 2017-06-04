@@ -1,0 +1,15 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+}
+
+dependencies {
+    compile project(':shared')
+    compile 'com.google.code.gson:gson:2.8.1'
+    compile 'commons-io:commons-io:2.5'
+    compile 'org.apache.commons:commons-lang3:3.5'
+    compile 'org.apache.commons:commons-collections4:4.1'
+    compile 'com.github.pcj:google-options:1.0.0'
+}

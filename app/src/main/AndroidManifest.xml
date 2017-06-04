@@ -18,7 +18,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".gui.activities.MapsActivity"
+            android:name=".app.gui.activities.MapsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_maps">
             <intent-filter>
@@ -29,12 +29,12 @@
         </activity>
 
         <activity
-            android:name=".gui.activities.SettingsActivity"
+            android:name=".app.gui.activities.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".gui.activities.MapsActivity">
+            android:parentActivityName=".app.gui.activities.MapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".gui.activities.MapsActivity" />
+                android:value=".app.gui.activities.MapsActivity" />
         </activity>
     </application>
 

@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap.internal.map;
+package info.snoha.matej.linkeddatamap.app.internal.map;
 
 import android.content.Context;
 import android.util.Log;
@@ -14,19 +14,17 @@ import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
-import info.snoha.matej.linkeddatamap.internal.model.MarkerModel;
-import info.snoha.matej.linkeddatamap.internal.model.Position;
+import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
+import info.snoha.matej.linkeddatamap.app.internal.model.Position;
 import info.snoha.matej.linkeddatamap.R;
-import info.snoha.matej.linkeddatamap.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.internal.utils.Utils;
+import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
+import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 
 public class MapManager {
 
@@ -188,15 +186,15 @@ public class MapManager {
         return filtered;
     }
 
-    public static List<MarkerModel> getNearbyMarkers(final Position position) {
+    public static List<MarkerModel> getNearbyMarkers(final Position position, int count) {
 
         if (allMarkers == null || position == null)
             return Collections.emptyList();
 
-        List<MarkerModel> top10 = new ArrayList<>(allMarkers);
-        Collections.sort(top10, (lhs, rhs) -> lhs.getPosition().distanceTo(position).compareTo(
+        List<MarkerModel> topN = new ArrayList<>(allMarkers);
+        Collections.sort(topN, (lhs, rhs) -> lhs.getPosition().distanceTo(position).compareTo(
 				rhs.getPosition().distanceTo(position)));
-        return top10.subList(0, Math.min(10, top10.size()));
+        return topN.subList(0, Math.min(count, topN.size()));
     }
 
     private static Position toPosition(CameraPosition cameraPosition) {
@@ -208,7 +206,7 @@ public class MapManager {
 
     private static int getScreenWidth(double latitude, double zoom) {
 
-        final double SCREEN_SIZE = Utils.pixelsToDip(context, Math.max(
+        final double SCREEN_SIZE = AndroidUtils.pixelsToDip(context, Math.max(
                 context.getResources().getDisplayMetrics().widthPixels,
                 context.getResources().getDisplayMetrics().heightPixels));
         final double EQUATOR_LENGTH = 40075004; // meters

@@ -1,12 +1,17 @@
-package info.snoha.matej.linkeddatamap.internal.model;
+package info.snoha.matej.linkeddatamap.app.internal.model;
 
 public class MarkerModel {
 
     private Position position;
     private String name;
     private String text;
+    private String address;
 
     public MarkerModel(Position position, String name, String text) {
+        this(position, name, text, null);
+    }
+
+    public MarkerModel(Position position, String name, String text, String address) {
         this.position = position;
         this.name = name;
         this.text = text;
@@ -34,5 +39,20 @@ public class MarkerModel {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getAddress() {
+        // TODO fix this by proper parsing logic in SparqlClient
+        if (address == null && text.contains("ruian")) {
+            return name;
+        }
+        if (address == null && text.contains("\n\n")) {
+            return text.substring(text.lastIndexOf("\n\n")).replace("\n", "");
+        }
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

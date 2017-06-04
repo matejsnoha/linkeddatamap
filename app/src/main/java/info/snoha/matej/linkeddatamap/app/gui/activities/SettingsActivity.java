@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap.gui.activities;
+package info.snoha.matej.linkeddatamap.app.gui.activities;
 
 import android.app.ActionBar;
 import android.content.Context;
@@ -7,7 +7,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
@@ -17,10 +16,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import java.util.List;
 
 import info.snoha.matej.linkeddatamap.R;
-import info.snoha.matej.linkeddatamap.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.internal.net.SparqlClient;
-import info.snoha.matej.linkeddatamap.internal.utils.Utils;
-import info.snoha.matej.linkeddatamap.internal.map.LayerManager;
+import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
+import info.snoha.matej.linkeddatamap.app.internal.net.SparqlClient;
+import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
+import info.snoha.matej.linkeddatamap.app.internal.map.LayerManager;
 
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
@@ -66,7 +65,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                Utils.getStringPreferenceValue(preference.getContext(), preference.getKey()));
+                AndroidUtils.getStringPreferenceValue(preference.getContext(), preference.getKey()));
     }
 
     @Override
@@ -159,7 +158,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                             new Thread(() -> SparqlClient.getLayer(getActivity(), fi, true,
                                     (SparqlClient.StringResultCallback) result -> UI.run(() ->
                                             new MaterialDialog.Builder(getActivity())
-                                                    .title(Utils.getStringPreferenceValue(namePreference))
+                                                    .title(AndroidUtils.getStringPreferenceValue(namePreference))
                                                     .content(result)
                                                     .positiveText("Back")
                                                     .show())
