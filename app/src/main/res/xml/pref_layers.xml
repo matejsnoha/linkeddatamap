@@ -17,7 +17,7 @@
 
         <EditTextPreference
             android:key="pref_layer_1_endpoint"
-            android:defaultValue="https://matej.snoha.info/dpm/sparql"
+            android:defaultValue="http://matej.snoha.info/dpm/sparql"
             android:inputType="textUri"
             android:title="Endpoint" />
 
@@ -50,7 +50,7 @@
 
         <EditTextPreference
             android:key="pref_layer_2_endpoint"
-            android:defaultValue="https://matej.snoha.info/dpm/sparql"
+            android:defaultValue="http://matej.snoha.info/dpm/sparql"
             android:inputType="textUri"
             android:title="Endpoint" />
 

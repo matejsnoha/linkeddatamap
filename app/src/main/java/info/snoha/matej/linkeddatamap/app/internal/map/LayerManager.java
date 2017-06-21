@@ -69,7 +69,7 @@ public class LayerManager {
         }
     }
 
-    public static List<MarkerModel> getCustomLayerMarkers(int layerID) {
+    private static List<MarkerModel> getCustomLayerMarkers(int layerID) {
 
         final List<MarkerModel> markers = new ArrayList<>();
 
@@ -83,7 +83,7 @@ public class LayerManager {
 					for (int i = 3; i < row.size(); i++) {
 						description += description.isEmpty() ? row.get(i) : "\n\n" + row.get(i);
 					}
-					markers.add(new MarkerModel(pos, name, description));
+					markers.add(new MarkerModel(layerID, pos, name, description));
 				} catch (Exception e) {
 				}
 			}

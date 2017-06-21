@@ -18,7 +18,13 @@
 
 -dontobfuscate
 
+# retrolambda
+-dontwarn java.lang.invoke.*
+-dontwarn **$$Lambda$*
+
+# dependencies
 -dontwarn okio.**
--dontwarn org.apache.http.**
+-dontwarn okhttp3.**
+-dontwarn org.apache.**
 -dontwarn android.net.http.AndroidHttpClient
 -dontwarn com.google.android.gms.**

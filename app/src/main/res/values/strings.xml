@@ -88,7 +88,7 @@ FROM <http://doubleshot>\n
 \n
 WHERE {\n
 \n
-  ?shop a			s:Place ;\n
+  ?shop a			s:CafeOrCoffeeShop ;\n
     	s:name		?name ;\n
 		s:geo  		?geo .\n
   \n

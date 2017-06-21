@@ -6,12 +6,14 @@ public class MarkerModel {
     private String name;
     private String text;
     private String address;
+    private int layer;
 
-    public MarkerModel(Position position, String name, String text) {
-        this(position, name, text, null);
+    public MarkerModel(int layer, Position position, String name, String text) {
+        this(layer, position, name, text, null);
     }
 
-    public MarkerModel(Position position, String name, String text, String address) {
+    public MarkerModel(int layer, Position position, String name, String text, String address) {
+        this.layer = layer;
         this.position = position;
         this.name = name;
         this.text = text;
@@ -54,5 +56,13 @@ public class MarkerModel {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public int getLayer() {
+        return layer;
+    }
+
+    public void setLayer(int layer) {
+        this.layer = layer;
     }
 }

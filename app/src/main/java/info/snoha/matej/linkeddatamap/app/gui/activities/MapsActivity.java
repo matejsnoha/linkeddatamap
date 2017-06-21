@@ -380,7 +380,7 @@ public class MapsActivity extends AppCompatActivity
 		}
 
 		Position myPosition = new Position(location.getLatitude(), location.getLongitude());
-		List<MarkerModel> nearbyMarkers = MapManager.getNearbyMarkers(myPosition, 10);
+		List<MarkerModel> nearbyMarkers = MapManager.getNearbyMarkers(myPosition, 20);
 
 		Log.debug("Found " + nearbyMarkers.size() + " nearby");
 
@@ -395,6 +395,7 @@ public class MapsActivity extends AppCompatActivity
 		RecyclerView listView = (RecyclerView) findViewById(R.id.nearby);
 
 		UI.run(() -> {
+			// TODO set visibility sooner or check for null timer - bug with nearby showing after close
 			listView.setVisibility(View.VISIBLE);
 			if (listView.getAdapter() == null
 					|| !nearbyMarkers.equals(((NearbyAdapter) listView.getAdapter()).getItems())) {

@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -145,6 +147,7 @@ public class MapManager {
 				map.clear();
 				for (MarkerModel marker : filteredMarkers) {
 					map.addMarker(new MarkerOptions()
+							.icon(BitmapDescriptorFactory.defaultMarker(getLayerHue(marker.getLayer())))
 							.position(new LatLng(marker.getPosition().getLatitude(),
 									marker.getPosition().getLongitude()))
 							.title(marker.getName())
@@ -215,4 +218,21 @@ public class MapManager {
                 / Math.pow(2, zoom + 8); // 256 * 2^z
         return (int) (SCREEN_SIZE * pixelSize);
     }
+
+    private static float getLayerHue(int layer) {
+		switch (layer) {
+			case 1:
+				return BitmapDescriptorFactory.HUE_RED;
+			case 2:
+				return BitmapDescriptorFactory.HUE_ORANGE;
+			case 3:
+				return BitmapDescriptorFactory.HUE_YELLOW;
+			case 4:
+				return BitmapDescriptorFactory.HUE_GREEN;
+			case 5:
+				return BitmapDescriptorFactory.HUE_BLUE;
+			default:
+				return BitmapDescriptorFactory.HUE_VIOLET;
+		}
+	}
 }
