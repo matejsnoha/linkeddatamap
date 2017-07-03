@@ -2,10 +2,7 @@ package info.snoha.matej.linkeddatamap.datasets.doubleshot;
 
 import info.snoha.matej.linkeddatamap.Log;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +49,12 @@ public class DoubleShotModel {
         public Float lat;
         public Float lng;
         public String[] formattedAddress;
+        public String address;
+		public String city;
+		public String postalCode;
+		public String state;
+		public String country;
+		public String cc;
     }
 
     public Set<DSVenue> getVenues() {

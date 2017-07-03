@@ -5,18 +5,24 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import info.snoha.matej.linkeddatamap.Http;
 import info.snoha.matej.linkeddatamap.Log;
+import info.snoha.matej.linkeddatamap.rdf.NTriples;
 import info.snoha.matej.linkeddatamap.Utils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.Collections;
-import java.util.UUID;
+
+import static info.snoha.matej.linkeddatamap.rdf.NBase.lit;
+import static info.snoha.matej.linkeddatamap.rdf.NBase.uri;
+import static info.snoha.matej.linkeddatamap.rdf.Uris.newResource;
+import static info.snoha.matej.linkeddatamap.rdf.Uris.rdf;
+import static info.snoha.matej.linkeddatamap.rdf.Uris.schema;
 
 public class DoubleShotWorker {
 
-    private static final String PROCESSED_RESOURCE_BASE = "http://matej.snoha.info/dp/resource/";
+    private static final String RESOURCE_BASE = "http://matej.snoha.info/dp/resource/";
 
     public static void main(String[] args) {
 
@@ -49,63 +55,38 @@ public class DoubleShotWorker {
                     ? Http.httpGetReader(inputFileName)
                     : new InputStreamReader(Utils.getInputStream(inputFileName));
 
-            PrintWriter output = new PrintWriter(Utils.getOutputStream(outputFileName));
+            OutputStream output = Utils.getOutputStream(outputFileName);
 
+            // TODO do not allocate all in memory?
             DoubleShotModel model = new Gson().fromJson(input,
                     new TypeToken<DoubleShotModel>() {}.getType());
 
-            for (DoubleShotModel.DSVenue venue : model.getVenues()) {
+            try (NTriples tripleOutput = new NTriples(output)) {
 
-                String base = PROCESSED_RESOURCE_BASE + UUID.randomUUID().toString();
+                for (DoubleShotModel.DSVenue venue : model.getVenues()) {
 
-                output.println(
-                        "<" + base + "> " +
-                        "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " +
-                        "<http://schema.org/CafeOrCoffeeShop> .");
+                    String res = newResource(RESOURCE_BASE);
 
-                output.println(
-                        "<" + base + "> " +
-                        "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " +
-                        "<http://schema.org/Place> .");
+                    tripleOutput
+                            .t(uri(res), rdf("type"), schema("CafeOrCoffeeShop"))
+                            .t(uri(res), rdf("type"), schema("Place"))
+                            .t(uri(res), schema("name"), lit(venue.name))
+                            .t(uri(res), schema("aggregateRating"), lit(venue.rating))
+                            .t(uri(res), schema("geo"), uri(res + "/geo"))
+                            .t(uri(res + "/geo"), rdf("type"), schema("GeoCoordinates"))
+                            .t(uri(res + "/geo"), schema("latitude"), lit(venue.location.lat))
+                            .t(uri(res + "/geo"), schema("longitude"), lit(venue.location.lng))
+                            .t(uri(res + "/geo"), schema("address"), uri(res + "/geo/addr"))
+                            .t(uri(res + "/geo/addr"), rdf("type"), schema("PostalAddress"))
+                            .t(uri(res + "/geo/addr"), schema("streetAddress"), lit(venue.location.address))
+                            .t(uri(res + "/geo/addr"), schema("addressLocality"), lit(venue.location.city))
+                            .t(uri(res + "/geo/addr"), schema("postalCode"), lit(venue.location.postalCode))
+                            .t(uri(res + "/geo/addr"), schema("addressRegion"), lit(venue.location.state))
+                            .t(uri(res + "/geo/addr"), schema("addressCountry"), lit(venue.location.cc))
+                            .t(uri(res + "/geo/addr"), schema("description"), lit(venue.location.formattedAddress, ", "));
 
-                output.println(
-                        "<" + base + "> " +
-                        "<http://schema.org/name> " +
-                        "\"" + venue.name + "\" .");
-
-                if (venue.rating != null)
-                output.println(
-                        "<" + base + "> " +
-                        "<http://schema.org/aggregateRating> " +
-                        "\"" + venue.rating + "\" .");
-
-                output.println(
-                        "<" + base + "> " +
-                        "<http://schema.org/geo> " +
-                        "<" + base + "/geo" + "> .");
-
-                output.println(
-                        "<" + base + "/geo" + "> " +
-                        "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> " +
-                        "<http://schema.org/GeoCoordinates> .");
-
-                output.println(
-                        "<" + base + "/geo" + "> " +
-                        "<http://schema.org/address> " +
-                        "\"" + StringUtils.join(venue.location.formattedAddress, ", ") + "\" .");
-
-                output.println(
-                        "<" + base + "/geo" + "> " +
-                        "<http://schema.org/latitude> " +
-                        "\"" + venue.location.lat + "\" .");
-
-                output.println(
-                        "<" + base + "/geo" + "> " +
-                        "<http://schema.org/longitude> " +
-                        "\"" + venue.location.lng + "\" .");
-
+                }
             }
-            output.close();
 
             Log.info("Processing finished, output written to " + Utils.getAbsolutePath(outputFileName));
 

@@ -94,9 +94,11 @@ WHERE {\n
   \n
   OPTIONAL { ?shop s:aggregateRating ?rating . }\n
   \n
-  ?geo 	s:address	?address ;\n
+  ?geo 	s:address	?addressRes ;\n
     	s:latitude 	?lat ;\n
     	s:longitude ?long .\n
+  \n
+  ?addressRes s:description ?address .\n
 \n
   BIND (xsd:float(?lat) AS ?latitude) .\n
   BIND (xsd:float(?long) AS ?longitude) .\n
