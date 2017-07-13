@@ -13,18 +13,18 @@ public class Uris {
 	}
 
 	public static String schema(String what) {
-		return prefix("http://schema.org/", what);
+		return prefix(Prefixes.SCHEMA_ORG, what);
 	}
 
 	public static String rdf(String what) {
-		return prefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", what);
+		return prefix(Prefixes.RDF, what);
 	}
 
 	public static String ms(String what) {
-		return prefix("http://matej.snoha.info/dp/", what);
+		return prefix(Prefixes.MS, what);
 	}
 
 	public static String msRes(String what) {
-		return prefix("http://matej.snoha.info/dp/resource/", what);
+		return prefix(Prefixes.MS_RES, what);
 	}
 }

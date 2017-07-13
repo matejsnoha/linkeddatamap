@@ -37,7 +37,7 @@ import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.nearby.NearbyAdapter;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.app.internal.map.LayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
 import info.snoha.matej.linkeddatamap.app.internal.map.MapManager;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
@@ -93,6 +93,8 @@ public class MapsActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.info("Maps Activity starting");
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -165,22 +167,22 @@ public class MapsActivity extends AppCompatActivity
 
         ((AppCompatButton) findViewById(R.id.button_clear)).setTextColor(Color.BLACK); // < API21
         findViewById(R.id.button_clear).setOnClickListener(v -> {
-			MapManager.setLayers(cameraPosition, LayerManager.LAYER_NONE);
+			MapManager.setDataLayers(cameraPosition, LayerManager.LAYER_NONE);
 			hideNearby();
 		});
 
         ((AppCompatButton) findViewById(R.id.button_layers)).setTextColor(Color.BLACK); // < API21
         findViewById(R.id.button_layers).setOnClickListener(v -> {
 
-			if (LayerManager.getLayerIDs(true).size() == 0) {
+			if (LayerManager.getDataLayerIDs(true).size() == 0) {
 				UI.message(MapsActivity.this, "No layers.\n" +
-						"Please open Settings --> Layers to load defaults");
+						"Please specify some in Settings --> Map Layers & Data Layers");
 				return;
 			}
 
-			List<String> enabledLayerNames = LayerManager.getLayerNames(true);
+			List<String> enabledLayerNames = LayerManager.getDataLayerNames(true);
 			List<Integer> selectedLayerDialogIndexes = new ArrayList<>();
-			for (int layerID : MapManager.getLayers()) {
+			for (int layerID : MapManager.getDataLayers()) {
 				selectedLayerDialogIndexes.add(enabledLayerNames.indexOf(
 						LayerManager.getLayerName(layerID)
 				));
@@ -196,7 +198,7 @@ public class MapsActivity extends AppCompatActivity
 								for (CharSequence name : text) {
 									layerNames.add(name.toString());
 								}
-								MapManager.setLayers(cameraPosition, LayerManager.getLayerIDs(layerNames));
+								MapManager.setDataLayers(cameraPosition, LayerManager.getDataLayerIDs(layerNames));
 								return true;
 							})
 					.positiveText("OK")
@@ -244,7 +246,7 @@ public class MapsActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh:
-                MapManager.setLayers(cameraPosition, MapManager.getLayers());
+                MapManager.setDataLayers(cameraPosition, MapManager.getDataLayers());
                 return true;
             case R.id.settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -298,7 +300,7 @@ public class MapsActivity extends AppCompatActivity
             public void run() {
                 if (!ObjectUtils.equals(lastPosition, cameraPosition)) {
                     lastPosition = cameraPosition;
-                    MapManager.updateLayers(cameraPosition);
+                    MapManager.updateMarkers(cameraPosition);
                 }
             }
         }, 0, CAMERA_TRACKING_FREQUENCY);

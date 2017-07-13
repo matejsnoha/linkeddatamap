@@ -6,9 +6,12 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 
+import info.snoha.matej.linkeddatamap.Log;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.InputStream;
 
 public class AndroidUtils {
 
@@ -43,10 +46,20 @@ public class AndroidUtils {
                 .getString(key, "");
     }
 
-    public static String getStringPreferenceValue(Preference preference) {
-        return PreferenceManager
-                .getDefaultSharedPreferences(preference.getContext())
-                .getString(preference.getKey(), "");
+    public static void setBooleanPreferenceValue(Context context, String key, Boolean value) {
+        PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(key, value)
+                .commit();
+    }
+
+    public static void setStringPreferenceValue(Context context, String key, String value) {
+        PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .edit()
+                .putString(key, value)
+                .commit();
     }
 
     public static File getFile(String path) {
@@ -61,7 +74,25 @@ public class AndroidUtils {
                 return null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.error("Could not open file " + path, e);
+            return null;
+        }
+    }
+
+    public static String readRawResource(Context context, int resource) {
+        try {
+            return IOUtils.toString(context.getResources().openRawResource(resource), "UTF-8");
+        } catch (Exception e) {
+            Log.error("Could not open raw resource " + resource, e);
+            return null;
+        }
+    }
+
+    public static InputStream getRawResource(Context context, int resource) {
+        try {
+            return context.getResources().openRawResource(resource);
+        } catch (Exception e) {
+            Log.error("Could not open raw resource " + resource, e);
             return null;
         }
     }

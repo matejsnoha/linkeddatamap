@@ -6,9 +6,14 @@
         android:title="General" />
 
     <header
-        android:fragment="info.snoha.matej.linkeddatamap.app.gui.activities.SettingsActivity$LayerPreferenceFragment"
+            android:fragment="info.snoha.matej.linkeddatamap.app.gui.activities.SettingsActivity$MapLayerPreferenceFragment"
+            android:icon="@drawable/ic_layers_white_24dp"
+            android:title="Map Layers" />
+
+    <header
+        android:fragment="info.snoha.matej.linkeddatamap.app.gui.activities.SettingsActivity$DataLayerPreferenceFragment"
         android:icon="@drawable/ic_layers_white_24dp"
-        android:title="Layers" />
+        android:title="Data Layers" />
 
     <header
         android:fragment="info.snoha.matej.linkeddatamap.app.gui.activities.SettingsActivity$DummyPreferenceFragment"

@@ -5,12 +5,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import info.snoha.matej.linkeddatamap.Http;
 import info.snoha.matej.linkeddatamap.Log;
-import info.snoha.matej.linkeddatamap.rdf.NTriples;
 import info.snoha.matej.linkeddatamap.Utils;
+import info.snoha.matej.linkeddatamap.rdf.NTriples;
 
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.Collections;
 

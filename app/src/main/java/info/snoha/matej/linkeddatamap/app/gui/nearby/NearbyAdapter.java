@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.app.internal.map.LayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
 
@@ -65,7 +65,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyViewHolder> {
 
 		String secondaryText = (myPosition != null ? String.format(Locale.US, "(%.2f km) ",
 				myPosition.distanceTo(marker.getPosition()) / 1000) : "")
-				+ marker.getAddress();
+				+ (marker.getAddress() != null ? marker.getAddress() : marker.getPosition().toShortString());
 		vh.getSecondaryTextView().setText(secondaryText);
 		vh.getSecondaryTextView().setCompoundDrawablesWithIntrinsicBounds(
 				R.drawable.ic_near_me_white_24dp, 0, 0, 0);

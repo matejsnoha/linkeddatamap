@@ -11,16 +11,11 @@ import android.preference.PreferenceFragment;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
 import java.util.List;
 
 import info.snoha.matej.linkeddatamap.R;
-import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.app.internal.net.SparqlClient;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
-import info.snoha.matej.linkeddatamap.app.internal.map.LayerManager;
-
+import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
@@ -106,7 +101,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || LayerPreferenceFragment.class.getName().equals(fragmentName)
+                || MapLayerPreferenceFragment.class.getName().equals(fragmentName)
+                || DataLayerPreferenceFragment.class.getName().equals(fragmentName)
                 || DummyPreferenceFragment.class.getName().equals(fragmentName);
     }
 
@@ -131,38 +127,81 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
-    public static class LayerPreferenceFragment extends PreferenceFragment {
+    public static class MapLayerPreferenceFragment extends PreferenceFragment {
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_layers);
+            addPreferencesFromResource(R.xml.pref_maplayers);
             setHasOptionsMenu(true);
 
             for (int i = 1; i <= LayerManager.LAYER_COUNT; i++) {
 
-                final Preference namePreference = findPreference("pref_layer_" + i + "_name");
+                final Preference namePreference = findPreference("pref_maplayer_" + i + "_name");
                 bindPreferenceSummaryToValue(namePreference);
 
-                final Preference endpointPreference = findPreference("pref_layer_" + i + "_endpoint");
-                bindPreferenceSummaryToValue(endpointPreference);
-
-                final Preference queryPreference = findPreference("pref_layer_" + i + "_query");
-                bindPreferenceSummaryToValue(queryPreference);
+                final Preference definitionPreference = findPreference("pref_maplayer_" + i + "_definition");
+                bindPreferenceSummaryToValue(definitionPreference);
 
                 final int fi = i;
-                findPreference("pref_layer_" + i + "_test").setOnPreferenceClickListener(
+                findPreference("pref_maplayer_" + i + "_test").setOnPreferenceClickListener(
 
                         preference -> {
 
-                            new Thread(() -> SparqlClient.getLayer(getActivity(), fi, true,
-                                    (SparqlClient.StringResultCallback) result -> UI.run(() ->
-                                            new MaterialDialog.Builder(getActivity())
-                                                    .title(AndroidUtils.getStringPreferenceValue(namePreference))
-                                                    .content(result)
-                                                    .positiveText("Back")
-                                                    .show())
-                            )).start();
+//                            new Thread(() -> SparqlClient.getLayer(getActivity(), fi, true,
+//                                    (SparqlClient.StringResultCallback) result -> UI.run(() ->
+//                                            new MaterialDialog.Builder(getActivity())
+//                                                    .title(AndroidUtils.getStringPreferenceValue(namePreference))
+//                                                    .content(result)
+//                                                    .positiveText("Back")
+//                                                    .show())
+//                            )).start();
+                            return true;
+                        }
+                );
+            }
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public static class DataLayerPreferenceFragment extends PreferenceFragment {
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_datalayers);
+            setHasOptionsMenu(true);
+
+            for (int i = 1; i <= LayerManager.LAYER_COUNT; i++) {
+
+                final Preference namePreference = findPreference("pref_datalayer_" + i + "_name");
+                bindPreferenceSummaryToValue(namePreference);
+
+                final Preference definitionPreference = findPreference("pref_datalayer_" + i + "_definition");
+                bindPreferenceSummaryToValue(definitionPreference);
+
+                final int fi = i;
+                findPreference("pref_datalayer_" + i + "_test").setOnPreferenceClickListener(
+
+                        preference -> {
+
+//                            new Thread(() -> SparqlClient.getLayer(getActivity(), fi, true,
+//                                    (SparqlClient.StringResultCallback) result -> UI.run(() ->
+//                                            new MaterialDialog.Builder(getActivity())
+//                                                    .title(AndroidUtils.getStringPreferenceValue(namePreference))
+//                                                    .content(result)
+//                                                    .positiveText("Back")
+//                                                    .show())
+//                            )).start();
                             return true;
                         }
                 );

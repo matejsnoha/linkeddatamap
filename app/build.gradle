@@ -67,7 +67,11 @@ dependencies {
     // Android Support Library - Multidex, required for multidex on API levels < 21
     compile 'com.android.support:multidex:1.0.1'
 
-    //compile 'org.apache.jena:jena:+'
+    // https://github.com/sbrunk/jena-android
+    compile fileTree(dir: '../libs', include: '*.jar')
+    compile 'org.slf4j:slf4j-api:1.7.6'
+    compile 'org.slf4j:slf4j-log4j12:1.7.6'
+
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.afollestad.material-dialogs:core:0.9.4.5'
     compile 'com.afollestad.material-dialogs:commons:0.9.4.5'
@@ -82,4 +86,7 @@ dependencies {
     compile 'org.apache.commons:commons-collections4:4.1'
     compile 'org.apache.commons:commons-csv:1.4'
     compile 'com.android.support:support-v4:25.3.1'
+
+    // Android Logging Log4J, Apache2
+    compile 'de.mindpipe.android:android-logging-log4j:1.0.3'
 }

@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -15,6 +14,7 @@ import com.google.android.gms.maps.model.TileProvider;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
+import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.text.DecimalFormat;
@@ -53,20 +53,19 @@ public class MapManager {
         MapManager.map = map;
     }
 
-    public static List<Integer> getLayers() {
+    public static List<Integer> getDataLayers() {
         return layers;
     }
 
-    public static void setLayers(final CameraPosition position, List<Integer> layers) {
-        setLayers(position, layers.toArray(new Integer[0]));
+    public static void setDataLayers(final CameraPosition position, List<Integer> layers) {
+        setDataLayers(position, layers.toArray(new Integer[0]));
     }
 
-    public static void setLayers(final CameraPosition position, final String... layerNames) {
+    public static void setDataLayers(final CameraPosition position, final String... layerNames) {
         List<Integer> layerIDs = new ArrayList<>();
-
     }
 
-    public static void setLayers(final CameraPosition position, final Integer... layerIDs) {
+    public static void setDataLayers(final CameraPosition position, final Integer... layerIDs) {
 
 		if (map == null) {
 			return;
@@ -102,7 +101,7 @@ public class MapManager {
 
 			MapManager.layers = newLayers1;
 			setMarkers(newMarkers);
-			updateLayers(position, () -> progressDialog.hide());
+			updateMarkers(position, () -> progressDialog.hide());
 
 		}).start();
     }
@@ -127,11 +126,11 @@ public class MapManager {
         }
     }
 
-    public static void updateLayers(CameraPosition position) {
-        updateLayers(position, null);
+    public static void updateMarkers(CameraPosition position) {
+        updateMarkers(position, null);
     }
 
-    public static void updateLayers(final CameraPosition position, Runnable callback) {
+    public static void updateMarkers(final CameraPosition position, Runnable callback) {
 
 		if (map == null) {
 			// TODO log

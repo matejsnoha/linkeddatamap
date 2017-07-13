@@ -1,0 +1,23 @@
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT
+    ?latitude
+    ?longitude
+    ?name
+
+FROM <{{graph}}>
+
+WHERE {
+
+    ?dataPoint  a {{dataPointType}} ;
+                {{dataName}} ?name ;
+                {{mapPointPath}} ?mapPoint .
+
+    ?mapPoint   {{addressPath}} ?address ;
+                {{latitudePath}} ?lat ;
+                {{longitudePath}} ?long .
+
+    BIND (xsd:float(?lat) AS ?latitude) .
+    BIND (xsd:float(?long) AS ?longitude) .
+
+}

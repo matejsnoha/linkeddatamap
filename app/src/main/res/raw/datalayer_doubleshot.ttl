@@ -1,0 +1,44 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix s: <http://schema.org/> .
+@prefix ms: <http://matej.snoha.info/dp/> .
+
+<http://matej.snoha.info/dp/resource/dataLayer/ds>
+
+    a ms:DataLayer ;
+    a s:Dataset ;
+
+    dcterms:title "DoubleShot" ;
+    dcterms:description "Coffee shops serving DoubleShot coffee" ;
+    dcterms:publisher [ a s:Person ;
+                        s:name "Matej Snoha" ;
+                        s:email "matej@snoha.info" ] ;
+    dcterms:modified "2017-07-13"^^xsd:date ;
+    dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
+
+    ms:service [  a sd:Service ;
+                  sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
+                  sd:supportedLanguage sd:SPARQL11Query ;
+                  # sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle> ;
+                  sd:defaultDataset [
+                      a sd:Dataset ;
+                      sd:namedGraph [
+                          a sd:NamedGraph ;
+                          sd:name "http://doubleshot" ;
+                          sd:graph [
+                              a sd:Graph ;
+                              void:triples 2000
+                          ]
+                      ]
+                  ]
+               ];
+
+    ms:dataLayerStructure [ a ms:DataLayerStructure ;
+                          ms:dataPointType "<http://schema.org/CafeOrCoffeeShop>" ;
+                          ms:dataName "<http://schema.org/name>" ;
+                          ms:dataDescription ( "Rating" "<http://schema.org/aggregateRating>" ) ;
+                          ms:mapPointPath "<http://schema.org/geo>" ] .
+
