@@ -8,9 +8,11 @@ import java.util.List;
 
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
+import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
-import info.snoha.matej.linkeddatamap.app.internal.net.SparqlClient;
+import info.snoha.matej.linkeddatamap.app.internal.sparql.CsvSparqlClient;
+import info.snoha.matej.linkeddatamap.app.internal.sparql.LayerQueryBuilder;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 
 import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.getBooleanPreferenceValue;
@@ -111,20 +113,33 @@ public class LayerManager {
         Log.debug("Map Layer " + layerID + ":");
 		Log.debug(mapLayer);
 
-        SparqlClient.getLayer(context, dataLayer, mapLayer, false, (SparqlClient.ListResultCallback) content -> {
+		String endpointUrl = mapLayer.getSparqlEndpoint();
+		String query = LayerQueryBuilder.query(context, dataLayer, mapLayer);
 
-			for (List<String> row : content) {
-				try {
-					Position pos = new Position(row.get(0), row.get(1));
-					String name = row.get(2);
-					String description = "";
-					// TODO description
-//					for (int i = 3; i < row.size(); i++) {
-//						description += description.isEmpty() ? row.get(i) : "\n\n" + row.get(i);
-//					}
-					markers.add(new MarkerModel(layerID, pos, name, description));
-				} catch (Exception e) {
+		CsvSparqlClient.execute(endpointUrl, query, new CsvSparqlClient.Callback() {
+
+			@Override
+			public void onSuccess(List<String> columns, List<List<String>> results) {
+				for (List<String> row : results) {
+					try {
+						Position pos = new Position(row.get(0), row.get(1));
+						String name = row.get(2);
+						String description = "";
+						// TODO description
+//						for (int i = 3; i < row.size(); i++) {
+//							description += description.isEmpty() ? row.get(i) : "\n\n" + row.get(i);
+//						}
+						markers.add(new MarkerModel(layerID, pos, name, description));
+					} catch (Exception e) {
+						// quietly skip row
+						Log.debug("Could not parse row: " + row, e);
+					}
 				}
+			}
+
+			@Override
+			public void onFailure(String reason) {
+				UI.message(context, "Could not load layer:\n" + reason);
 			}
 		});
 

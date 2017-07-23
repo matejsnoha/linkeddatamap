@@ -1,8 +1,10 @@
-package info.snoha.matej.linkeddatamap.app.internal.layers;
+package info.snoha.matej.linkeddatamap.app.internal.sparql;
 
 import android.content.Context;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
+import info.snoha.matej.linkeddatamap.app.internal.layers.DataLayer;
+import info.snoha.matej.linkeddatamap.app.internal.layers.MapLayer;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 
 public class LayerQueryBuilder {

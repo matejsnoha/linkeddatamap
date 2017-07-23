@@ -27,8 +27,8 @@ android {
         applicationId "info.snoha.matej.linkeddatamap"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 8
-        versionName "0.8"
+        versionCode 9
+        versionName "0.9"
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
             targetCompatibility JavaVersion.VERSION_1_8
@@ -67,8 +67,10 @@ dependencies {
     // Android Support Library - Multidex, required for multidex on API levels < 21
     compile 'com.android.support:multidex:1.0.1'
 
-    // https://github.com/sbrunk/jena-android
+    // JENA - https://github.com/sbrunk/jena-android
     compile fileTree(dir: '../libs', include: '*.jar')
+
+    // JENA dependencies
     compile 'org.slf4j:slf4j-api:1.7.6'
     compile 'org.slf4j:slf4j-log4j12:1.7.6'
 
