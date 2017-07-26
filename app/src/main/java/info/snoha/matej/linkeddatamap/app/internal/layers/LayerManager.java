@@ -1,19 +1,18 @@
 package info.snoha.matej.linkeddatamap.app.internal.layers;
 
 import android.content.Context;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
+import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
 import info.snoha.matej.linkeddatamap.app.internal.sparql.CsvSparqlClient;
 import info.snoha.matej.linkeddatamap.app.internal.sparql.LayerQueryBuilder;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.getBooleanPreferenceValue;
 import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.getStringPreferenceValue;
@@ -23,8 +22,14 @@ import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.set
 public class LayerManager {
 
     public static final int LAYER_COUNT = 6;
-
     public static final int LAYER_NONE = 0;
+
+	public interface Callback {
+
+		void onSuccess(List<MarkerModel> markers);
+
+		void onFailure(String reason);
+	}
 
     private static Context context;
 
@@ -85,18 +90,11 @@ public class LayerManager {
         return getDataLayerNames(false).get(layerID - 1);
     }
 
-    public static List<MarkerModel> getMarkers(int layerID) {
-        switch (layerID) {
-            case LAYER_NONE:
-                return Collections.emptyList();
-            default:
-                return getLayerMarkers(layerID);
-        }
-    }
-
-    private static List<MarkerModel> getLayerMarkers(int layerID) {
-
-        final List<MarkerModel> markers = new ArrayList<>();
+    public static void getMarkers(int layerID, BoundingBox geoLimits, Callback callback) {
+        if (layerID == LAYER_NONE) {
+			callback.onFailure("No layer selected");
+			return;
+		}
 
         // TODO data and map layer pairing in Settings
 		// TODO move to managers?
@@ -114,12 +112,13 @@ public class LayerManager {
 		Log.debug(mapLayer);
 
 		String endpointUrl = mapLayer.getSparqlEndpoint();
-		String query = LayerQueryBuilder.query(context, dataLayer, mapLayer);
+		String query = LayerQueryBuilder.query(context, dataLayer, mapLayer, geoLimits);
 
 		CsvSparqlClient.execute(endpointUrl, query, new CsvSparqlClient.Callback() {
 
 			@Override
 			public void onSuccess(List<String> columns, List<List<String>> results) {
+				List<MarkerModel> markers = new ArrayList<>();
 				for (List<String> row : results) {
 					try {
 						Position pos = new Position(row.get(0), row.get(1));
@@ -127,18 +126,17 @@ public class LayerManager {
 						String description = row.size() >= 4 ? row.get(3) : "";
 						markers.add(new MarkerModel(layerID, pos, name, description));
 					} catch (Exception e) {
-						// quietly skip row
 						Log.debug("Could not parse row: " + row, e);
 					}
 				}
+				callback.onSuccess(markers);
 			}
 
 			@Override
 			public void onFailure(String reason) {
 				UI.message(context, "Could not load layer:\n" + reason);
+				callback.onFailure(reason);
 			}
 		});
-
-        return markers;
     }
 }

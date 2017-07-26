@@ -73,7 +73,11 @@ public class CsvSparqlClient {
 				results.add(IteratorUtils.toList(record.iterator()));
 			}
 
-			Log.info("Sparql query success, " + (results.size() - 1) + " results");
+			if (columns == null) {
+				throw new Exception("Could not parse SPARQL result");
+			}
+
+			Log.info("Sparql query success, " + results.size() + " results");
 			callback.onSuccess(columns, results);
 
 		} catch (Exception e) {

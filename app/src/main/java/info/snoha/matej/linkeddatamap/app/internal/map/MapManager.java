@@ -1,7 +1,6 @@
 package info.snoha.matej.linkeddatamap.app.internal.map;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.GoogleMap;
@@ -14,13 +13,18 @@ import com.google.android.gms.maps.model.TileProvider;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
+import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
@@ -33,13 +37,13 @@ public class MapManager {
     public static final int MARKER_DISTANCE_SCREENS = 1; // number of screens away from center
     public static final int MARKER_MIN_DISTANCE_METERS = 100; // always show markers this far
     public static final int MARKER_MAX_DISPLAY_COUNT = 500; // switch to heatmap if more
+	public static final int MARKER_LOAD_TIMEOUT = 60; // seconds
 
     private static Context context;
     private static GoogleMap map;
 
-    private static volatile List<Integer> layers = Collections.emptyList();
-
-    private static volatile List<MarkerModel> allMarkers;
+    private static volatile List<Integer> visibleLayers = Collections.emptyList();
+	private static volatile List<MarkerModel> visibleMarkers;
 
     private static volatile TileProvider heatmapTileProvider;
     private static volatile boolean heatmapMode;
@@ -53,21 +57,18 @@ public class MapManager {
         MapManager.map = map;
     }
 
-    public static List<Integer> getDataLayers() {
-        return layers;
+    public static List<Integer> getVisibleLayers() {
+        return visibleLayers;
     }
 
     public static void setDataLayers(final CameraPosition position, List<Integer> layers) {
         setDataLayers(position, layers.toArray(new Integer[0]));
     }
 
-    public static void setDataLayers(final CameraPosition position, final String... layerNames) {
-        List<Integer> layerIDs = new ArrayList<>();
-    }
+    public static void setDataLayers(final CameraPosition cameraPosition, final Integer... layerIDs) {
 
-    public static void setDataLayers(final CameraPosition position, final Integer... layerIDs) {
-
-		if (map == null) {
+		if (map == null || cameraPosition == null) {
+			Log.warn("Map not initialized yet");
 			return;
 		}
 
@@ -80,42 +81,31 @@ public class MapManager {
 
 		map.clear();
 
-        final List<MarkerModel> newMarkers = new ArrayList<>();
-        final List<Integer> newLayers = new ArrayList<>();
+        List<MarkerModel> newMarkers = new ArrayList<>();
+
+		visibleLayers = Arrays.asList(layerIDs);
 
         if (layerIDs.length == 0 || (layerIDs.length == 1 && layerIDs[0] == LayerManager.LAYER_NONE)) {
-            MapManager.layers = newLayers;
-            setMarkers(newMarkers);
+
+            setVisibleMarkers(newMarkers);
             progressDialog.hide();
             return;
+
         }
 
-        new Thread(() -> {
-
-			List<Integer> newLayers1 = new ArrayList<>();
-
-			for (int layer : layerIDs) {
-				newLayers1.add(layer);
-				newMarkers.addAll(LayerManager.getMarkers(layer));
-			}
-
-			MapManager.layers = newLayers1;
-			setMarkers(newMarkers);
-			updateMarkers(position, () -> progressDialog.hide());
-
-		}).start();
+        new Thread(() -> updateMarkersOnMap(cameraPosition, progressDialog::hide)).start();
     }
 
-    private static void setMarkers(List<MarkerModel> markers) {
+    private static void setVisibleMarkers(List<MarkerModel> markers) {
 
-        allMarkers = markers;
+        visibleMarkers = markers;
 
         if (markers.size() > 0) {
             heatmapMode = false;
             heatmapTileProvider = new HeatmapTileProvider.Builder()
-                    .data(CollectionUtils.collect(allMarkers, input -> new LatLng(
-							input.getPosition().getLatitude(),
-							input.getPosition().getLongitude())))
+                    .data(CollectionUtils.collect(visibleMarkers, marker -> new LatLng(
+							marker.getPosition().getLatitude(),
+							marker.getPosition().getLongitude())))
                     .opacity(0.5)
                     .gradient(new Gradient(
                             new int[] {
@@ -126,84 +116,100 @@ public class MapManager {
         }
     }
 
-    public static void updateMarkers(CameraPosition position) {
-        updateMarkers(position, null);
+    public static void updateMarkersOnMap(CameraPosition cameraPosition) {
+        updateMarkersOnMap(cameraPosition, null);
     }
 
-    public static void updateMarkers(final CameraPosition position, Runnable callback) {
+    public static synchronized void updateMarkersOnMap(final CameraPosition cameraPosition, Runnable callback) {
 
-		if (map == null) {
-			// TODO log
+		if (map == null || cameraPosition == null) {
+			Log.warn("Map not initialized yet");
 			return;
 		}
 
-        final List<MarkerModel> filteredMarkers = getClosestMarkers(allMarkers, position);
+		// fetch markers in camera range
+		Position center = new Position(cameraPosition);
+		int range = Math.max(MARKER_MIN_DISTANCE_METERS,
+				getScreenWidth(center.getLatitude(), cameraPosition.zoom) * MARKER_DISTANCE_SCREENS);
 
-        if (filteredMarkers.size() <= MARKER_MAX_DISPLAY_COUNT) {
+		BoundingBox geoLimits = BoundingBox.from(center, range);
 
-            heatmapMode = false;
-            UI.run(() -> {
-				map.clear();
-				for (MarkerModel marker : filteredMarkers) {
-					map.addMarker(new MarkerOptions()
-							.icon(BitmapDescriptorFactory.defaultMarker(getLayerHue(marker.getLayer())))
-							.position(new LatLng(marker.getPosition().getLatitude(),
-									marker.getPosition().getLongitude()))
-							.title(marker.getName())
-							.snippet(marker.getText()));
+		CountDownLatch doneSignal = new CountDownLatch(visibleLayers.size());
+		List<MarkerModel> newVisibleMarkers = new ArrayList<>();
+
+		for (int layerId : visibleLayers) {
+
+			LayerManager.getMarkers(layerId, geoLimits, new LayerManager.Callback() {
+
+				@Override
+				public void onSuccess(List<MarkerModel> markers) {
+					synchronized (newVisibleMarkers) {
+						newVisibleMarkers.addAll(markers);
+					}
+					doneSignal.countDown();
+				}
+
+				@Override
+				public void onFailure(String reason) {
+					// logged on underlying levels
+					doneSignal.countDown();
 				}
 			});
+		}
 
-        } else if (!heatmapMode) {
+		try {
+			doneSignal.await(MARKER_LOAD_TIMEOUT, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			Log.warn("Interrupted wait for marker load", e);
+		}
 
-            heatmapMode = true;
-            UI.run(() -> {
-				map.clear();
-				map.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
-			});
-        } // else do nothing, heatmap persists on camera change
+		synchronized (newVisibleMarkers) { // in case of timeout above
 
-        if (callback != null)
-            UI.run(callback);
+			Log.info("[Layers " + visibleLayers + "] Showing " + newVisibleMarkers.size() + " markers up to "
+					+ new DecimalFormat("#.#").format(range / 1000f) + "km away from " + center);
+
+			if (newVisibleMarkers.size() <= MARKER_MAX_DISPLAY_COUNT) {
+
+				heatmapMode = false;
+				UI.run(() -> {
+					map.clear();
+					for (MarkerModel marker : newVisibleMarkers) {
+						map.addMarker(new MarkerOptions()
+								.icon(BitmapDescriptorFactory.defaultMarker(getLayerHue(marker.getLayer())))
+								.position(new LatLng(marker.getPosition().getLatitude(),
+										marker.getPosition().getLongitude()))
+								.title(marker.getName())
+								.snippet(marker.getText()));
+					}
+				});
+
+			} else if (!heatmapMode) {
+
+				heatmapMode = true;
+				UI.run(() -> {
+					map.clear();
+					map.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
+				});
+			} // else do nothing, heatmap persists on camera change
+
+		}
+
+		visibleMarkers = newVisibleMarkers;
+        if (callback != null) {
+			UI.run(callback);
+		}
     }
 
-    public static List<MarkerModel> getClosestMarkers(List<MarkerModel> allMarkers, CameraPosition position) {
+    public static List<MarkerModel> getSortedClosestMarkers(final Position position, int count) {
 
-        if (position == null || allMarkers == null)
+		// TODO look further than currently visible on map
+        if (visibleMarkers == null || position == null)
             return Collections.emptyList();
 
-        Position center = toPosition(position);
-        int range = Math.max(MARKER_MIN_DISTANCE_METERS,
-                getScreenWidth(center.getLatitude(), position.zoom) * MARKER_DISTANCE_SCREENS);
-
-        List<MarkerModel> filtered = new ArrayList<>();
-        for (MarkerModel marker : allMarkers) {
-            if (center.distanceTo(marker.getPosition()) <= range)
-                filtered.add(marker);
-        }
-
-        Log.i("Map layers " + layers, "Showing " + filtered.size() + " markers up to "
-                + new DecimalFormat("#.#").format(range / 1000f) + "km away from " + center);
-
-        return filtered;
-    }
-
-    public static List<MarkerModel> getNearbyMarkers(final Position position, int count) {
-
-        if (allMarkers == null || position == null)
-            return Collections.emptyList();
-
-        List<MarkerModel> topN = new ArrayList<>(allMarkers);
-        Collections.sort(topN, (lhs, rhs) -> lhs.getPosition().distanceTo(position).compareTo(
+        List<MarkerModel> markersByDistance = new ArrayList<>(visibleMarkers);
+        Collections.sort(markersByDistance, (lhs, rhs) -> lhs.getPosition().distanceTo(position).compareTo(
 				rhs.getPosition().distanceTo(position)));
-        return topN.subList(0, Math.min(count, topN.size()));
-    }
-
-    private static Position toPosition(CameraPosition cameraPosition) {
-        if (cameraPosition == null || cameraPosition.target == null)
-            return null;
-
-        return new Position(cameraPosition.target.latitude, cameraPosition.target.longitude);
+        return markersByDistance.subList(0, Math.min(count, markersByDistance.size()));
     }
 
     private static int getScreenWidth(double latitude, double zoom) {

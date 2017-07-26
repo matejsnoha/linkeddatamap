@@ -1,5 +1,8 @@
 package info.snoha.matej.linkeddatamap.app.internal.model;
 
+import android.location.Location;
+import com.google.android.gms.maps.model.CameraPosition;
+
 /**
  * Geographic position in latitude / longitude format.
  */
@@ -32,6 +35,16 @@ public class Position {
     public Position(String latitude, String longitude) {
         this.latitude = Double.valueOf(latitude);
         this.longitude = Double.valueOf(longitude);
+    }
+
+    public Position(Location location) {
+        this.latitude = location.getLatitude();
+        this.longitude = location.getLongitude();
+    }
+
+    public Position(CameraPosition cameraPosition) {
+        this.latitude = cameraPosition.target.latitude;
+        this.longitude = cameraPosition.target.longitude;
     }
 
     public Position() {

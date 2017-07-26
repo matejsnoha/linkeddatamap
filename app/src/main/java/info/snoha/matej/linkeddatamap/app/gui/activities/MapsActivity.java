@@ -182,7 +182,7 @@ public class MapsActivity extends AppCompatActivity
 
 			List<String> enabledLayerNames = LayerManager.getDataLayerNames(true);
 			List<Integer> selectedLayerDialogIndexes = new ArrayList<>();
-			for (int layerID : MapManager.getDataLayers()) {
+			for (int layerID : MapManager.getVisibleLayers()) {
 				selectedLayerDialogIndexes.add(enabledLayerNames.indexOf(
 						LayerManager.getLayerName(layerID)
 				));
@@ -246,7 +246,7 @@ public class MapsActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh:
-                MapManager.setDataLayers(cameraPosition, MapManager.getDataLayers());
+                MapManager.setDataLayers(cameraPosition, MapManager.getVisibleLayers());
                 return true;
             case R.id.settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -300,7 +300,7 @@ public class MapsActivity extends AppCompatActivity
             public void run() {
                 if (!ObjectUtils.equals(lastPosition, cameraPosition)) {
                     lastPosition = cameraPosition;
-                    MapManager.updateMarkers(cameraPosition);
+                    MapManager.updateMarkersOnMap(cameraPosition);
                 }
             }
         }, 0, CAMERA_TRACKING_FREQUENCY);
@@ -381,8 +381,8 @@ public class MapsActivity extends AppCompatActivity
 			return;
 		}
 
-		Position myPosition = new Position(location.getLatitude(), location.getLongitude());
-		List<MarkerModel> nearbyMarkers = MapManager.getNearbyMarkers(myPosition, 20);
+		Position myPosition = new Position(location);
+		List<MarkerModel> nearbyMarkers = MapManager.getSortedClosestMarkers(myPosition, 20);
 
 		Log.debug("Found " + nearbyMarkers.size() + " nearby");
 

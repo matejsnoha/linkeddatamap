@@ -22,5 +22,12 @@ WHERE {
     BIND (xsd:float(?lat) AS ?latitude) .
     BIND (xsd:float(?long) AS ?longitude) .
 
+    FILTER (
+        ?latitude >= {{minLat}}
+        && ?latitude <= {{maxLat}}
+        && ?longitude >= {{minLong}}
+        && ?longitude <= {{maxLong}}
+    )
+
     {{dataDescriptionBind}}
 }
