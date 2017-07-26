@@ -39,6 +39,6 @@
     ms:dataLayerStructure [ a ms:DataLayerStructure ;
                           ms:dataPointType "<http://schema.org/CafeOrCoffeeShop>" ;
                           ms:dataName "<http://schema.org/name>" ;
-                          ms:dataDescription ( "Rating" "<http://schema.org/aggregateRating>" ) ;
+                          ms:dataDescription ( "Rating " "<http://schema.org/aggregateRating>" ) ;
                           ms:mapPointPath "<http://schema.org/geo>" ] .
 

@@ -8,6 +8,10 @@ public class Uris {
 		return "<" + prefix + what + ">";
 	}
 
+	public static boolean isUri(String what) {
+		return what != null && what.startsWith("<") && what.endsWith(">");
+	}
+
 	public static String newResource(String prefix) {
 		return prefix + UUID.randomUUID().toString();
 	}

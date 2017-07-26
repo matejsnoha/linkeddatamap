@@ -37,6 +37,7 @@ public class DataLayerManager {
 					.sparqlNamedGraph(jena.propertyValue(graph, Prefixes.SD + "name"))
 					.dataPointType(jena.propertyValue(structure, Prefixes.MS + "dataPointType"))
 					.dataName(jena.propertyValue(structure, Prefixes.MS + "dataName"))
+					.dataDescription(jena.propertyList(structure, Prefixes.MS + "dataDescription"))
 					.mapPointPath(jena.propertyValue(structure, Prefixes.MS + "mapPointPath"))
 					;
 

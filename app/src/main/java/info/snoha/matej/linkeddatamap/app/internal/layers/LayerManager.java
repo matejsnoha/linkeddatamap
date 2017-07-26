@@ -124,11 +124,7 @@ public class LayerManager {
 					try {
 						Position pos = new Position(row.get(0), row.get(1));
 						String name = row.get(2);
-						String description = "";
-						// TODO description
-//						for (int i = 3; i < row.size(); i++) {
-//							description += description.isEmpty() ? row.get(i) : "\n\n" + row.get(i);
-//						}
+						String description = row.size() >= 4 ? row.get(3) : "";
 						markers.add(new MarkerModel(layerID, pos, name, description));
 					} catch (Exception e) {
 						// quietly skip row

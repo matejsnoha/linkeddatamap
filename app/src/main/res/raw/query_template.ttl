@@ -4,6 +4,7 @@ SELECT
     ?latitude
     ?longitude
     ?name
+    {{dataDescriptionSelect}}
 
 FROM <{{graph}}>
 
@@ -11,6 +12,7 @@ WHERE {
 
     ?dataPoint  a {{dataPointType}} ;
                 {{dataName}} ?name ;
+                {{dataDescriptionWhere}}
                 {{mapPointPath}} ?mapPoint .
 
     ?mapPoint   {{addressPath}} ?address ;
@@ -20,4 +22,5 @@ WHERE {
     BIND (xsd:float(?lat) AS ?latitude) .
     BIND (xsd:float(?long) AS ?longitude) .
 
+    {{dataDescriptionBind}}
 }
