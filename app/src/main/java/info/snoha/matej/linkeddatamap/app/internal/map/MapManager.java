@@ -36,7 +36,7 @@ public class MapManager {
 
     public static final int MARKER_DISTANCE_SCREENS = 1; // number of screens away from center
     public static final int MARKER_MIN_DISTANCE_METERS = 100; // always show markers this far
-    public static final int MARKER_MAX_DISPLAY_COUNT = 500; // switch to heatmap if more
+    public static final int MARKER_MAX_DISPLAY_COUNT = 300; // switch to heatmap if more
 	public static final int MARKER_LOAD_TIMEOUT = 60; // seconds
 
     private static Context context;
@@ -81,13 +81,11 @@ public class MapManager {
 
 		map.clear();
 
-        List<MarkerModel> newMarkers = new ArrayList<>();
-
 		visibleLayers = Arrays.asList(layerIDs);
 
         if (layerIDs.length == 0 || (layerIDs.length == 1 && layerIDs[0] == LayerManager.LAYER_NONE)) {
 
-            setVisibleMarkers(newMarkers);
+            setVisibleMarkers(Collections.emptyList());
             progressDialog.hide();
             return;
 
@@ -168,6 +166,8 @@ public class MapManager {
 			Log.info("[Layers " + visibleLayers + "] Showing " + newVisibleMarkers.size() + " markers up to "
 					+ new DecimalFormat("#.#").format(range / 1000f) + "km away from " + center);
 
+			setVisibleMarkers(newVisibleMarkers);
+
 			if (newVisibleMarkers.size() <= MARKER_MAX_DISPLAY_COUNT) {
 
 				heatmapMode = false;
@@ -194,7 +194,6 @@ public class MapManager {
 
 		}
 
-		visibleMarkers = newVisibleMarkers;
         if (callback != null) {
 			UI.run(callback);
 		}

@@ -5,18 +5,19 @@
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
 @prefix ms: <http://matej.snoha.info/dp/> .
+@prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .
 
-<http://matej.snoha.info/dp/resource/dataLayer/ds>
+<http://matej.snoha.info/dp/resource/mapLayer/ruian>
 
-    a ms:DataLayer ;
+    a ms:MapLayer ;
     a void:Dataset ;
 
-    dcterms:title "DoubleShot" ;
-    dcterms:description "Coffee shops serving DoubleShot coffee" ;
+    dcterms:title "RUIAN" ;
+    dcterms:description "RUIAN - registry of land identification, addresses and properties of the Czech Republic" ;
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-07-13"^^xsd:date ;
+    dcterms:modified "2017-07-27"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
@@ -27,18 +28,17 @@
                       a sd:Dataset ;
                       sd:namedGraph [
                           a sd:NamedGraph ;
-                          sd:name "http://doubleshot" ;
+                          sd:name "http://ruian" ;
                           sd:graph [
                               a sd:Graph ;
-                              void:triples 2000
+                              void:triples 25145000
                           ]
                       ]
                   ]
                ];
 
-    ms:dataLayerStructure [ a ms:DataLayerStructure ;
-                          ms:dataPointType "<http://schema.org/CafeOrCoffeeShop>" ;
-                          ms:dataName "<http://schema.org/name>" ;
-                          ms:dataDescription ( "Rating " "<http://schema.org/aggregateRating>" ) ;
-                          ms:mapPointPath "<http://schema.org/geo>" ] .
-
+    ms:mapLayerStructure [  a ms:MapLayerStructure ;
+                          ms:addressPointType "<http://ruian.linked.opendata.cz/ontology/AdresniMisto>" ;
+                          ms:addressPath "<http://schema.org/name>" ; #TODO
+                          ms:latitudePath "<http://ruian.linked.opendata.cz/ontology/adresniBod>/<http://schema.org/geo>/<http://schema.org/latitude>" ;
+                          ms:longitudePath "<http://ruian.linked.opendata.cz/ontology/adresniBod>/<http://schema.org/geo>/<http://schema.org/longitude>" ] .

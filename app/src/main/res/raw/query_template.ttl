@@ -12,8 +12,9 @@ WHERE {
 
     ?dataPoint  a {{dataPointType}} ;
                 {{dataName}} ?name ;
-                {{dataDescriptionWhere}}
                 {{mapPointPath}} ?mapPoint .
+
+    {{dataDescriptionWhere}}
 
     ?mapPoint   {{addressPath}} ?address ;
                 {{latitudePath}} ?lat ;

@@ -5,18 +5,19 @@
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
 @prefix ms: <http://matej.snoha.info/dp/> .
+@prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .
 
-<http://matej.snoha.info/dp/resource/dataLayer/ds>
+<http://matej.snoha.info/dp/resource/dataLayer/ruian>
 
     a ms:DataLayer ;
-    a void:Dataset ;
+    a s:Dataset ;
 
-    dcterms:title "DoubleShot" ;
-    dcterms:description "Coffee shops serving DoubleShot coffee" ;
+    dcterms:title "RUIAN" ;
+    dcterms:description "RUIAN - registry of land identification, addresses and properties of the Czech Republic" ;
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-07-13"^^xsd:date ;
+    dcterms:modified "2017-07-27"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
@@ -27,18 +28,18 @@
                       a sd:Dataset ;
                       sd:namedGraph [
                           a sd:NamedGraph ;
-                          sd:name "http://doubleshot" ;
+                          sd:name "http://ruian" ;
                           sd:graph [
                               a sd:Graph ;
-                              void:triples 2000
+                              void:triples 25145000
                           ]
                       ]
                   ]
                ];
 
     ms:dataLayerStructure [ a ms:DataLayerStructure ;
-                          ms:dataPointType "<http://schema.org/CafeOrCoffeeShop>" ;
+                          ms:dataPointType "<http://ruian.linked.opendata.cz/ontology/StavebniObjekt>" ;
                           ms:dataName "<http://schema.org/name>" ;
-                          ms:dataDescription ( "Rating " "<http://schema.org/aggregateRating>" ) ;
-                          ms:mapPointPath "<http://schema.org/geo>" ] .
+                          ms:dataDescription ( "Pocet bytu " "<http://ruian.linked.opendata.cz/ontology/pocetBytu>" ", Pocet podlazi " "<http://ruian.linked.opendata.cz/ontology/pocetPodlazi>" ) ;
+                          ms:mapPointPath "^<http://ruian.linked.opendata.cz/ontology/stavebniObjekt>" ] .
 

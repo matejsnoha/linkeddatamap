@@ -69,15 +69,16 @@ public class MapsActivity extends AppCompatActivity
 
     private CameraPosition cameraPosition;
     private Timer cameraTrackingTimer;
-	private static final int CAMERA_TRACKING_FREQUENCY = 3_000;
+	private static final int CAMERA_TRACKING_FREQUENCY = 5_000;
 
 	/** Nearby tracking **/
 
 	private boolean nearbyTracking;
     private Timer nearbyTrackingTimer;
 	private static final int NEARBY_TRACKING_FREQUENCY = 5_000;
+	private static final int NEARBY_COUNT = 20;
 
-    protected void onStart() {
+	protected void onStart() {
         super.onStart();
         apiClient.connect();
     }
@@ -368,9 +369,6 @@ public class MapsActivity extends AppCompatActivity
 	private void showAndRefreshNearby(boolean showMessages) {
 
 		Log.debug("Refreshing nearby");
-		if (showMessages) {
-			UI.message(MapsActivity.this, "Please wait");
-		}
 
 		Location location = getCurrentLocation();
 		if (location == null) {
@@ -382,7 +380,7 @@ public class MapsActivity extends AppCompatActivity
 		}
 
 		Position myPosition = new Position(location);
-		List<MarkerModel> nearbyMarkers = MapManager.getSortedClosestMarkers(myPosition, 20);
+		List<MarkerModel> nearbyMarkers = MapManager.getSortedClosestMarkers(myPosition, NEARBY_COUNT);
 
 		Log.debug("Found " + nearbyMarkers.size() + " nearby");
 

@@ -30,13 +30,14 @@ public class LayerQueryBuilder {
 				int descriptionItemCount = 0;
 				int descriptionUriItemCount = 0;
 				String select = "?description";
-				String where = "";
+				String where = "OPTIONAL { ?dataPoint ";
 				String bind = "BIND (CONCAT(";
 				for (String descriptionItem : dataLayer.getDataDescription()) {
 					descriptionItemCount++;
 					if (Uris.isUri(descriptionItem)) {
 						descriptionUriItemCount++;
-						where += descriptionItem + " ?d" + descriptionUriItemCount + " ; ";
+						where += (descriptionUriItemCount > 1 ? " ; " : "")
+								+ descriptionItem + " ?d" + descriptionUriItemCount;
 						bind += (descriptionItemCount > 1 ? ", " : "")
 								+ "STR(?d" + descriptionUriItemCount + ")" ;
 					} else {
@@ -44,6 +45,7 @@ public class LayerQueryBuilder {
 								+ "\"" + descriptionItem + "\"" ;
 					}
 				}
+				where += " . }";
 				bind += ") AS ?description) .";
 
 				template = template.replace("{{dataDescriptionSelect}}", select);
