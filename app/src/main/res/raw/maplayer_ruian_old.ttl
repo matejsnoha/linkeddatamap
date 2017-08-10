@@ -7,12 +7,12 @@
 @prefix ms: <http://matej.snoha.info/dp/> .
 @prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .
 
-<http://matej.snoha.info/dp/resource/dataLayer/ruian>
+<http://matej.snoha.info/dp/resource/mapLayer/ruian>
 
-    a ms:DataLayer ;
-    a s:Dataset ;
+    a ms:MapLayer ;
+    a void:Dataset ;
 
-    dcterms:title "RUIAN" ;
+    dcterms:title "RUIAN (old)" ;
     dcterms:description "RUIAN - registry of land identification, addresses and properties of the Czech Republic" ;
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
@@ -29,7 +29,7 @@
                       a sd:Dataset ;
                       sd:namedGraph [
                           a sd:NamedGraph ;
-                          sd:name "http://ruian" ;
+                          sd:name "http://ruian-old" ;
                           sd:graph [
                               a sd:Graph ;
                               void:triples 25145000
@@ -38,9 +38,8 @@
                   ]
                ];
 
-    ms:dataLayerStructure [ a ms:DataLayerStructure ;
-                          ms:dataPointType "<http://ruian.linked.opendata.cz/ontology/StavebniObjekt>" ;
-                          ms:dataName "<http://schema.org/name>" ;
-                          ms:dataDescription ( "Pocet bytu " "<http://ruian.linked.opendata.cz/ontology/pocetBytu>" ", Pocet podlazi " "<http://ruian.linked.opendata.cz/ontology/pocetPodlazi>" ) ;
-                          ms:mapPointPath "^<http://ruian.linked.opendata.cz/ontology/stavebniObjekt>" ] .
-
+    ms:mapLayerStructure [  a ms:MapLayerStructure ;
+                          ms:addressPointType "<http://ruian.linked.opendata.cz/ontology/AdresniMisto>" ;
+                          ms:addressPath "<http://schema.org/name>" ; #TODO
+                          ms:latitudePath "<http://ruian.linked.opendata.cz/ontology/adresniBod>/<http://schema.org/geo>/<http://schema.org/latitude>" ;
+                          ms:longitudePath "<http://ruian.linked.opendata.cz/ontology/adresniBod>/<http://schema.org/geo>/<http://schema.org/longitude>" ] .

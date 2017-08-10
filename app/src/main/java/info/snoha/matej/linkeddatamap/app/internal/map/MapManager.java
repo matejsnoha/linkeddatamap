@@ -31,6 +31,7 @@ import info.snoha.matej.linkeddatamap.app.internal.model.Position;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 public class MapManager {
 
@@ -42,11 +43,14 @@ public class MapManager {
     private static Context context;
     private static GoogleMap map;
 
-    private static volatile List<Integer> visibleLayers = Collections.emptyList();
-	private static volatile List<MarkerModel> visibleMarkers;
+    private static List<Integer> visibleLayers = Collections.emptyList();
+	private static List<MarkerModel> visibleMarkers;
 
-    private static volatile TileProvider heatmapTileProvider;
-    private static volatile boolean heatmapMode;
+    private static TileProvider heatmapTileProvider;
+    private static boolean heatmapMode;
+
+    private static CameraPosition lastUpdatedPosition;
+	private static CameraPosition currentPosition;
 
 	public static void with(Context context) {
 		MapManager.context = context;
@@ -91,7 +95,7 @@ public class MapManager {
 
         }
 
-        new Thread(() -> updateMarkersOnMap(cameraPosition, progressDialog::hide)).start();
+        new Thread(() -> updateMarkersOnMap(cameraPosition, progressDialog::hide, true)).start();
     }
 
     private static void setVisibleMarkers(List<MarkerModel> markers) {
@@ -114,21 +118,42 @@ public class MapManager {
         }
     }
 
-    public static void updateMarkersOnMap(CameraPosition cameraPosition) {
-        updateMarkersOnMap(cameraPosition, null);
+    public static void updateMarkersOnMap(CameraPosition position) {
+        updateMarkersOnMap(position, null, false);
     }
 
-    public static synchronized void updateMarkersOnMap(final CameraPosition cameraPosition, Runnable callback) {
+    public static synchronized void updateMarkersOnMap(CameraPosition position,
+													   Runnable callback, boolean layersChanged) {
 
-		if (map == null || cameraPosition == null) {
+		if (map == null || position == null) {
+
+			// not initialized or no change
 			Log.warn("Map not initialized yet");
+			if (callback != null) {
+				UI.run(callback);
+			}
+			return;
+
+		} else if (shouldUpdateMarkers(position) || layersChanged) {
+
+			// first position or a move to a large enough distance
+			lastUpdatedPosition = position;
+			currentPosition = position;
+			Log.debug("Updating markers on map");
+
+		} else {
+
+			// not updating here, just marking as current so we don't have to recheck it again
+			currentPosition = position;
+			if (callback != null) {
+				UI.run(callback);
+			}
 			return;
 		}
 
 		// fetch markers in camera range
-		Position center = new Position(cameraPosition);
-		int range = Math.max(MARKER_MIN_DISTANCE_METERS,
-				getScreenWidth(center.getLatitude(), cameraPosition.zoom) * MARKER_DISTANCE_SCREENS);
+		Position center = new Position(position);
+		int range = Math.max(MARKER_MIN_DISTANCE_METERS, getVisibleRange(position) * MARKER_DISTANCE_SCREENS);
 
 		BoundingBox geoLimits = BoundingBox.from(center, range);
 
@@ -164,7 +189,7 @@ public class MapManager {
 		synchronized (newVisibleMarkers) { // in case of timeout above
 
 			Log.info("[Layers " + visibleLayers + "] Showing " + newVisibleMarkers.size() + " markers up to "
-					+ new DecimalFormat("#.#").format(range / 1000f) + "km away from " + center);
+					+ formatKm(range) + " away from " + center);
 
 			setVisibleMarkers(newVisibleMarkers);
 
@@ -211,17 +236,37 @@ public class MapManager {
         return markersByDistance.subList(0, Math.min(count, markersByDistance.size()));
     }
 
-    private static int getScreenWidth(double latitude, double zoom) {
+    private static int getVisibleRange(CameraPosition position) {
 
         final double SCREEN_SIZE = AndroidUtils.pixelsToDip(context, Math.max(
                 context.getResources().getDisplayMetrics().widthPixels,
                 context.getResources().getDisplayMetrics().heightPixels));
         final double EQUATOR_LENGTH = 40075004; // meters
 
-        double pixelSize = (EQUATOR_LENGTH * Math.cos(Math.toRadians(latitude)))
-                / Math.pow(2, zoom + 8); // 256 * 2^z
+        double pixelSize = (EQUATOR_LENGTH * Math.cos(Math.toRadians(position.target.latitude)))
+                / Math.pow(2, position.zoom + 8); // 256 * 2^z
         return (int) (SCREEN_SIZE * pixelSize);
     }
+
+    private static boolean shouldUpdateMarkers(CameraPosition position) {
+		if (position == null
+				|| ObjectUtils.equals(lastUpdatedPosition, position)
+				|| ObjectUtils.equals(currentPosition, position)) {
+
+			return false;
+		} else if (lastUpdatedPosition == null) {
+			return true;
+		}
+
+		double preloadedRange = getVisibleRange(lastUpdatedPosition) * MARKER_DISTANCE_SCREENS;
+
+		double distance = new Position(position).distanceTo(new Position(lastUpdatedPosition));
+
+		Log.debug("Moved " + formatKm(distance) + " from the last updated position, " +
+				"preloaded " + formatKm(preloadedRange));
+
+		return distance > preloadedRange / 2;
+	}
 
     private static float getLayerHue(int layer) {
 		switch (layer) {
@@ -238,5 +283,9 @@ public class MapManager {
 			default:
 				return BitmapDescriptorFactory.HUE_VIOLET;
 		}
+	}
+
+	private static String formatKm(double m) {
+		return new DecimalFormat("#.#").format(m / 1000f) + "km";
 	}
 }

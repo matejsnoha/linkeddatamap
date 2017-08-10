@@ -37,7 +37,7 @@ public class LayerManager {
         LayerManager.context = context;
 
         // first run init
-        if (!getBooleanPreferenceValue(context, "initialized")) {
+        //if (!getBooleanPreferenceValue(context, "initialized")) {
 
 			setBooleanPreferenceValue(context, "pref_maplayer_1_enabled", true);
 			setStringPreferenceValue(context, "pref_maplayer_1_name", "DoubleShot");
@@ -50,17 +50,27 @@ public class LayerManager {
 					AndroidUtils.readRawResource(context, R.raw.datalayer_doubleshot));
 
 			setBooleanPreferenceValue(context, "pref_maplayer_2_enabled", true);
-			setStringPreferenceValue(context, "pref_maplayer_2_name", "RUIAN");
+			setStringPreferenceValue(context, "pref_maplayer_2_name", "RUIAN (old)");
 			setStringPreferenceValue(context, "pref_maplayer_2_definition",
-					AndroidUtils.readRawResource(context, R.raw.maplayer_ruian));
+					AndroidUtils.readRawResource(context, R.raw.maplayer_ruian_old));
 
 			setBooleanPreferenceValue(context, "pref_datalayer_2_enabled", true);
-			setStringPreferenceValue(context, "pref_datalayer_2_name", "RUIAN");
+			setStringPreferenceValue(context, "pref_datalayer_2_name", "RUIAN (old)");
 			setStringPreferenceValue(context, "pref_datalayer_2_definition",
+					AndroidUtils.readRawResource(context, R.raw.datalayer_ruian_old));
+
+			setBooleanPreferenceValue(context, "pref_maplayer_3_enabled", true);
+			setStringPreferenceValue(context, "pref_maplayer_3_name", "RUIAN");
+			setStringPreferenceValue(context, "pref_maplayer_3_definition",
+					AndroidUtils.readRawResource(context, R.raw.maplayer_ruian));
+
+			setBooleanPreferenceValue(context, "pref_datalayer_3_enabled", true);
+			setStringPreferenceValue(context, "pref_datalayer_3_name", "RUIAN");
+			setStringPreferenceValue(context, "pref_datalayer_3_definition",
 					AndroidUtils.readRawResource(context, R.raw.datalayer_ruian));
 
         	setBooleanPreferenceValue(context, "initialized", true);
-		}
+		//}
     }
 
     public static List<String> getDataLayerNames(boolean onlyEnabled) {

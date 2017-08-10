@@ -12,7 +12,7 @@
     a ms:DataLayer ;
     a s:Dataset ;
 
-    dcterms:title "RUIAN" ;
+    dcterms:title "RUIAN (old)" ;
     dcterms:description "RUIAN - registry of land identification, addresses and properties of the Czech Republic" ;
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
@@ -29,7 +29,7 @@
                       a sd:Dataset ;
                       sd:namedGraph [
                           a sd:NamedGraph ;
-                          sd:name "http://ruian" ;
+                          sd:name "http://ruian-old" ;
                           sd:graph [
                               a sd:Graph ;
                               void:triples 25145000

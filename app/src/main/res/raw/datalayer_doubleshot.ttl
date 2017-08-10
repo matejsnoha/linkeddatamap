@@ -20,7 +20,8 @@
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
-                  sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
+                  sd:endpoint "http://192.168.56.1:3030/dp/sparql" ;
+                  # sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
                   sd:supportedLanguage sd:SPARQL11Query ;
                   # sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle> ;
                   sd:defaultDataset [

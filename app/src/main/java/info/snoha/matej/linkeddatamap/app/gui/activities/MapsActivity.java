@@ -295,14 +295,9 @@ public class MapsActivity extends AppCompatActivity
         cameraTrackingTimer = new Timer("Camera Tracking Timer");
         cameraTrackingTimer.scheduleAtFixedRate(new TimerTask() {
 
-            CameraPosition lastPosition = cameraPosition;
-
             @Override
             public void run() {
-                if (!ObjectUtils.equals(lastPosition, cameraPosition)) {
-                    lastPosition = cameraPosition;
-                    MapManager.updateMarkersOnMap(cameraPosition);
-                }
+				MapManager.updateMarkersOnMap(cameraPosition);
             }
         }, 0, CAMERA_TRACKING_FREQUENCY);
     }
