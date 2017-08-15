@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
 
 public class Utils {
 
@@ -32,5 +33,13 @@ public class Utils {
 		} catch (Exception e) {
 			return filename;
 		}
+	}
+
+	public static String formatDistance(double m) {
+		return new DecimalFormat("#.##").format(m / 1000f) + "km";
+	}
+
+	public static String formatDuration(long ms) {
+		return new DecimalFormat("#.##").format(ms / 1000f) + "s";
 	}
 }

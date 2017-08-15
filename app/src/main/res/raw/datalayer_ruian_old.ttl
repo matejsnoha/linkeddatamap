@@ -18,11 +18,11 @@
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
     dcterms:modified "2017-07-27"^^xsd:date ;
+    dcterms:modified "2017-08-15"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
-                  sd:endpoint "http://192.168.56.1:3030/dp/sparql" ;
-                  # sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
+                  sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
                   sd:supportedLanguage sd:SPARQL11Query ;
                   # sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle> ;
                   sd:defaultDataset [
@@ -39,8 +39,8 @@
                ];
 
     ms:dataLayerStructure [ a ms:DataLayerStructure ;
-                          ms:dataPointType "<http://ruian.linked.opendata.cz/ontology/StavebniObjekt>" ;
-                          ms:dataName "<http://schema.org/name>" ;
-                          ms:dataDescription ( "Pocet bytu " "<http://ruian.linked.opendata.cz/ontology/pocetBytu>" ", Pocet podlazi " "<http://ruian.linked.opendata.cz/ontology/pocetPodlazi>" ) ;
+                          ms:dataPointType <http://ruian.linked.opendata.cz/ontology/StavebniObjekt> ;
+                          ms:dataName <http://schema.org/name> ;
+                          ms:dataDescription ( "Pocet bytu " <http://ruian.linked.opendata.cz/ontology/pocetBytu> ", Pocet podlazi " <http://ruian.linked.opendata.cz/ontology/pocetPodlazi> ) ;
                           ms:mapPointPath "^<http://ruian.linked.opendata.cz/ontology/stavebniObjekt>" ] .
 

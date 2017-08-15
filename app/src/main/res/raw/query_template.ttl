@@ -6,7 +6,7 @@ SELECT
     ?name
     {{dataDescriptionSelect}}
 
-FROM <{{graph}}>
+{{from}}
 
 WHERE {
 

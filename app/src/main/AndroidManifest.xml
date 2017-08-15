@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="info.snoha.matej.linkeddatamap">
+          package="info.snoha.matej.linkeddatamap">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:largeHeap="true"
-        android:theme="@style/AppTheme">
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:largeHeap="true"
+            android:theme="@style/AppTheme">
 
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+                android:name="com.google.android.geo.API_KEY"
+                android:value="@string/google_maps_key"/>
 
         <activity
-            android:name=".app.gui.activities.MapsActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:label="@string/title_activity_maps">
+                android:label="@string/title_activity_maps"
+                android:name=".app.gui.activities.MapsActivity"
+                android:theme="@style/AppTheme"
+                android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".app.gui.activities.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".app.gui.activities.MapsActivity">
+                android:label="@string/title_activity_settings"
+                android:name=".app.gui.activities.SettingsActivity"
+                android:theme="@style/AppTheme"
+                android:parentActivityName=".app.gui.activities.MapsActivity">
             <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".app.gui.activities.MapsActivity" />
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".app.gui.activities.MapsActivity"/>
         </activity>
     </application>
 

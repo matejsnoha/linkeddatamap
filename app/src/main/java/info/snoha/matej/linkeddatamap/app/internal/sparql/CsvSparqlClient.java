@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import static info.snoha.matej.linkeddatamap.Utils.formatDuration;
+
 public class CsvSparqlClient {
 
 	private static final int CONNECT_TIMEOUT = 5_000;
@@ -60,7 +62,10 @@ public class CsvSparqlClient {
 					.addHeader("Accept", "text/csv; charset=utf-8")
 					.post(body)
 					.build();
+
+			long startTime = System.currentTimeMillis();
 			final Response response = client.newCall(request).execute();
+			long duration = System.currentTimeMillis() - startTime;
 
 			List<String> columns = null;
 			List<List<String>> results = new ArrayList<>();
@@ -77,7 +82,7 @@ public class CsvSparqlClient {
 				throw new Exception("Could not parse SPARQL result");
 			}
 
-			Log.info("Sparql query success, " + results.size() + " results");
+			Log.info("Sparql query success in " + formatDuration(duration) + ", " + results.size() + " results");
 			callback.onSuccess(columns, results);
 
 		} catch (Exception e) {
@@ -86,5 +91,4 @@ public class CsvSparqlClient {
 			callback.onFailure(e.getMessage());
 		}
 	}
-
 }

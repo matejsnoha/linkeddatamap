@@ -36,6 +36,7 @@ public class LayerManager {
     public static void with(Context context) {
         LayerManager.context = context;
 
+        // FIXME
         // first run init
         //if (!getBooleanPreferenceValue(context, "initialized")) {
 

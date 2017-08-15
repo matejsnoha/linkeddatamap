@@ -18,7 +18,6 @@ import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
 import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +32,8 @@ import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
+import static info.snoha.matej.linkeddatamap.Utils.formatDistance;
+
 public class MapManager {
 
     public static final int MARKER_DISTANCE_SCREENS = 1; // number of screens away from center
@@ -42,6 +43,8 @@ public class MapManager {
 
     private static Context context;
     private static GoogleMap map;
+    private static Runnable showProgress;
+	private static Runnable hideProgress;
 
     private static List<Integer> visibleLayers = Collections.emptyList();
 	private static List<MarkerModel> visibleMarkers;
@@ -52,13 +55,11 @@ public class MapManager {
     private static CameraPosition lastUpdatedPosition;
 	private static CameraPosition currentPosition;
 
-	public static void with(Context context) {
-		MapManager.context = context;
-	}
-
-    public static void with(Context context, GoogleMap map) {
+    public static void with(Context context, GoogleMap map, Runnable showProgress, Runnable hideProgress) {
         MapManager.context = context;
         MapManager.map = map;
+        MapManager.showProgress = showProgress;
+        MapManager.hideProgress = hideProgress;
     }
 
     public static List<Integer> getVisibleLayers() {
@@ -76,26 +77,16 @@ public class MapManager {
 			return;
 		}
 
-        final MaterialDialog progressDialog = new MaterialDialog.Builder(context)
-                .title("Please wait ...")
-                .progress(true, 0)
-                .progressIndeterminateStyle(true)
-                .cancelable(false)
-                .show();
-
 		map.clear();
-
 		visibleLayers = Arrays.asList(layerIDs);
 
         if (layerIDs.length == 0 || (layerIDs.length == 1 && layerIDs[0] == LayerManager.LAYER_NONE)) {
 
             setVisibleMarkers(Collections.emptyList());
-            progressDialog.hide();
             return;
-
         }
 
-        new Thread(() -> updateMarkersOnMap(cameraPosition, progressDialog::hide, true)).start();
+        new Thread(() -> updateMarkersOnMap(cameraPosition, true)).start();
     }
 
     private static void setVisibleMarkers(List<MarkerModel> markers) {
@@ -121,6 +112,10 @@ public class MapManager {
     public static void updateMarkersOnMap(CameraPosition position) {
         updateMarkersOnMap(position, null, false);
     }
+
+	public static void updateMarkersOnMap(CameraPosition position, boolean layersChanged) {
+		updateMarkersOnMap(position, null, layersChanged);
+	}
 
     public static synchronized void updateMarkersOnMap(CameraPosition position,
 													   Runnable callback, boolean layersChanged) {
@@ -150,6 +145,8 @@ public class MapManager {
 			}
 			return;
 		}
+
+		UI.run(showProgress);
 
 		// fetch markers in camera range
 		Position center = new Position(position);
@@ -189,7 +186,7 @@ public class MapManager {
 		synchronized (newVisibleMarkers) { // in case of timeout above
 
 			Log.info("[Layers " + visibleLayers + "] Showing " + newVisibleMarkers.size() + " markers up to "
-					+ formatKm(range) + " away from " + center);
+					+ formatDistance(range) + " away from " + center);
 
 			setVisibleMarkers(newVisibleMarkers);
 
@@ -218,6 +215,8 @@ public class MapManager {
 			} // else do nothing, heatmap persists on camera change
 
 		}
+
+		UI.run(hideProgress);
 
         if (callback != null) {
 			UI.run(callback);
@@ -262,8 +261,8 @@ public class MapManager {
 
 		double distance = new Position(position).distanceTo(new Position(lastUpdatedPosition));
 
-		Log.debug("Moved " + formatKm(distance) + " from the last updated position, " +
-				"preloaded " + formatKm(preloadedRange));
+		Log.debug("Moved " + formatDistance(distance) + " from the last updated position, " +
+				"preloaded " + formatDistance(preloadedRange));
 
 		return distance > preloadedRange / 2;
 	}
@@ -283,9 +282,5 @@ public class MapManager {
 			default:
 				return BitmapDescriptorFactory.HUE_VIOLET;
 		}
-	}
-
-	private static String formatKm(double m) {
-		return new DecimalFormat("#.#").format(m / 1000f) + "km";
 	}
 }

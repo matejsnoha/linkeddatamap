@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -42,7 +43,6 @@ import info.snoha.matej.linkeddatamap.app.internal.map.MapManager;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,13 +69,13 @@ public class MapsActivity extends AppCompatActivity
 
     private CameraPosition cameraPosition;
     private Timer cameraTrackingTimer;
-	private static final int CAMERA_TRACKING_FREQUENCY = 5_000;
+	private static final int CAMERA_TRACKING_FREQUENCY = 3_000;
 
 	/** Nearby tracking **/
 
 	private boolean nearbyTracking;
     private Timer nearbyTrackingTimer;
-	private static final int NEARBY_TRACKING_FREQUENCY = 5_000;
+	private static final int NEARBY_TRACKING_FREQUENCY = 3_000;
 	private static final int NEARBY_COUNT = 20;
 
 	protected void onStart() {
@@ -118,7 +118,7 @@ public class MapsActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
 
         LayerManager.with(this);
-		MapManager.with(this);
+		MapManager.with(this, null, this::showProgress, this::hideProgress); // map initialized later
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(v -> {
@@ -126,15 +126,14 @@ public class MapsActivity extends AppCompatActivity
 			Location location = getCurrentLocation();
 			if (location != null) {
 
-				if (map.getCameraPosition().zoom <= 14) {
-					map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-							new LatLng(location.getLatitude(), location.getLongitude()), 15));
-				} else {
-					map.animateCamera(CameraUpdateFactory.newLatLng(
-							new LatLng(location.getLatitude(), location.getLongitude())));
-				}
-			}
-		});
+				LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+				CameraUpdate update = map.getCameraPosition().zoom <= 14
+						? CameraUpdateFactory.newLatLngZoom(latLng, 15)
+						: CameraUpdateFactory.newLatLng(latLng);
+
+				map.moveCamera(update);
+				//map.animateCamera(update); // FIXME map textures do not load until touched physically
+		}});
         fab.setOnLongClickListener(v -> {
 
 			new MaterialDialog.Builder(MapsActivity.this)
@@ -150,7 +149,7 @@ public class MapsActivity extends AppCompatActivity
 										@Override
 										public void run() {
 											// TODO
-											UI.run(() -> fab.callOnClick());
+											UI.run(fab::callOnClick);
 										}
 									}, 0, POSITION_TRACKING_FREQUENCY
 							);
@@ -290,7 +289,7 @@ public class MapsActivity extends AppCompatActivity
         LatLng mapCenter = new LatLng(50.0819015, 14.4326654);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(mapCenter, 6));
 
-        MapManager.with(this, map);
+        MapManager.with(this, map, this::showProgress, this::hideProgress);
 
         cameraTrackingTimer = new Timer("Camera Tracking Timer");
         cameraTrackingTimer.scheduleAtFixedRate(new TimerTask() {
@@ -399,5 +398,13 @@ public class MapsActivity extends AppCompatActivity
 				listView.setAdapter(new NearbyAdapter(this, nearbyMarkers, myPosition));
 			}
 		});
+	}
+
+	public void showProgress() {
+		findViewById(R.id.progress).setVisibility(View.VISIBLE);
+	}
+
+	public void hideProgress() {
+		findViewById(R.id.progress).setVisibility(View.GONE);
 	}
 }

@@ -17,7 +17,8 @@ public class LayerQueryBuilder {
 			String template = AndroidUtils.readRawResource(context, R.raw.query_template);
 
 			// fill-in single items
-			template = template.replace("{{graph}}", dataLayer.getSparqlNamedGraph());
+			template = template.replace("{{from}}", dataLayer.getSparqlNamedGraph() != null ?
+						"FROM <" + dataLayer.getSparqlNamedGraph() + ">" : "");
 			template = template.replace("{{dataPointType}}", dataLayer.getDataPointType());
 			template = template.replace("{{dataName}}", dataLayer.getDataName());
 			template = template.replace("{{mapPointPath}}", dataLayer.getMapPointPath());
@@ -39,17 +40,17 @@ public class LayerQueryBuilder {
 						where += (descriptionUriItemCount > 1 ? " ; " : "")
 								+ descriptionItem + " ?d" + descriptionUriItemCount;
 						bind += (descriptionItemCount > 1 ? ", " : "")
-								+ "STR(?d" + descriptionUriItemCount + ")" ;
+								+ "STR(?d" + descriptionUriItemCount + ")";
 					} else {
 						bind += (descriptionItemCount > 1 ? ", " : "")
-								+ "\"" + descriptionItem + "\"" ;
+								+ "\"" + descriptionItem + "\"";
 					}
 				}
 				where += " . }";
 				bind += ") AS ?description) .";
 
 				template = template.replace("{{dataDescriptionSelect}}", select);
-				template = template.replace("{{dataDescriptionWhere}}", where);
+				template = template.replace("{{dataDescriptionWhere}}", descriptionUriItemCount != 0 ? where : "");
 				template = template.replace("{{dataDescriptionBind}}", bind);
 			}
 

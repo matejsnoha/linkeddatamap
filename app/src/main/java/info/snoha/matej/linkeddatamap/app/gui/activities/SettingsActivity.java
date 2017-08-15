@@ -19,7 +19,7 @@ import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
+    private static Preference.OnPreferenceChangeListener summaryUpdater =
             new Preference.OnPreferenceChangeListener() {
 
         final int SUMMARY_LENGTH = 100;
@@ -57,9 +57,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static void bindPreferenceSummaryToValue(Preference preference) {
 
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+        preference.setOnPreferenceChangeListener(summaryUpdater);
 
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+        summaryUpdater.onPreferenceChange(preference,
                 AndroidUtils.getStringPreferenceValue(preference.getContext(), preference.getKey()));
     }
 

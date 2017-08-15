@@ -16,12 +16,12 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-07-13"^^xsd:date ;
+    dcterms:modified "2017-08-15"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
-                  sd:endpoint "http://192.168.56.1:3030/dp/sparql" ;
                   # sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
+                  sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
                   sd:supportedLanguage sd:SPARQL11Query ;
                   # sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle> ;
                   sd:defaultDataset [
@@ -38,7 +38,7 @@
                ];
 
     ms:mapLayerStructure [  a ms:MapLayerStructure ;
-                          ms:addressPointType "<http://schema.org/GeoCoordinates>" ;
+                          ms:addressPointType <http://schema.org/GeoCoordinates> ;
                           ms:addressPath "<http://schema.org/address>/<http://schema.org/description>";
                           ms:latitudePath "<http://schema.org/latitude>" ;
                           ms:longitudePath "<http://schema.org/longitude>" ] .
