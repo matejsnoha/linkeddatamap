@@ -24,6 +24,10 @@ public class UI {
         run(() -> Toast.makeText(context, text, Toast.LENGTH_LONG).show());
     }
 
+    public static void messageShort(final Context context, final String text) {
+        run(() -> Toast.makeText(context, text, Toast.LENGTH_SHORT).show());
+    }
+
     private static Runnable tryCatch(Runnable runnable) {
         return () -> {
             try {

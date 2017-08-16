@@ -4,6 +4,7 @@ import android.content.Context;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.internal.layers.DataLayer;
+import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
 import info.snoha.matej.linkeddatamap.app.internal.layers.MapLayer;
 import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
@@ -11,8 +12,11 @@ import info.snoha.matej.linkeddatamap.rdf.Uris;
 
 public class LayerQueryBuilder {
 
-	public static String query(Context context, DataLayer dataLayer, MapLayer mapLayer, BoundingBox geoLimits) {
+	public static String query(Context context, Layer layer, BoundingBox geoLimits) {
 		try {
+
+			DataLayer dataLayer = layer.getDataLayer();
+			MapLayer mapLayer = layer.getMapLayer();
 
 			String template = AndroidUtils.readRawResource(context, R.raw.query_template);
 

@@ -31,6 +31,7 @@ public class MapLayerManager {
 			Resource structure = jena.resourceWithType(Prefixes.MS + "MapLayerStructure");
 
 			MapLayer layer = new MapLayer()
+					.uri(jena.resourceUri(r))
 					.title(jena.propertyValue(r, Prefixes.DCTERMS + "title"))
 					.description(jena.propertyValue(r, Prefixes.DCTERMS + "description"))
 					.sparqlEndpoint(jena.propertyValue(service, Prefixes.SD + "endpoint"))

@@ -9,6 +9,7 @@ public class MapLayer {
 	private Type type;
 
 	// meta
+	private String uri;
 	private String title;
 	private String description;
 	private String publisherName;
@@ -34,6 +35,15 @@ public class MapLayer {
 
 	public MapLayer type(Type type) {
 		this.type = type;
+		return this;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public MapLayer uri(String uri) {
+		this.uri = uri;
 		return this;
 	}
 

@@ -11,6 +11,7 @@ public class DataLayer {
 	private Type type;
 
 	// meta
+	private String uri;
 	private String title;
 	private String description;
 	private String publisherName;
@@ -30,12 +31,24 @@ public class DataLayer {
 	private List<String> dataDescription;
 	private String mapPointPath;
 
+	// map layer
+	private String mapLayer;
+
 	public Type getType() {
 		return type;
 	}
 
 	public DataLayer type(Type type) {
 		this.type = type;
+		return this;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public DataLayer uri(String uri) {
+		this.uri = uri;
 		return this;
 	}
 
@@ -144,6 +157,15 @@ public class DataLayer {
 
 	public DataLayer mapPointPath(String mapPointPath) {
 		this.mapPointPath = mapPointPath;
+		return this;
+	}
+
+	public String getMapLayer() {
+		return mapLayer;
+	}
+
+	public DataLayer mapLayer(String mapLayer) {
+		this.mapLayer = mapLayer;
 		return this;
 	}
 }

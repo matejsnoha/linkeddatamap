@@ -38,6 +38,15 @@ public class Jena {
 		}
 	}
 
+	public String resourceUri(Resource resource) {
+		try {
+			return "<" + resource.getURI() + ">";
+		} catch (Exception e) {
+			Log.debug("Could not read resource uri for " + resource, e);
+			return null;
+		}
+	}
+
 	public <T> T propertyValue(Resource resource, String property) {
 		try {
 			RDFNode node = resource.getRequiredProperty(model.createProperty(property)).getObject();

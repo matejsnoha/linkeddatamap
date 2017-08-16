@@ -20,7 +20,7 @@ import static info.snoha.matej.linkeddatamap.Utils.formatDuration;
 public class CsvSparqlClient {
 
 	private static final int CONNECT_TIMEOUT = 5_000;
-	private static final int DATA_TIMEOUT = 120_000;
+	private static final int DATA_TIMEOUT = 180_000; // TODO configurable in settings
 	private static final int MAX_RESULTS = 100_000;
 
 	public interface Callback {

@@ -12,7 +12,9 @@ import info.snoha.matej.linkeddatamap.app.internal.sparql.LayerQueryBuilder;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.getBooleanPreferenceValue;
 import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.getStringPreferenceValue;
@@ -24,6 +26,10 @@ public class LayerManager {
     public static final int LAYER_COUNT = 6;
     public static final int LAYER_NONE = 0;
 
+	private static Context context;
+
+    private static final Map<Integer, Layer> layers = new LinkedHashMap<>();
+
 	public interface Callback {
 
 		void onSuccess(List<MarkerModel> markers);
@@ -31,47 +37,12 @@ public class LayerManager {
 		void onFailure(String reason);
 	}
 
-    private static Context context;
-
     public static void with(Context context) {
         LayerManager.context = context;
 
-        // FIXME
-        // first run init
-        //if (!getBooleanPreferenceValue(context, "initialized")) {
+        initPreferences(true); // FIXME do not overwrite in release
 
-			setBooleanPreferenceValue(context, "pref_maplayer_1_enabled", true);
-			setStringPreferenceValue(context, "pref_maplayer_1_name", "DoubleShot");
-			setStringPreferenceValue(context, "pref_maplayer_1_definition",
-					AndroidUtils.readRawResource(context, R.raw.maplayer_doubleshot));
-
-        	setBooleanPreferenceValue(context, "pref_datalayer_1_enabled", true);
-			setStringPreferenceValue(context, "pref_datalayer_1_name", "DoubleShot");
-			setStringPreferenceValue(context, "pref_datalayer_1_definition",
-					AndroidUtils.readRawResource(context, R.raw.datalayer_doubleshot));
-
-			setBooleanPreferenceValue(context, "pref_maplayer_2_enabled", true);
-			setStringPreferenceValue(context, "pref_maplayer_2_name", "RUIAN (old)");
-			setStringPreferenceValue(context, "pref_maplayer_2_definition",
-					AndroidUtils.readRawResource(context, R.raw.maplayer_ruian_old));
-
-			setBooleanPreferenceValue(context, "pref_datalayer_2_enabled", true);
-			setStringPreferenceValue(context, "pref_datalayer_2_name", "RUIAN (old)");
-			setStringPreferenceValue(context, "pref_datalayer_2_definition",
-					AndroidUtils.readRawResource(context, R.raw.datalayer_ruian_old));
-
-			setBooleanPreferenceValue(context, "pref_maplayer_3_enabled", true);
-			setStringPreferenceValue(context, "pref_maplayer_3_name", "RUIAN");
-			setStringPreferenceValue(context, "pref_maplayer_3_definition",
-					AndroidUtils.readRawResource(context, R.raw.maplayer_ruian));
-
-			setBooleanPreferenceValue(context, "pref_datalayer_3_enabled", true);
-			setStringPreferenceValue(context, "pref_datalayer_3_name", "RUIAN");
-			setStringPreferenceValue(context, "pref_datalayer_3_definition",
-					AndroidUtils.readRawResource(context, R.raw.datalayer_ruian));
-
-        	setBooleanPreferenceValue(context, "initialized", true);
-		//}
+		loadLayers();
     }
 
     public static List<String> getDataLayerNames(boolean onlyEnabled) {
@@ -93,6 +64,16 @@ public class LayerManager {
         }
         return ids;
     }
+
+	public static List<Integer> getMapLayerIDs(boolean onlyEnabled) {
+		List<Integer> ids = new ArrayList<>(LAYER_COUNT);
+		for (int i = 1; i <= LAYER_COUNT; i++) {
+			if (!onlyEnabled || getBooleanPreferenceValue(context, "pref_maplayer_" + i + "_enabled")) {
+				ids.add(i);
+			}
+		}
+		return ids;
+	}
 
     public static List<Integer> getDataLayerIDs(List<String> layerNames) {
         List<String> allLayerNames = getDataLayerNames(false);
@@ -117,23 +98,21 @@ public class LayerManager {
 			return;
 		}
 
-        // TODO data and map layer pairing in Settings
-		// TODO move to managers?
-		String dataLayerDefinition = getStringPreferenceValue(
-				context, "pref_datalayer_" + layerID + "_definition");
-        String mapLayerDefinition = getStringPreferenceValue(
-        		context, "pref_maplayer_" + layerID + "_definition");
+		loadLayers(); // TODO load only on start and after change in settings
 
-		DataLayer dataLayer = DataLayerManager.load(dataLayerDefinition);
-		Log.debug("Data Layer " + layerID + ":");
-		Log.debug(dataLayer);
+		Layer layer = layers.get(layerID);
+		if (layer == null) {
+			callback.onFailure("Invalid layer definition");
+			return;
+		}
 
-        MapLayer mapLayer = MapLayerManager.load(mapLayerDefinition);
-        Log.debug("Map Layer " + layerID + ":");
-		Log.debug(mapLayer);
+		String endpointUrl = layer.getSparqlEndpoint();
+		String query = LayerQueryBuilder.query(context, layer, geoLimits);
 
-		String endpointUrl = mapLayer.getSparqlEndpoint();
-		String query = LayerQueryBuilder.query(context, dataLayer, mapLayer, geoLimits);
+		if (endpointUrl == null || query == null) {
+			callback.onFailure("Invalid endpoint or built query");
+			return;
+		}
 
 		CsvSparqlClient.execute(endpointUrl, query, new CsvSparqlClient.Callback() {
 
@@ -160,4 +139,96 @@ public class LayerManager {
 			}
 		});
     }
+
+    private static void initPreferences(boolean overwrite) {
+
+		if (overwrite || !getBooleanPreferenceValue(context, "initialized")) {
+
+			setBooleanPreferenceValue(context, "pref_maplayer_1_enabled", true);
+			setStringPreferenceValue(context, "pref_maplayer_1_name", "DoubleShot");
+			setStringPreferenceValue(context, "pref_maplayer_1_definition",
+					AndroidUtils.readRawResource(context, R.raw.maplayer_doubleshot));
+
+			setBooleanPreferenceValue(context, "pref_datalayer_1_enabled", true);
+			setStringPreferenceValue(context, "pref_datalayer_1_name", "DoubleShot");
+			setStringPreferenceValue(context, "pref_datalayer_1_definition",
+					AndroidUtils.readRawResource(context, R.raw.datalayer_doubleshot));
+
+			setBooleanPreferenceValue(context, "pref_maplayer_2_enabled", true);
+			setStringPreferenceValue(context, "pref_maplayer_2_name", "RUIAN (old)");
+			setStringPreferenceValue(context, "pref_maplayer_2_definition",
+					AndroidUtils.readRawResource(context, R.raw.maplayer_ruian_old));
+
+			setBooleanPreferenceValue(context, "pref_datalayer_2_enabled", true);
+			setStringPreferenceValue(context, "pref_datalayer_2_name", "RUIAN (old)");
+			setStringPreferenceValue(context, "pref_datalayer_2_definition",
+					AndroidUtils.readRawResource(context, R.raw.datalayer_ruian_old));
+
+			setBooleanPreferenceValue(context, "pref_maplayer_3_enabled", true);
+			setStringPreferenceValue(context, "pref_maplayer_3_name", "RUIAN");
+			setStringPreferenceValue(context, "pref_maplayer_3_definition",
+					AndroidUtils.readRawResource(context, R.raw.maplayer_ruian));
+
+			setBooleanPreferenceValue(context, "pref_datalayer_3_enabled", true);
+			setStringPreferenceValue(context, "pref_datalayer_3_name", "RUIAN");
+			setStringPreferenceValue(context, "pref_datalayer_3_definition",
+					AndroidUtils.readRawResource(context, R.raw.datalayer_ruian));
+
+			setBooleanPreferenceValue(context, "initialized", true);
+		}
+	}
+
+	private static void loadLayers() {
+
+		// load map layers
+		Map<String, MapLayer> mapLayersByUri = new LinkedHashMap<>();
+		for (int layerId : getMapLayerIDs(true)) {
+
+			String mapLayerDefinition = getStringPreferenceValue(
+					context, "pref_maplayer_" + layerId + "_definition");
+
+			MapLayer mapLayer = MapLayerManager.load(mapLayerDefinition);
+			Log.debug("Map Layer " + layerId + ":");
+			Log.debug(mapLayer);
+
+			// TODO handle null
+			mapLayersByUri.put(mapLayer.getUri(), mapLayer);
+		}
+
+		// load data layers
+		Map<String, DataLayer> dataLayersByUri = new LinkedHashMap<>();
+		for (int layerId : getDataLayerIDs(true)) {
+
+			String dataLayerDefinition = getStringPreferenceValue(
+					context, "pref_datalayer_" + layerId + "_definition");
+
+			DataLayer dataLayer = DataLayerManager.load(dataLayerDefinition);
+			Log.debug("Data Layer " + layerId + ":");
+			Log.debug(dataLayer);
+
+			// TODO handle null
+			dataLayersByUri.put(dataLayer.getUri(), dataLayer);
+		}
+
+		// pair layers
+		int layerId = LAYER_NONE;
+		for (String dataLayerUri : dataLayersByUri.keySet()) {
+
+			layerId++;
+
+			DataLayer dataLayer = dataLayersByUri.get(dataLayerUri);
+			if (dataLayer == null) {
+				Log.warn("Layer " + layerId + " not loaded (invalid data layer " + dataLayerUri + ")");
+				return;
+			}
+
+			MapLayer mapLayer = mapLayersByUri.get(dataLayer.getMapLayer());
+			if (mapLayer == null) {
+				Log.warn("Layer " + layerId + " not loaded (invalid map layer " + dataLayer.getMapLayer() + ")");
+				return;
+			}
+
+			layers.put(layerId, new Layer(mapLayer, dataLayer));
+		}
+	}
 }

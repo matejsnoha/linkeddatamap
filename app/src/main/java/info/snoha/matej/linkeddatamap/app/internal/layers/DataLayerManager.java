@@ -31,6 +31,7 @@ public class DataLayerManager {
 			Resource structure = jena.resourceWithType(Prefixes.MS + "DataLayerStructure");
 
 			DataLayer layer = new DataLayer()
+					.uri(jena.resourceUri(r))
 					.title(jena.propertyValue(r, Prefixes.DCTERMS + "title"))
 					.description(jena.propertyValue(r, Prefixes.DCTERMS + "description"))
 					.sparqlEndpoint(jena.propertyValue(service, Prefixes.SD + "endpoint"))
@@ -39,6 +40,7 @@ public class DataLayerManager {
 					.dataName(jena.propertyValue(structure, Prefixes.MS + "dataName"))
 					.dataDescription(jena.propertyList(structure, Prefixes.MS + "dataDescription"))
 					.mapPointPath(jena.propertyValue(structure, Prefixes.MS + "mapPointPath"))
+					.mapLayer(jena.propertyValue(r, Prefixes.MS + "mapLayer"))
 					;
 
 			return layer;

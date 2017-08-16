@@ -17,7 +17,6 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-07-27"^^xsd:date ;
     dcterms:modified "2017-08-15"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
@@ -42,5 +41,6 @@
                           ms:dataPointType <http://ruian.linked.opendata.cz/ontology/StavebniObjekt> ;
                           ms:dataName <http://schema.org/name> ;
                           ms:dataDescription ( "Pocet bytu " <http://ruian.linked.opendata.cz/ontology/pocetBytu> ", Pocet podlazi " <http://ruian.linked.opendata.cz/ontology/pocetPodlazi> ) ;
-                          ms:mapPointPath "^<http://ruian.linked.opendata.cz/ontology/stavebniObjekt>" ] .
+                          ms:mapPointPath "^<http://ruian.linked.opendata.cz/ontology/stavebniObjekt>" ] ;
 
+    ms:mapLayer <http://matej.snoha.info/dp/resource/mapLayer/ruian-old> .

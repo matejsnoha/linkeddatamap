@@ -7,7 +7,7 @@
 @prefix ms: <http://matej.snoha.info/dp/> .
 @prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .
 
-<http://matej.snoha.info/dp/resource/mapLayer/ruian>
+<http://matej.snoha.info/dp/resource/mapLayer/ruian-old>
 
     a ms:MapLayer ;
     a void:Dataset ;
@@ -17,7 +17,6 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-07-27"^^xsd:date ;
     dcterms:modified "2017-08-15"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
@@ -39,7 +38,6 @@
                ];
 
     ms:mapLayerStructure [  a ms:MapLayerStructure ;
-                          ms:addressPointType "<http://ruian.linked.opendata.cz/ontology/AdresniMisto>" ;
                           ms:addressPointType <http://ruian.linked.opendata.cz/ontology/AdresniMisto> ;
                           ms:addressPath "<http://schema.org/name>" ; #TODO
                           ms:latitudePath "<http://ruian.linked.opendata.cz/ontology/adresniBod>/<http://schema.org/geo>/<http://schema.org/latitude>" ;

@@ -2,7 +2,6 @@ package info.snoha.matej.linkeddatamap.app.internal.map;
 
 import android.content.Context;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -33,6 +32,7 @@ import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import static info.snoha.matej.linkeddatamap.Utils.formatDistance;
+import static info.snoha.matej.linkeddatamap.Utils.formatDuration;
 
 public class MapManager {
 
@@ -140,12 +140,14 @@ public class MapManager {
 
 			// not updating here, just marking as current so we don't have to recheck it again
 			currentPosition = position;
+			drawMarkersInCameraRange(position, visibleMarkers); // heatmap <-> markers if needed
 			if (callback != null) {
 				UI.run(callback);
 			}
 			return;
 		}
 
+		long startTime = System.currentTimeMillis();
 		UI.run(showProgress);
 
 		// fetch markers in camera range
@@ -173,6 +175,7 @@ public class MapManager {
 				public void onFailure(String reason) {
 					// logged on underlying levels
 					doneSignal.countDown();
+					UI.message(context, reason);
 				}
 			});
 		}
@@ -190,38 +193,54 @@ public class MapManager {
 
 			setVisibleMarkers(newVisibleMarkers);
 
-			if (newVisibleMarkers.size() <= MARKER_MAX_DISPLAY_COUNT) {
+			drawMarkersInCameraRange(position, newVisibleMarkers);
 
-				heatmapMode = false;
-				UI.run(() -> {
-					map.clear();
-					for (MarkerModel marker : newVisibleMarkers) {
-						map.addMarker(new MarkerOptions()
-								.icon(BitmapDescriptorFactory.defaultMarker(getLayerHue(marker.getLayer())))
-								.position(new LatLng(marker.getPosition().getLatitude(),
-										marker.getPosition().getLongitude()))
-								.title(marker.getName())
-								.snippet(marker.getText()));
-					}
-				});
-
-			} else if (!heatmapMode) {
-
-				heatmapMode = true;
-				UI.run(() -> {
-					map.clear();
-					map.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
-				});
-			} // else do nothing, heatmap persists on camera change
-
+			UI.messageShort(context, "Loaded " + newVisibleMarkers.size() + " markers in "
+					+ formatDuration(System.currentTimeMillis() - startTime));
+			UI.run(hideProgress);
 		}
-
-		UI.run(hideProgress);
 
         if (callback != null) {
 			UI.run(callback);
 		}
     }
+
+    private static void drawMarkersInCameraRange(CameraPosition position, List<MarkerModel> markers) {
+
+		Position center = new Position(position);
+		int range = Math.max(MARKER_MIN_DISTANCE_METERS, getVisibleRange(position));
+
+        List<MarkerModel> filtered = new ArrayList<>();
+        for (MarkerModel marker : markers) {
+            if (center.distanceTo(marker.getPosition()) <= range) {
+				filtered.add(marker);
+			}
+        }
+
+		if (filtered.size() <= MARKER_MAX_DISPLAY_COUNT) {
+
+			heatmapMode = false;
+			UI.run(() -> {
+				map.clear();
+				for (MarkerModel marker : filtered) {
+					map.addMarker(new MarkerOptions()
+							.icon(BitmapDescriptorFactory.defaultMarker(getLayerHue(marker.getLayer())))
+							.position(new LatLng(marker.getPosition().getLatitude(),
+									marker.getPosition().getLongitude()))
+							.title(marker.getName())
+							.snippet(marker.getText()));
+				}
+			});
+
+		} else if (!heatmapMode) {
+
+			heatmapMode = true;
+			UI.run(() -> {
+				map.clear();
+				map.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
+			});
+		} // else do nothing, heatmap persists on camera change
+	}
 
     public static List<MarkerModel> getSortedClosestMarkers(final Position position, int count) {
 
