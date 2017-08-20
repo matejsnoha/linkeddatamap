@@ -35,7 +35,7 @@ public class LayerQueryBuilder {
 				int descriptionItemCount = 0;
 				int descriptionUriItemCount = 0;
 				String select = "?description";
-				String where = "OPTIONAL { ?dataPoint ";
+				String where = "?dataPoint ";
 				String bind = "BIND (CONCAT(";
 				for (String descriptionItem : dataLayer.getDataDescription()) {
 					descriptionItemCount++;
@@ -50,12 +50,13 @@ public class LayerQueryBuilder {
 								+ "\"" + descriptionItem + "\"";
 					}
 				}
-				where += " . }";
+				where += " .";
 				bind += ") AS ?description) .";
+				String optional = "OPTIONAL {\n\t\t" + where + "\n\t\t" + bind + "\n\t}";
 
 				template = template.replace("{{dataDescriptionSelect}}", select);
-				template = template.replace("{{dataDescriptionWhere}}", descriptionUriItemCount != 0 ? where : "");
-				template = template.replace("{{dataDescriptionBind}}", bind);
+				template = template.replace("{{dataDescriptionOptional}}",
+						descriptionUriItemCount != 0 ? optional : "");
 			}
 
 			// fill-in geo limits

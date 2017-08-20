@@ -17,30 +17,19 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-08-15"^^xsd:date ;
+    dcterms:modified "2017-08-16"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
-                  sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
+                  sd:endpoint "https://ruian.linked.opendata.cz/sparql" ;
                   sd:supportedLanguage sd:SPARQL11Query ;
                   # sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle> ;
-                  sd:defaultDataset [
-                      a sd:Dataset ;
-                      sd:namedGraph [
-                          a sd:NamedGraph ;
-                          sd:name "http://ruian" ;
-                          sd:graph [
-                              a sd:Graph ;
-                              void:triples 25145000
-                          ]
-                      ]
-                  ]
                ];
 
     ms:dataLayerStructure [ a ms:DataLayerStructure ;
-                          ms:dataPointType <http://ruian.linked.opendata.cz/ontology/StavebniObjekt> ;
+                          ms:dataPointType <https://ruian.linked.opendata.cz/slovník/StavebníObjekt> ;
                           ms:dataName <http://schema.org/name> ;
-                          ms:dataDescription ( "Pocet bytu " <http://ruian.linked.opendata.cz/ontology/pocetBytu> ", Pocet podlazi " <http://ruian.linked.opendata.cz/ontology/pocetPodlazi> ) ;
-                          ms:mapPointPath "^<http://ruian.linked.opendata.cz/ontology/stavebniObjekt>" ] ;
+                          ms:dataDescription ( "Pocet bytu " <https://ruian.linked.opendata.cz/slovník/početBytů> ", Pocet podlazi " <https://ruian.linked.opendata.cz/slovník/početPodlaží> ) ;
+                          ms:mapPointPath "^<https://ruian.linked.opendata.cz/slovník/stavebníObjekt>" ] ;
 
-    ms:mapLayer <http://matej.snoha.info/dp/resource/mapLayer/ruian-old> .
+    ms:mapLayer <http://matej.snoha.info/dp/resource/mapLayer/ruian> .

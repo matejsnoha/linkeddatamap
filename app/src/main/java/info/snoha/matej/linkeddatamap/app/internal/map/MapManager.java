@@ -1,7 +1,6 @@
 package info.snoha.matej.linkeddatamap.app.internal.map;
 
 import android.content.Context;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -11,35 +10,35 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
-
 import info.snoha.matej.linkeddatamap.Log;
+import info.snoha.matej.linkeddatamap.R;
+import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
 import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
 import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
+import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
+import info.snoha.matej.linkeddatamap.app.internal.model.Position;
+import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
-import info.snoha.matej.linkeddatamap.app.internal.model.Position;
-import info.snoha.matej.linkeddatamap.R;
-import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
-import org.apache.commons.lang3.ObjectUtils;
 
 import static info.snoha.matej.linkeddatamap.Utils.formatDistance;
 import static info.snoha.matej.linkeddatamap.Utils.formatDuration;
 
 public class MapManager {
 
-    public static final int MARKER_DISTANCE_SCREENS = 1; // number of screens away from center
+    public static final float MARKER_PRELOAD_SCREENS = 1f; // number of screens away from center
+	public static final float MARKER_SHOW_SCREENS = 0.66f; // number of screens away from center
     public static final int MARKER_MIN_DISTANCE_METERS = 100; // always show markers this far
-    public static final int MARKER_MAX_DISPLAY_COUNT = 300; // switch to heatmap if more
-	public static final int MARKER_LOAD_TIMEOUT = 60; // seconds
+    public static final int MARKER_MAX_DISPLAY_COUNT = 100; // switch to heatmap if more
+	public static final int MARKER_LOAD_TIMEOUT = 180; // seconds
 
     private static Context context;
     private static GoogleMap map;
@@ -47,7 +46,7 @@ public class MapManager {
 	private static Runnable hideProgress;
 
     private static List<Integer> visibleLayers = Collections.emptyList();
-	private static List<MarkerModel> visibleMarkers;
+	private static List<MarkerModel> preloadedMarkers;
 
     private static TileProvider heatmapTileProvider;
     private static boolean heatmapMode;
@@ -82,31 +81,16 @@ public class MapManager {
 
         if (layerIDs.length == 0 || (layerIDs.length == 1 && layerIDs[0] == LayerManager.LAYER_NONE)) {
 
-            setVisibleMarkers(Collections.emptyList());
+            setPreloadedMarkers(Collections.emptyList());
             return;
         }
 
         new Thread(() -> updateMarkersOnMap(cameraPosition, true)).start();
     }
 
-    private static void setVisibleMarkers(List<MarkerModel> markers) {
+    private static void setPreloadedMarkers(List<MarkerModel> markers) {
 
-        visibleMarkers = markers;
-
-        if (markers.size() > 0) {
-            heatmapMode = false;
-            heatmapTileProvider = new HeatmapTileProvider.Builder()
-                    .data(CollectionUtils.collect(visibleMarkers, marker -> new LatLng(
-							marker.getPosition().getLatitude(),
-							marker.getPosition().getLongitude())))
-                    .opacity(0.5)
-                    .gradient(new Gradient(
-                            new int[] {
-                                context.getResources().getColor(R.color.primaryDark)},
-                            new float[]{
-                                0.01f}))
-                    .build();
-        }
+        preloadedMarkers = markers;
     }
 
     public static void updateMarkersOnMap(CameraPosition position) {
@@ -140,7 +124,7 @@ public class MapManager {
 
 			// not updating here, just marking as current so we don't have to recheck it again
 			currentPosition = position;
-			drawMarkersInCameraRange(position, visibleMarkers); // heatmap <-> markers if needed
+			drawMarkersInCameraRange(position, preloadedMarkers); // heatmap <-> markers if needed
 			if (callback != null) {
 				UI.run(callback);
 			}
@@ -152,12 +136,12 @@ public class MapManager {
 
 		// fetch markers in camera range
 		Position center = new Position(position);
-		int range = Math.max(MARKER_MIN_DISTANCE_METERS, getVisibleRange(position) * MARKER_DISTANCE_SCREENS);
+		int range = Math.max(MARKER_MIN_DISTANCE_METERS, (int) (getVisibleRange(position) * MARKER_PRELOAD_SCREENS));
 
 		BoundingBox geoLimits = BoundingBox.from(center, range);
 
 		CountDownLatch doneSignal = new CountDownLatch(visibleLayers.size());
-		List<MarkerModel> newVisibleMarkers = new ArrayList<>();
+		List<MarkerModel> newPreloadedMarkers = new ArrayList<>();
 
 		for (int layerId : visibleLayers) {
 
@@ -165,8 +149,8 @@ public class MapManager {
 
 				@Override
 				public void onSuccess(List<MarkerModel> markers) {
-					synchronized (newVisibleMarkers) {
-						newVisibleMarkers.addAll(markers);
+					synchronized (newPreloadedMarkers) {
+						newPreloadedMarkers.addAll(markers);
 					}
 					doneSignal.countDown();
 				}
@@ -186,16 +170,16 @@ public class MapManager {
 			Log.warn("Interrupted wait for marker load", e);
 		}
 
-		synchronized (newVisibleMarkers) { // in case of timeout above
+		synchronized (newPreloadedMarkers) { // in case of timeout above
 
-			Log.info("[Layers " + visibleLayers + "] Showing " + newVisibleMarkers.size() + " markers up to "
+			Log.info("[Layers " + visibleLayers + "] Preloaded " + newPreloadedMarkers.size() + " markers up to "
 					+ formatDistance(range) + " away from " + center);
 
-			setVisibleMarkers(newVisibleMarkers);
+			setPreloadedMarkers(newPreloadedMarkers);
 
-			drawMarkersInCameraRange(position, newVisibleMarkers);
+			drawMarkersInCameraRange(position, newPreloadedMarkers);
 
-			UI.messageShort(context, "Loaded " + newVisibleMarkers.size() + " markers in "
+			UI.messageShort(context, "Loaded " + newPreloadedMarkers.size() + " markers in "
 					+ formatDuration(System.currentTimeMillis() - startTime));
 			UI.run(hideProgress);
 		}
@@ -208,21 +192,17 @@ public class MapManager {
     private static void drawMarkersInCameraRange(CameraPosition position, List<MarkerModel> markers) {
 
 		Position center = new Position(position);
-		int range = Math.max(MARKER_MIN_DISTANCE_METERS, getVisibleRange(position));
+		int range = Math.max(MARKER_MIN_DISTANCE_METERS, (int) (getVisibleRange(position) * MARKER_SHOW_SCREENS));
 
-        List<MarkerModel> filtered = new ArrayList<>();
-        for (MarkerModel marker : markers) {
-            if (center.distanceTo(marker.getPosition()) <= range) {
-				filtered.add(marker);
-			}
-        }
+		Collection<MarkerModel> markersToRender = CollectionUtils.select(markers,
+				marker -> center.distanceTo(marker.getPosition()) <= range); // TODO check lat/long instead of circle
 
-		if (filtered.size() <= MARKER_MAX_DISPLAY_COUNT) {
+		if (markersToRender.size() <= MARKER_MAX_DISPLAY_COUNT) {
 
 			heatmapMode = false;
 			UI.run(() -> {
 				map.clear();
-				for (MarkerModel marker : filtered) {
+				for (MarkerModel marker : markersToRender) {
 					map.addMarker(new MarkerOptions()
 							.icon(BitmapDescriptorFactory.defaultMarker(getLayerHue(marker.getLayer())))
 							.position(new LatLng(marker.getPosition().getLatitude(),
@@ -232,23 +212,36 @@ public class MapManager {
 				}
 			});
 
-		} else if (!heatmapMode) {
+		} else if (!heatmapMode && !markers.isEmpty()) { // all preloaded markers are shown in heatmap mode
 
 			heatmapMode = true;
+
+			heatmapTileProvider = new HeatmapTileProvider.Builder()
+					.data(CollectionUtils.collect(markers, marker -> new LatLng(
+							marker.getPosition().getLatitude(),
+							marker.getPosition().getLongitude())))
+					.opacity(0.5)
+					.gradient(new Gradient(
+							new int[] {
+									context.getResources().getColor(R.color.primaryDark)}, // TODO layer colors
+							new float[]{
+									0.01f}))
+					.build();
+
 			UI.run(() -> {
 				map.clear();
 				map.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
 			});
-		} // else do nothing, heatmap persists on camera change
+		} // else (if heatmapMode) do nothing, heatmap persists on camera change
 	}
 
     public static List<MarkerModel> getSortedClosestMarkers(final Position position, int count) {
 
 		// TODO look further than currently visible on map
-        if (visibleMarkers == null || position == null)
+        if (preloadedMarkers == null || position == null)
             return Collections.emptyList();
 
-        List<MarkerModel> markersByDistance = new ArrayList<>(visibleMarkers);
+        List<MarkerModel> markersByDistance = new ArrayList<>(preloadedMarkers);
         Collections.sort(markersByDistance, (lhs, rhs) -> lhs.getPosition().distanceTo(position).compareTo(
 				rhs.getPosition().distanceTo(position)));
         return markersByDistance.subList(0, Math.min(count, markersByDistance.size()));
@@ -276,14 +269,15 @@ public class MapManager {
 			return true;
 		}
 
-		double preloadedRange = getVisibleRange(lastUpdatedPosition) * MARKER_DISTANCE_SCREENS;
+		double preloadedRange = getVisibleRange(lastUpdatedPosition) * MARKER_PRELOAD_SCREENS;
+		double visibleRange = getVisibleRange(position);
 
 		double distance = new Position(position).distanceTo(new Position(lastUpdatedPosition));
 
-		Log.debug("Moved " + formatDistance(distance) + " from the last updated position, " +
-				"preloaded " + formatDistance(preloadedRange));
+		Log.debug("Moved " + formatDistance(distance) + ", visible " + formatDistance(visibleRange)
+				+ ", preloaded " + formatDistance(preloadedRange));
 
-		return distance > preloadedRange / 2;
+		return (distance > preloadedRange / 2) || (visibleRange > preloadedRange); // TODO
 	}
 
     private static float getLayerHue(int layer) {

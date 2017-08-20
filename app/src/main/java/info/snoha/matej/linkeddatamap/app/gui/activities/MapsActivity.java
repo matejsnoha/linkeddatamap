@@ -183,9 +183,11 @@ public class MapsActivity extends AppCompatActivity
 			List<String> enabledLayerNames = LayerManager.getDataLayerNames(true);
 			List<Integer> selectedLayerDialogIndexes = new ArrayList<>();
 			for (int layerID : MapManager.getVisibleLayers()) {
-				selectedLayerDialogIndexes.add(enabledLayerNames.indexOf(
-						LayerManager.getLayerName(layerID)
-				));
+				if (layerID != LayerManager.LAYER_NONE) {
+					selectedLayerDialogIndexes.add(enabledLayerNames.indexOf(
+							LayerManager.getLayerName(layerID)
+					));
+				}
 			}
 
 			new MaterialDialog.Builder(MapsActivity.this)

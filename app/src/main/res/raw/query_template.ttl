@@ -1,34 +1,34 @@
 PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
 SELECT
-    ?latitude
-    ?longitude
-    ?name
-    {{dataDescriptionSelect}}
+	?latitude
+	?longitude
+	?name
+	{{dataDescriptionSelect}}
 
 {{from}}
 
 WHERE {
 
-    ?dataPoint  a {{dataPointType}} ;
-                {{dataName}} ?name ;
-                {{mapPointPath}} ?mapPoint .
+	?dataPoint	a {{dataPointType}} ;
+				{{dataName}} ?name ;
+				{{mapPointPath}} ?mapPoint .
 
-    {{dataDescriptionWhere}}
 
-    ?mapPoint   {{addressPath}} ?address ;
-                {{latitudePath}} ?lat ;
-                {{longitudePath}} ?long .
 
-    BIND (xsd:float(?lat) AS ?latitude) .
-    BIND (xsd:float(?long) AS ?longitude) .
+	?mapPoint	{{addressPath}} ?address ;
+				{{latitudePath}} ?lat ;
+				{{longitudePath}} ?long .
 
-    FILTER (
-        ?latitude >= {{minLat}}
-        && ?latitude <= {{maxLat}}
-        && ?longitude >= {{minLong}}
-        && ?longitude <= {{maxLong}}
-    )
+	BIND (xsd:float(?lat) AS ?latitude) .
+	BIND (xsd:float(?long) AS ?longitude) .
 
-    {{dataDescriptionBind}}
+	FILTER (
+		?latitude >= {{minLat}}
+		&& ?latitude <= {{maxLat}}
+		&& ?longitude >= {{minLong}}
+		&& ?longitude <= {{maxLong}}
+	)
+
+	{{dataDescriptionOptional}}
 }

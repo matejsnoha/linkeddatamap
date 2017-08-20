@@ -1,6 +1,7 @@
 package info.snoha.matej.linkeddatamap.app.internal.sparql;
 
 import info.snoha.matej.linkeddatamap.Log;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -21,7 +22,8 @@ public class CsvSparqlClient {
 
 	private static final int CONNECT_TIMEOUT = 5_000;
 	private static final int DATA_TIMEOUT = 180_000; // TODO configurable in settings
-	private static final int MAX_RESULTS = 100_000;
+	private static final int MAX_RESULTS = 100_000; // TODO report limit reached -> load more when zoomed in
+	private static final boolean SPARQL_PROTOCOL_GET = true;
 
 	public interface Callback {
 
@@ -44,24 +46,42 @@ public class CsvSparqlClient {
 				return;
 			}
 
-			Log.debug("Sparql query to " + endpointUrl + " :\n" + query);
-
-			final String postBody = query
-					+ (!query.toLowerCase(Locale.US).contains("limit") ? "\nLIMIT " + MAX_RESULTS : "");
-
 			OkHttpClient client = new OkHttpClient.Builder()
 					.connectTimeout(CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
 					.readTimeout(DATA_TIMEOUT, TimeUnit.MILLISECONDS)
 					.build();
 
-			RequestBody body = RequestBody.create(
-					MediaType.parse("application/sparql-query; charset=utf-8"),
-					postBody);
-			Request request = new Request.Builder()
-					.url(endpointUrl)
-					.addHeader("Accept", "text/csv; charset=utf-8")
-					.post(body)
-					.build();
+			final String queryWithLimit = query
+					+ (!query.toLowerCase(Locale.US).contains("limit") ? "\nLIMIT " + MAX_RESULTS : "");
+
+			Log.debug("Sparql query to " + endpointUrl + " :\n" + queryWithLimit);
+
+			Request request;
+
+			if (SPARQL_PROTOCOL_GET) {
+
+				request = new Request.Builder()
+						.url(HttpUrl.parse(endpointUrl).newBuilder()
+								.addQueryParameter("format", "text/csv")
+								.addQueryParameter("timeout", String.valueOf(DATA_TIMEOUT))
+								.addQueryParameter("query", queryWithLimit)
+								.build())
+						.addHeader("Accept", "text/csv")
+						.addHeader("Accept-Charset", "utf-8")
+						.get()
+						.build();
+
+			} else {
+
+				request = new Request.Builder()
+						.url(endpointUrl)
+						.addHeader("Accept", "text/csv")
+						.addHeader("Accept-Charset", "utf-8")
+						.post(RequestBody.create(
+								MediaType.parse("application/sparql-query; charset=utf-8"), queryWithLimit))
+						.build();
+
+			}
 
 			long startTime = System.currentTimeMillis();
 			final Response response = client.newCall(request).execute();
