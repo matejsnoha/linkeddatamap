@@ -1,6 +1,7 @@
 package info.snoha.matej.linkeddatamap.app.internal.sparql;
 
 import info.snoha.matej.linkeddatamap.Log;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -23,7 +24,13 @@ public class CsvSparqlClient {
 	private static final int CONNECT_TIMEOUT = 5_000;
 	private static final int DATA_TIMEOUT = 180_000; // TODO configurable in settings
 	private static final int MAX_RESULTS = 100_000; // TODO report limit reached -> load more when zoomed in
-	private static final boolean SPARQL_PROTOCOL_GET = true;
+	private static final SparqlProtocolOperationType OPERATION_TYPE = SparqlProtocolOperationType.POST_ENCODED;
+
+	private enum SparqlProtocolOperationType {
+		GET,
+		POST_DIRECT,
+		POST_ENCODED
+	}
 
 	public interface Callback {
 
@@ -58,29 +65,40 @@ public class CsvSparqlClient {
 
 			Request request;
 
-			if (SPARQL_PROTOCOL_GET) {
-
-				request = new Request.Builder()
-						.url(HttpUrl.parse(endpointUrl).newBuilder()
-								.addQueryParameter("format", "text/csv")
-								.addQueryParameter("timeout", String.valueOf(DATA_TIMEOUT))
-								.addQueryParameter("query", queryWithLimit)
-								.build())
-						.addHeader("Accept", "text/csv")
-						.addHeader("Accept-Charset", "utf-8")
-						.get()
-						.build();
-
-			} else {
-
-				request = new Request.Builder()
-						.url(endpointUrl)
-						.addHeader("Accept", "text/csv")
-						.addHeader("Accept-Charset", "utf-8")
-						.post(RequestBody.create(
-								MediaType.parse("application/sparql-query; charset=utf-8"), queryWithLimit))
-						.build();
-
+			switch (OPERATION_TYPE) {
+				case GET:
+					request = new Request.Builder()
+							.url(HttpUrl.parse(endpointUrl).newBuilder()
+									.addQueryParameter("format", "text/csv")
+									.addQueryParameter("timeout", String.valueOf(DATA_TIMEOUT))
+									.addQueryParameter("query", queryWithLimit)
+									.build())
+							.addHeader("Accept", "text/csv")
+							.addHeader("Accept-Charset", "utf-8")
+							.get()
+							.build();
+					break;
+				case POST_DIRECT:
+					request = new Request.Builder()
+							.url(endpointUrl)
+							.addHeader("Accept", "text/csv")
+							.addHeader("Accept-Charset", "utf-8")
+							.post(RequestBody.create(
+									MediaType.parse("application/sparql-query; charset=utf-8"), queryWithLimit))
+							.build();
+					break;
+				case POST_ENCODED:
+					request = new Request.Builder()
+							.url(endpointUrl)
+							.addHeader("Accept", "text/csv")
+							.addHeader("Accept-Charset", "utf-8")
+							.post(new FormBody.Builder()
+									.add("query", queryWithLimit)
+									.build())
+							.build();
+					break;
+				default:
+					throw new IllegalArgumentException("Unsupported SPARQL Query operation type");
 			}
 
 			long startTime = System.currentTimeMillis();

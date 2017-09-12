@@ -1,6 +1,7 @@
 package info.snoha.matej.linkeddatamap.app.internal.map;
 
 import android.content.Context;
+import android.graphics.Color;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -11,7 +12,6 @@ import com.google.android.gms.maps.model.TileProvider;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import info.snoha.matej.linkeddatamap.Log;
-import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
 import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
 import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
@@ -34,10 +34,10 @@ import static info.snoha.matej.linkeddatamap.Utils.formatDuration;
 
 public class MapManager {
 
-    public static final float MARKER_PRELOAD_SCREENS = 1f; // number of screens away from center
-	public static final float MARKER_SHOW_SCREENS = 0.66f; // number of screens away from center
+    public static final float MARKER_PRELOAD_SCREENS = 1.5f; // number of screens away from center
+	public static final float MARKER_SHOW_SCREENS = 0.75f; // number of screens away from center
     public static final int MARKER_MIN_DISTANCE_METERS = 100; // always show markers this far
-    public static final int MARKER_MAX_DISPLAY_COUNT = 100; // switch to heatmap if more
+    public static final int MARKER_MAX_DISPLAY_COUNT = 128; // switch to heatmap if more
 	public static final int MARKER_LOAD_TIMEOUT = 180; // seconds
 
     private static Context context;
@@ -48,7 +48,6 @@ public class MapManager {
     private static List<Integer> visibleLayers = Collections.emptyList();
 	private static List<MarkerModel> preloadedMarkers;
 
-    private static TileProvider heatmapTileProvider;
     private static boolean heatmapMode;
 
     private static CameraPosition lastUpdatedPosition;
@@ -76,7 +75,8 @@ public class MapManager {
 			return;
 		}
 
-		map.clear();
+		UI.run(map::clear);
+
 		visibleLayers = Arrays.asList(layerIDs);
 
         if (layerIDs.length == 0 || (layerIDs.length == 1 && layerIDs[0] == LayerManager.LAYER_NONE)) {
@@ -113,14 +113,7 @@ public class MapManager {
 			}
 			return;
 
-		} else if (shouldUpdateMarkers(position) || layersChanged) {
-
-			// first position or a move to a large enough distance
-			lastUpdatedPosition = position;
-			currentPosition = position;
-			Log.debug("Updating markers on map");
-
-		} else {
+		} else if (!shouldUpdateMarkers(position) && !layersChanged) {
 
 			// not updating here, just marking as current so we don't have to recheck it again
 			currentPosition = position;
@@ -130,6 +123,11 @@ public class MapManager {
 			}
 			return;
 		}
+
+		// first position or a move to a large enough distance
+		lastUpdatedPosition = position;
+		currentPosition = position;
+		Log.debug("Updating markers on map");
 
 		long startTime = System.currentTimeMillis();
 		UI.run(showProgress);
@@ -177,7 +175,7 @@ public class MapManager {
 
 			setPreloadedMarkers(newPreloadedMarkers);
 
-			drawMarkersInCameraRange(position, newPreloadedMarkers);
+			drawMarkersInCameraRange(position, newPreloadedMarkers, true);
 
 			UI.messageShort(context, "Loaded " + newPreloadedMarkers.size() + " markers in "
 					+ formatDuration(System.currentTimeMillis() - startTime));
@@ -189,7 +187,17 @@ public class MapManager {
 		}
     }
 
-    private static void drawMarkersInCameraRange(CameraPosition position, List<MarkerModel> markers) {
+	private static void drawMarkersInCameraRange(CameraPosition position, List<MarkerModel> markers) {
+		drawMarkersInCameraRange(position, markers, false);
+	}
+
+    private static void drawMarkersInCameraRange(CameraPosition position, List<MarkerModel> markers,
+												 boolean layersChangedOrUpdated) {
+
+    	if (markers == null || markers.isEmpty()) {
+    		UI.run(map::clear);
+    		return;
+		}
 
 		Position center = new Position(position);
 		int range = Math.max(MARKER_MIN_DISTANCE_METERS, (int) (getVisibleRange(position) * MARKER_SHOW_SCREENS));
@@ -212,27 +220,46 @@ public class MapManager {
 				}
 			});
 
-		} else if (!heatmapMode && !markers.isEmpty()) { // all preloaded markers are shown in heatmap mode
+		} else if (!heatmapMode || layersChangedOrUpdated) { // all preloaded markers are shown in heatmap mode
 
 			heatmapMode = true;
 
-			heatmapTileProvider = new HeatmapTileProvider.Builder()
-					.data(CollectionUtils.collect(markers, marker -> new LatLng(
-							marker.getPosition().getLatitude(),
-							marker.getPosition().getLongitude())))
-					.opacity(0.5)
-					.gradient(new Gradient(
-							new int[] {
-									context.getResources().getColor(R.color.primaryDark)}, // TODO layer colors
-							new float[]{
-									0.01f}))
-					.build();
+			List<TileProvider> heatmapTileProviders = new ArrayList<>();
+
+			for (int layerId : visibleLayers) {
+
+				Collection<MarkerModel> markersInLayer = CollectionUtils.select(markers,
+						marker -> marker.getLayer() == layerId);
+
+				if (!markersInLayer.isEmpty()) {
+
+					heatmapTileProviders.add(new HeatmapTileProvider.Builder()
+							.data(CollectionUtils.collect(markersInLayer,
+									marker -> new LatLng(
+											marker.getPosition().getLatitude(),
+											marker.getPosition().getLongitude())))
+							.opacity(0.5)
+							.gradient(new Gradient(
+									new int[]{
+											getLayerColor(layerId)},
+									new float[]{
+											0.01f}))
+							.build());
+				}
+			}
 
 			UI.run(() -> {
 				map.clear();
-				map.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
+				for (TileProvider heatmapTileProvider : heatmapTileProviders) {
+					map.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapTileProvider));
+				}
 			});
-		} // else (if heatmapMode) do nothing, heatmap persists on camera change
+
+		} else {
+
+			// do nothing, heatmap persists on camera change until layersChangedOrUpdated == true
+			// Log.debug("Not redrawing markers");
+		}
 	}
 
     public static List<MarkerModel> getSortedClosestMarkers(final Position position, int count) {
@@ -274,12 +301,17 @@ public class MapManager {
 
 		double distance = new Position(position).distanceTo(new Position(lastUpdatedPosition));
 
-		Log.debug("Moved " + formatDistance(distance) + ", visible " + formatDistance(visibleRange)
-				+ ", preloaded " + formatDistance(preloadedRange));
+		boolean shouldUpdate = (distance > preloadedRange / 2) || (visibleRange > preloadedRange);
 
-		return (distance > preloadedRange / 2) || (visibleRange > preloadedRange); // TODO
+		Log.debug("Moved " + formatDistance(distance)
+				+ ", visible " + formatDistance(visibleRange)
+				+ ", preloaded " + formatDistance(preloadedRange)
+				+ ", -> " + (shouldUpdate ? "" : "not ") + "updating");
+
+		return shouldUpdate; // TODO
 	}
 
+	// TODO custom colors in settings
     private static float getLayerHue(int layer) {
 		switch (layer) {
 			case 1:
@@ -287,13 +319,30 @@ public class MapManager {
 			case 2:
 				return BitmapDescriptorFactory.HUE_ORANGE;
 			case 3:
-				return BitmapDescriptorFactory.HUE_YELLOW;
+				return BitmapDescriptorFactory.HUE_BLUE;
 			case 4:
 				return BitmapDescriptorFactory.HUE_GREEN;
 			case 5:
-				return BitmapDescriptorFactory.HUE_BLUE;
+				return BitmapDescriptorFactory.HUE_YELLOW;
 			default:
 				return BitmapDescriptorFactory.HUE_VIOLET;
+		}
+	}
+
+	private static int getLayerColor(int layer) {
+		switch (layer) {
+			case 1:
+				return Color.RED;
+			case 2:
+				return Color.parseColor("#FFA500");
+			case 3:
+				return Color.BLUE;
+			case 4:
+				return Color.GREEN;
+			case 5:
+				return Color.YELLOW;
+			default:
+				return Color.parseColor("#6600CC");
 		}
 	}
 }

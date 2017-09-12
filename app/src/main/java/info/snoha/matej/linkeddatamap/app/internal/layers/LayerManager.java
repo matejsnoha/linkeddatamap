@@ -40,7 +40,7 @@ public class LayerManager {
     public static void with(Context context) {
         LayerManager.context = context;
 
-        initPreferences(true); // FIXME do not overwrite in release
+        initPreferences(false); // FIXME do not overwrite in release
 
 		loadLayers();
     }
