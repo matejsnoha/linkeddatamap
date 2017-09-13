@@ -1,0 +1,130 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix s: <http://schema.org/> .
+@prefix ms: <http://matej.snoha.info/dp/> .
+
+ms:
+    a owl:Ontology ;
+    dcterms:title "Linked Data Map Ontology" ;
+    dcterms:description "Linked Data Map - visualizing Linked Data" ;
+    dcterms:publisher [ a s:Person ;
+                        s:name "Matej Snoha" ;
+                        s:email "matej@snoha.info" ] ;
+    dcterms:modified "2017-09-13"^^xsd:date ;
+    dcterms:license <http://www.opendatacommons.org/licenses/by/> .
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://matej.snoha.info/dp/Layer
+ms:Layer
+    a rdfs:Class ;
+    rdfs:subClassOf void:DataSet ;
+    rdfs:label "Layer" .
+
+###  http://matej.snoha.info/dp/MapLayer
+ms:MapLayer
+    a rdfs:Class ;
+    rdfs:subClassOf ms:Layer ;
+    rdfs:label "Map Layer" .
+
+###  http://matej.snoha.info/dp/DataLayer
+ms:DataLayer
+    a rdfs:Class ;
+    rdfs:subClassOf ms:Layer ;
+    rdfs:label "Data Layer" .
+
+###  http://matej.snoha.info/dp/MapLayerStructure
+ms:MapLayerStructure
+    a rdfs:Class ;
+    rdfs:subClassOf void:DataSet ;
+    rdfs:label "Map Layer structure" .
+
+###  http://matej.snoha.info/dp/DataLayerStructure
+ms:DataLayerStructure
+    a rdfs:Class ;
+    rdfs:subClassOf void:DataSet ;
+    rdfs:label "Data Layer structure" .
+
+#################################################################
+#    Properties
+#################################################################
+
+###  http://matej.snoha.info/dp/service
+ms:service
+    a rdfs:Property ;
+    rdfs:domain ms:Layer ;
+    rdfs:range sd:Service ;
+    rdfs:label "SPARQL service description" .
+
+###  http://matej.snoha.info/dp/addressPointType
+ms:addressPointType
+    a rdfs:Property ;
+    rdfs:domain ms:MapLayerStructure ;
+    rdfs:range rdfs:Class ;
+    rdfs:label "Address Point type" .
+
+###  http://matej.snoha.info/dp/addressPath
+ms:addressPath
+    a rdfs:Property ;
+    rdfs:domain ms:MapLayerStructure ;
+    rdfs:range xsd:string ;
+    rdfs:label "Address path" .
+
+###  http://matej.snoha.info/dp/latitudePath
+ms:latitudePath
+    a rdfs:Property ;
+    rdfs:domain ms:MapLayerStructure ;
+    rdfs:range xsd:string ;
+    rdfs:label "Latitude path" .
+
+###  http://matej.snoha.info/dp/longitudePath
+ms:longitudePath
+    a rdfs:Property ;
+    rdfs:domain ms:MapLayerStructure ;
+    rdfs:range xsd:string ;
+    rdfs:label "Longitude path" .
+
+###  http://matej.snoha.info/dp/dataPointType
+ms:dataPointType
+    a rdfs:Property ;
+    rdfs:domain ms:DataLayerStructure ;
+    rdfs:range rdfs:Class ;
+    rdfs:label "Data Point type" .
+
+###  http://matej.snoha.info/dp/dataName
+ms:dataName
+    a rdfs:Property ;
+    rdfs:domain ms:DataLayerStructure ;
+    rdfs:range xsd:string ;
+    rdfs:label "Data name" .
+
+###  http://matej.snoha.info/dp/dataDescription
+ms:dataDescription
+    a rdfs:Property ;
+    rdfs:domain ms:DataLayerStructure ;
+    rdfs:range xsd:string ;
+    rdfs:label "Data description" .
+
+###  http://matej.snoha.info/dp/mapPointPath
+ms:mapPointPath
+    a rdfs:Property ;
+    rdfs:domain ms:DataLayerStructure ;
+    rdfs:range xsd:string ;
+    rdfs:label "Map Address Point path" .
+
+###  http://matej.snoha.info/dp/mapLayer
+ms:mapLayer
+    a rdfs:Property ;
+    rdfs:domain ms:DataLayer ;
+    rdfs:range ms:MapLayer ;
+    rdfs:label "Map Layer" .
+
+#################################################################
