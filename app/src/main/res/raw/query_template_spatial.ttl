@@ -1,3 +1,4 @@
+PREFIX spatial: <http://jena.apache.org/spatial#>
 PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
 SELECT
@@ -16,17 +17,11 @@ WHERE {
 
 	?mapPoint	{{addressPath}} ?address ;
 				{{latitudePath}} ?lat ;
-				{{longitudePath}} ?long .
+				{{longitudePath}} ?long ;
+				spatial:withinBox ( {{minLat}} {{minLong}} {{maxLat}} {{maxLong}} ) .
 
 	BIND (xsd:float(?lat) AS ?latitude) .
 	BIND (xsd:float(?long) AS ?longitude) .
-
-	FILTER (
-		?latitude >= {{minLat}}
-		&& ?latitude <= {{maxLat}}
-		&& ?longitude >= {{minLong}}
-		&& ?longitude <= {{maxLong}}
-	)
 
 	{{dataDescriptionOptional}}
 }

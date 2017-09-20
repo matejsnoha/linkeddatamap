@@ -11,12 +11,12 @@
 
 ms:
     a owl:Ontology ;
-    dcterms:title "Linked Data Map Ontology" ;
-    dcterms:description "Linked Data Map - visualizing Linked Data" ;
+    dcterms:title "Linked Data Map Ontology"@en ;
+    dcterms:description "Linked Data Map - visualizing Linked Data on a map"@en ;
     dcterms:publisher [ a s:Person ;
-                        s:name "Matej Snoha" ;
+                        s:name "Matej Snoha"@en ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-09-13"^^xsd:date ;
+    dcterms:modified "2017-09-20"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> .
 
 #################################################################
@@ -27,31 +27,36 @@ ms:
 ms:Layer
     a rdfs:Class ;
     rdfs:subClassOf void:DataSet ;
-    rdfs:label "Layer" .
+    rdfs:label "Layer"@en ;
+    rdfs:comment "Base abstract class for Layers"@en .
 
 ###  http://matej.snoha.info/dp/MapLayer
 ms:MapLayer
     a rdfs:Class ;
     rdfs:subClassOf ms:Layer ;
-    rdfs:label "Map Layer" .
+    rdfs:label "Map Layer"@en ;
+    rdfs:comment "Map Layer with address points with address/lat/lng"@en .
 
 ###  http://matej.snoha.info/dp/DataLayer
 ms:DataLayer
     a rdfs:Class ;
     rdfs:subClassOf ms:Layer ;
-    rdfs:label "Data Layer" .
+    rdfs:label "Data Layer"@en ;
+    rdfs:comment "Data Layer with data points with name/description linked to a Map Layer"@en .
 
 ###  http://matej.snoha.info/dp/MapLayerStructure
 ms:MapLayerStructure
     a rdfs:Class ;
     rdfs:subClassOf void:DataSet ;
-    rdfs:label "Map Layer structure" .
+    rdfs:label "Map Layer structure"@en ;
+    rdfs:comment "Structure of the Map Layer: address point type, address path, latitude path, longitude path"@en .
 
 ###  http://matej.snoha.info/dp/DataLayerStructure
 ms:DataLayerStructure
     a rdfs:Class ;
     rdfs:subClassOf void:DataSet ;
-    rdfs:label "Data Layer structure" .
+    rdfs:label "Data Layer structure"@en ;
+    rdfs:comment "Structure of the Data Layer: data point type, data name, data description, linked map point path"@en .
 
 #################################################################
 #    Properties
@@ -59,72 +64,90 @@ ms:DataLayerStructure
 
 ###  http://matej.snoha.info/dp/service
 ms:service
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:Layer ;
     rdfs:range sd:Service ;
-    rdfs:label "SPARQL service description" .
+    rdfs:label "SPARQL service description"@en ;
+    rdfs:comment "Property for a SPARQL service description (endpoint, named graph, etc.)"@en .
+
+###  http://matej.snoha.info/dp/jenaSpatial
+ms:jenaSpatial
+    a rdf:Property ;
+    rdfs:domain sd:Service ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Jena Spatial support"@en ;
+    rdfs:comment "Property (flag) that indicates if the SPARQL endpoint supports Jena Spatial"@en .
 
 ###  http://matej.snoha.info/dp/addressPointType
 ms:addressPointType
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:MapLayerStructure ;
     rdfs:range rdfs:Class ;
-    rdfs:label "Address Point type" .
+    rdfs:label "Address Point type"@en ;
+    rdfs:comment "Class of address points"@en .
 
 ###  http://matej.snoha.info/dp/addressPath
 ms:addressPath
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:MapLayerStructure ;
     rdfs:range xsd:string ;
-    rdfs:label "Address path" .
+    rdfs:label "Address path"@en ;
+    rdfs:comment "Property path to address points"@en .
 
 ###  http://matej.snoha.info/dp/latitudePath
 ms:latitudePath
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:MapLayerStructure ;
     rdfs:range xsd:string ;
-    rdfs:label "Latitude path" .
+    rdfs:label "Latitude path"@en ;
+    rdfs:comment "Property path to WGS84 latitude"@en .
 
 ###  http://matej.snoha.info/dp/longitudePath
 ms:longitudePath
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:MapLayerStructure ;
     rdfs:range xsd:string ;
-    rdfs:label "Longitude path" .
+    rdfs:label "Longitude path"@en ;
+    rdfs:comment "Property path to WGS84 longitude"@en .
 
 ###  http://matej.snoha.info/dp/dataPointType
 ms:dataPointType
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:DataLayerStructure ;
     rdfs:range rdfs:Class ;
-    rdfs:label "Data Point type" .
+    rdfs:label "Data Point type"@en ;
+    rdfs:comment "Class of data points"@en .
 
 ###  http://matej.snoha.info/dp/dataName
 ms:dataName
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:DataLayerStructure ;
     rdfs:range xsd:string ;
-    rdfs:label "Data name" .
+    rdfs:label "Data name"@en ;
+    rdfs:comment "Property path to data name"@en .
 
 ###  http://matej.snoha.info/dp/dataDescription
 ms:dataDescription
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:DataLayerStructure ;
-    rdfs:range xsd:string ;
-    rdfs:label "Data description" .
+    rdfs:range rdf:List ;
+    rdfs:label "Data description"@en ;
+    rdfs:comment "List of literals and property paths to build a description"@en .
 
 ###  http://matej.snoha.info/dp/mapPointPath
 ms:mapPointPath
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:DataLayerStructure ;
     rdfs:range xsd:string ;
-    rdfs:label "Map Address Point path" .
+    rdfs:label "Map Address Point path"@en ;
+    rdfs:comment "Property path to linked map points"@en .
 
 ###  http://matej.snoha.info/dp/mapLayer
 ms:mapLayer
-    a rdfs:Property ;
+    a rdf:Property ;
     rdfs:domain ms:DataLayer ;
     rdfs:range ms:MapLayer ;
-    rdfs:label "Map Layer" .
+    rdfs:label "Map Layer"@en ;
+    rdfs:comment "Property for linking a map layer to a data layer"@en .
 
 #################################################################

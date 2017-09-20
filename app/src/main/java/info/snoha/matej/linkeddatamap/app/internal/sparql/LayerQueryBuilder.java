@@ -18,7 +18,8 @@ public class LayerQueryBuilder {
 			DataLayer dataLayer = layer.getDataLayer();
 			MapLayer mapLayer = layer.getMapLayer();
 
-			String template = AndroidUtils.readRawResource(context, R.raw.query_template);
+			String template = AndroidUtils.readRawResource(context,
+					mapLayer.isSparqlJenaSpatial() ? R.raw.query_template_spatial : R.raw.query_template);
 
 			// fill-in single items
 			template = template.replace("{{from}}", dataLayer.getSparqlNamedGraph() != null ?

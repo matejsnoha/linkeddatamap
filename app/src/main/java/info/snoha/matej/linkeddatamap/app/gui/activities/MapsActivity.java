@@ -1,12 +1,14 @@
 package info.snoha.matej.linkeddatamap.app.gui.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
@@ -51,77 +53,79 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MapsActivity extends AppCompatActivity
-        implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+		implements OnMapReadyCallback,
+		GoogleApiClient.ConnectionCallbacks,
+		GoogleApiClient.OnConnectionFailedListener {
 
-    /** MAP **/
+	/** MAP **/
 
-    private GoogleMap map;
-    private GoogleApiClient apiClient;
+	private GoogleMap map;
+	private GoogleApiClient apiClient;
 
 	/** Position tracking **/
 
-    private boolean positionTracking;
-    private Timer positionTrackingTimer;
+	private boolean positionTracking;
+	private Timer positionTrackingTimer;
 	private static final int POSITION_TRACKING_FREQUENCY = 1_000;
+	private static final int LOCATION_PERMISSION_REQUEST_CODE = 11;
 
 	/** Map camera tracking **/
 
-    private CameraPosition cameraPosition;
-    private Timer cameraTrackingTimer;
+	private CameraPosition cameraPosition;
+	private Timer cameraTrackingTimer;
 	private static final int CAMERA_TRACKING_FREQUENCY = 3_000;
 
 	/** Nearby tracking **/
 
 	private boolean nearbyTracking;
-    private Timer nearbyTrackingTimer;
+	private Timer nearbyTrackingTimer;
 	private static final int NEARBY_TRACKING_FREQUENCY = 3_000;
 	private static final int NEARBY_COUNT = 20;
 
 	protected void onStart() {
-        super.onStart();
-        apiClient.connect();
-    }
+		super.onStart();
+		apiClient.connect();
+	}
 
-    protected void onStop() {
-        super.onStop();
-        if (apiClient.isConnected())
-            apiClient.disconnect();
-    }
+	protected void onStop() {
+		super.onStop();
+		if (apiClient.isConnected())
+			apiClient.disconnect();
+	}
 
-    // TODO onPause, onResume - timers wait&notify?
+	// TODO onPause, onResume - timers wait&notify?
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        Log.info("Maps Activity starting");
+		Log.info("Maps Activity starting");
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(true);
-            //actionBar.setIcon(R.drawable.ic_map_white_24dp);
-            //actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getTitle() + " " + AndroidUtils.getVersion(this));
-        }
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setDisplayShowHomeEnabled(true);
+			//actionBar.setIcon(R.drawable.ic_map_white_24dp);
+			//actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setTitle(getTitle() + " " + AndroidUtils.getVersion(this));
+		}
 
-        apiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+		apiClient = new GoogleApiClient.Builder(this)
+				.addConnectionCallbacks(this)
+				.addOnConnectionFailedListener(this)
+				.addApi(LocationServices.API)
+				.build();
 
-        setContentView(R.layout.activity_maps);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+		setContentView(R.layout.activity_maps);
+		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.map);
+		mapFragment.getMapAsync(this);
 
-        LayerManager.with(this);
+		LayerManager.with(this);
 		MapManager.with(this, null, this::showProgress, this::hideProgress); // map initialized later
 
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(v -> {
+		final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+		fab.setOnClickListener(v -> {
 
 			Location location = getCurrentLocation();
 			if (location != null) {
@@ -133,8 +137,9 @@ public class MapsActivity extends AppCompatActivity
 
 				map.moveCamera(update);
 				//map.animateCamera(update); // FIXME map textures do not load until touched physically
-		}});
-        fab.setOnLongClickListener(v -> {
+			}
+		});
+		fab.setOnLongClickListener(v -> {
 
 			new MaterialDialog.Builder(MapsActivity.this)
 					.title("Turn position tracking " + (positionTracking ? "OFF" : "ON") + "?")
@@ -165,14 +170,14 @@ public class MapsActivity extends AppCompatActivity
 			return true;
 		});
 
-        ((AppCompatButton) findViewById(R.id.button_clear)).setTextColor(Color.BLACK); // < API21
-        findViewById(R.id.button_clear).setOnClickListener(v -> {
+		((AppCompatButton) findViewById(R.id.button_clear)).setTextColor(Color.BLACK); // < API21
+		findViewById(R.id.button_clear).setOnClickListener(v -> {
 			MapManager.setDataLayers(cameraPosition, LayerManager.LAYER_NONE);
 			hideNearby();
 		});
 
-        ((AppCompatButton) findViewById(R.id.button_layers)).setTextColor(Color.BLACK); // < API21
-        findViewById(R.id.button_layers).setOnClickListener(v -> {
+		((AppCompatButton) findViewById(R.id.button_layers)).setTextColor(Color.BLACK); // < API21
+		findViewById(R.id.button_layers).setOnClickListener(v -> {
 
 			if (LayerManager.getDataLayerIDs(true).size() == 0) {
 				UI.message(MapsActivity.this, "No layers.\n" +
@@ -194,7 +199,7 @@ public class MapsActivity extends AppCompatActivity
 					.title("Choose layers")
 					.items(enabledLayerNames)
 					.itemsCallbackMultiChoice(selectedLayerDialogIndexes.toArray(new Integer[0]),
-                            (dialog, which, text) -> {
+							(dialog, which, text) -> {
 
 								List<String> layerNames = new ArrayList<>(text.length);
 								for (CharSequence name : text) {
@@ -209,17 +214,17 @@ public class MapsActivity extends AppCompatActivity
 
 		});
 
-        AppCompatButton nearbyButton = (AppCompatButton) findViewById(R.id.button_nearby);
-        nearbyButton.setTextColor(Color.BLACK); // < API21
-        nearbyButton.setOnClickListener((View v) -> {
+		AppCompatButton nearbyButton = (AppCompatButton) findViewById(R.id.button_nearby);
+		nearbyButton.setTextColor(Color.BLACK); // < API21
+		nearbyButton.setOnClickListener((View v) -> {
 
-        	nearbyTracking = !nearbyTracking;
+			nearbyTracking = !nearbyTracking;
 
-        	if (nearbyTracking) {
-        		nearbyTrackingTimer = new Timer("Nearby Tracking Timer");
-        		nearbyTrackingTimer.scheduleAtFixedRate(new TimerTask() {
+			if (nearbyTracking) {
+				nearbyTrackingTimer = new Timer("Nearby Tracking Timer");
+				nearbyTrackingTimer.scheduleAtFixedRate(new TimerTask() {
 
-        			private boolean firstRun = true;
+					private boolean firstRun = true;
 
 					@Override
 					public void run() {
@@ -228,49 +233,49 @@ public class MapsActivity extends AppCompatActivity
 					}
 				}, 0, NEARBY_TRACKING_FREQUENCY);
 			} else {
-        		if (nearbyTrackingTimer != null) {
+				if (nearbyTrackingTimer != null) {
 					nearbyTrackingTimer.cancel();
 					nearbyTrackingTimer = null;
 				}
-        		hideNearby();
+				hideNearby();
 			}
 		});
-    }
+	}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        return true;
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.refresh:
-                MapManager.setDataLayers(cameraPosition, MapManager.getVisibleLayers());
-                return true;
-            case R.id.settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.refresh:
+				MapManager.setDataLayers(cameraPosition, MapManager.getVisibleLayers());
+				return true;
+			case R.id.settings:
+				startActivity(new Intent(this, SettingsActivity.class));
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
+	@Override
+	public void onMapReady(GoogleMap googleMap) {
+		map = googleMap;
 
-        map.getUiSettings().setMyLocationButtonEnabled(false);
-        map.getUiSettings().setMapToolbarEnabled(false);
-        try {
-            map.setMyLocationEnabled(true);
-        } catch (SecurityException e) {
-            UI.message(this, "Missing location permission");
-        }
+		map.getUiSettings().setMyLocationButtonEnabled(false);
+		map.getUiSettings().setMapToolbarEnabled(false);
+		try {
+			map.setMyLocationEnabled(true);
+		} catch (SecurityException e) {
+			UI.message(this, "Missing location permission");
+		}
 
-        map.setOnMarkerClickListener(marker -> {
+		map.setOnMarkerClickListener(marker -> {
 
 			TextView textView = new TextView(MapsActivity.this);
 			textView.setAutoLinkMask(Linkify.WEB_URLS);
@@ -285,74 +290,74 @@ public class MapsActivity extends AppCompatActivity
 			return true;
 		});
 
-        map.setOnCameraChangeListener(cameraPosition -> MapsActivity.this.cameraPosition = cameraPosition);
+		map.setOnCameraChangeListener(cameraPosition -> MapsActivity.this.cameraPosition = cameraPosition);
 
-        // TODO
-        LatLng mapCenter = new LatLng(50.0819015, 14.4326654);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(mapCenter, 6));
+		// TODO
+		LatLng mapCenter = new LatLng(50.0819015, 14.4326654);
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(mapCenter, 6));
 
-        MapManager.with(this, map, this::showProgress, this::hideProgress);
+		MapManager.with(this, map, this::showProgress, this::hideProgress);
 
-        cameraTrackingTimer = new Timer("Camera Tracking Timer");
-        cameraTrackingTimer.scheduleAtFixedRate(new TimerTask() {
+		cameraTrackingTimer = new Timer("Camera Tracking Timer");
+		cameraTrackingTimer.scheduleAtFixedRate(new TimerTask() {
 
-            @Override
-            public void run() {
+			@Override
+			public void run() {
 				MapManager.updateMarkersOnMap(cameraPosition);
-            }
-        }, 0, CAMERA_TRACKING_FREQUENCY);
-    }
+			}
+		}, 0, CAMERA_TRACKING_FREQUENCY);
+	}
 
-    private Location getCurrentLocation() {
-        try {
-            Location location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
+	private Location getCurrentLocation() {
+		try {
+			Location location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
 
-            if (location == null && ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+			if (location == null && ActivityCompat.checkSelfPermission(this,
+					Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-                throw new SecurityException("Missing location permission");
-            }
-            return location;
+				throw new SecurityException("Missing location permission");
+			}
+			return location;
 
-        } catch (SecurityException e) {
+		} catch (SecurityException e) {
 
-            if (hasWindowFocus()) {
-                UI.message(this, "Missing location permission");
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        0);
-            }
-            return null;
-        }
-    }
+			if (hasWindowFocus()) {
+				UI.message(this, "Missing location permission");
+				ActivityCompat.requestPermissions(this,
+						new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+						LOCATION_PERMISSION_REQUEST_CODE);
+			}
+			return null;
+		}
+	}
 
-    @Override
-    public void onConnected(Bundle bundle) {
+	@Override
+	public void onConnected(Bundle bundle) {
 
-        LocationRequest request = new LocationRequest();
-        request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        request.setInterval(POSITION_TRACKING_FREQUENCY);
-        try {
-            LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, request, new LocationCallback() {
+		LocationRequest request = new LocationRequest();
+		request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		request.setInterval(POSITION_TRACKING_FREQUENCY);
+		try {
+			LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, request, new LocationCallback() {
 
-                @Override
-                public void onLocationResult(LocationResult result) {
-                }
-            }, Looper.getMainLooper());
-        } catch (SecurityException e) {
-            UI.message(this, "Missing location permission");
-        }
-    }
+				@Override
+				public void onLocationResult(LocationResult result) {
+				}
+			}, Looper.getMainLooper());
+		} catch (SecurityException e) {
+			UI.message(this, "Missing location permission");
+		}
+	}
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        UI.message(this, "Google APIs disconnected");
-    }
+	@Override
+	public void onConnectionSuspended(int i) {
+		UI.message(this, "Google APIs disconnected");
+	}
 
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        UI.message(this, "Google APIs failed to connect");
-    }
+	@Override
+	public void onConnectionFailed(ConnectionResult connectionResult) {
+		UI.message(this, "Google APIs failed to connect");
+	}
 
 	private void hideNearby() {
 		RecyclerView listView = (RecyclerView) findViewById(R.id.nearby);
@@ -408,5 +413,11 @@ public class MapsActivity extends AppCompatActivity
 
 	public void hideProgress() {
 		findViewById(R.id.progress).setVisibility(View.GONE);
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		// recreate(); // reinitialize google map // TODO heatmap/marker flicker bug caused by calling this?
 	}
 }

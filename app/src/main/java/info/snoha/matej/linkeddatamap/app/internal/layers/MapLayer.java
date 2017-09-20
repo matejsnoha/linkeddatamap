@@ -22,6 +22,7 @@ public class MapLayer {
 	// sparql access
 	private String sparqlEndpoint;
 	private String sparqlNamedGraph;
+	private boolean sparqlJenaSpatial;
 
 	// map structure
 	private String addressPointType;
@@ -116,6 +117,15 @@ public class MapLayer {
 
 	public MapLayer sparqlNamedGraph(String sparqlNamedGraph) {
 		this.sparqlNamedGraph = sparqlNamedGraph;
+		return this;
+	}
+
+	public boolean isSparqlJenaSpatial() {
+		return sparqlJenaSpatial;
+	}
+
+	public MapLayer sparqlJenaSpatial(Boolean sparqlJenaSpatial) {
+		this.sparqlJenaSpatial = sparqlJenaSpatial != null && sparqlJenaSpatial;
 		return this;
 	}
 

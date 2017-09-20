@@ -36,6 +36,7 @@ public class MapLayerManager {
 					.description(jena.propertyValue(r, Prefixes.DCTERMS + "description"))
 					.sparqlEndpoint(jena.propertyValue(service, Prefixes.SD + "endpoint"))
 					.sparqlNamedGraph(jena.propertyValue(graph, Prefixes.SD + "name"))
+					.sparqlJenaSpatial(jena.propertyValue(service, Prefixes.MS + "jenaSpatial"))
 					.addressPointType(jena.propertyValue(structure, Prefixes.MS + "addressPointType"))
 					.addressPath(jena.propertyValue(structure, Prefixes.MS + "addressPath"))
 					.latitudePath(jena.propertyValue(structure, Prefixes.MS + "latitudePath"))

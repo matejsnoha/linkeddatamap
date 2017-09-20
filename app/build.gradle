@@ -27,8 +27,8 @@ android {
         applicationId "info.snoha.matej.linkeddatamap"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 12
-        versionName "0.12"
+        versionCode 13
+        versionName "0.13"
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
             targetCompatibility JavaVersion.VERSION_1_8
