@@ -6,6 +6,7 @@
 @prefix s: <http://schema.org/> .
 @prefix ms: <http://matej.snoha.info/dp/> .
 @prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
 
 <http://matej.snoha.info/dp/resource/mapLayer/ruian-old>
 
@@ -17,28 +18,17 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-08-15"^^xsd:date ;
+    dcterms:modified "2017-10-11"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
-                  sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
+                  sd:endpoint "https://ldm.matej.snoha.info/fuseki/doubleshot/query" ;
                   sd:supportedLanguage sd:SPARQL11Query ;
-                  # sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle> ;
-                  sd:defaultDataset [
-                      a sd:Dataset ;
-                      sd:namedGraph [
-                          a sd:NamedGraph ;
-                          sd:name "http://ruian-old" ;
-                          sd:graph [
-                              a sd:Graph ;
-                              void:triples 25145000
-                          ]
-                      ]
-                  ]
+                  ms:jenaSpatial true ;
                ];
 
     ms:mapLayerStructure [  a ms:MapLayerStructure ;
-                          ms:addressPointType <http://ruian.linked.opendata.cz/ontology/AdresniMisto> ;
-                          ms:addressPath "<http://schema.org/name>" ; #TODO
-                          ms:latitudePath "<http://ruian.linked.opendata.cz/ontology/adresniBod>/<http://schema.org/geo>/<http://schema.org/latitude>" ;
-                          ms:longitudePath "<http://ruian.linked.opendata.cz/ontology/adresniBod>/<http://schema.org/geo>/<http://schema.org/longitude>" ] .
+                          ms:addressPointType ruian:AdresniMisto ;
+                          ms:addressPath ( s:name ) ; #TODO similar as data description
+                          ms:latitudePath ( ruian:adresniBod s:geo s:latitude ) ;
+                          ms:longitudePath ( ruian:adresniBod s:geo s:longitude) ] .

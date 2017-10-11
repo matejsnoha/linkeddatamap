@@ -11,14 +11,14 @@ SELECT
 
 WHERE {
 
-	?dataPoint	a {{dataPointType}} ;
-				{{dataName}} ?name ;
-				{{mapPointPath}} ?mapPoint .
-
 	?mapPoint	{{addressPath}} ?address ;
 				{{latitudePath}} ?lat ;
 				{{longitudePath}} ?long ;
 				spatial:withinBox ( {{minLat}} {{minLong}} {{maxLat}} {{maxLong}} ) .
+
+	?dataPoint	a {{dataPointType}} ;
+				{{dataName}} ?name ;
+				{{mapPointPath}} ?mapPoint .
 
 	BIND (xsd:float(?lat) AS ?latitude) .
 	BIND (xsd:float(?long) AS ?longitude) .

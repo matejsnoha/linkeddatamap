@@ -89,8 +89,16 @@ public class MapsActivity extends AppCompatActivity
 
 	protected void onStop() {
 		super.onStop();
-		if (apiClient.isConnected())
+		if (apiClient.isConnected()) {
 			apiClient.disconnect();
+		}
+		if (cameraTrackingTimer != null) {
+			cameraTrackingTimer.cancel();
+		}
+		if (nearbyTrackingTimer != null) {
+			nearbyTrackingTimer.cancel();
+		}
+		Log.info("Maps Activity stopped");
 	}
 
 	// TODO onPause, onResume - timers wait&notify?
@@ -240,6 +248,9 @@ public class MapsActivity extends AppCompatActivity
 				hideNearby();
 			}
 		});
+
+		// manually request location, so the permission dialog pops up if needed
+		getCurrentLocation(true);
 	}
 
 	@Override
@@ -309,10 +320,14 @@ public class MapsActivity extends AppCompatActivity
 	}
 
 	private Location getCurrentLocation() {
+		return getCurrentLocation(false);
+	}
+
+	private Location getCurrentLocation(Boolean askForPermissions) {
 		try {
 			Location location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
 
-			if (location == null && ActivityCompat.checkSelfPermission(this,
+			if (askForPermissions && location == null && ActivityCompat.checkSelfPermission(this,
 					Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
 				throw new SecurityException("Missing location permission");
@@ -321,7 +336,7 @@ public class MapsActivity extends AppCompatActivity
 
 		} catch (SecurityException e) {
 
-			if (hasWindowFocus()) {
+			if (askForPermissions) {
 				UI.message(this, "Missing location permission");
 				ActivityCompat.requestPermissions(this,
 						new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -418,6 +433,6 @@ public class MapsActivity extends AppCompatActivity
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		// recreate(); // reinitialize google map // TODO heatmap/marker flicker bug caused by calling this?
+		recreate(); // restarts activity (google map won't show the blue location dot otherwise)
 	}
 }

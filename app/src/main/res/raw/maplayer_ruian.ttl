@@ -5,7 +5,8 @@
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
 @prefix ms: <http://matej.snoha.info/dp/> .
-@prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .
+@prefix ruian: <https://ruian.linked.opendata.cz/slovník/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
 
 <http://matej.snoha.info/dp/resource/mapLayer/ruian>
 
@@ -17,7 +18,7 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-08-16"^^xsd:date ;
+    dcterms:modified "2017-10-02"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
@@ -27,7 +28,7 @@
                ];
 
     ms:mapLayerStructure [  a ms:MapLayerStructure ;
-                          ms:addressPointType <https://ruian.linked.opendata.cz/slovník/AdresníMisto> ;
-                          ms:addressPath "<http://schema.org/name>" ; #TODO
-                          ms:latitudePath "<https://ruian.linked.opendata.cz/slovník/adresníBod>/<http://schema.org/geo>/<http://schema.org/latitude>" ;
-                          ms:longitudePath "<https://ruian.linked.opendata.cz/slovník/adresníBod>/<http://schema.org/geo>/<http://schema.org/longitude>" ] .
+                          ms:addressPointType ruian:AdresníMisto ;
+                          ms:addressPath s:name ; #TODO multiple items similar as data description
+                          ms:latitudePath ( ruian:adresníBod s:geo s:latitude ) ;
+                          ms:longitudePath ( ruian:adresníBod s:geo s:longitude ) ] .

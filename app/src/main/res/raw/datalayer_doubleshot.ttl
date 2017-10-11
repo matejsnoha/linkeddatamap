@@ -5,6 +5,7 @@
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
 @prefix ms: <http://matej.snoha.info/dp/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
 
 <http://matej.snoha.info/dp/resource/dataLayer/ds>
 
@@ -16,30 +17,13 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-08-15"^^xsd:date ;
+    dcterms:modified "2017-10-11"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
-    ms:service [  a sd:Service ;
-                  sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
-                  sd:supportedLanguage sd:SPARQL11Query ;
-                  # sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle> ;
-                  sd:defaultDataset [
-                      a sd:Dataset ;
-                      sd:namedGraph [
-                          a sd:NamedGraph ;
-                          sd:name "http://doubleshot" ;
-                          sd:graph [
-                              a sd:Graph ;
-                              void:triples 2000
-                          ]
-                      ]
-                  ]
-               ];
-
     ms:dataLayerStructure [ a ms:DataLayerStructure ;
-                          ms:dataPointType <http://schema.org/CafeOrCoffeeShop> ;
-                          ms:dataName "<http://schema.org/name>" ;
-                          ms:dataDescription ( "Rating " <http://schema.org/aggregateRating> ) ;
-                          ms:mapPointPath "<http://schema.org/geo>" ] ;
+                          ms:dataPointType s:CafeOrCoffeeShop ;
+                          ms:dataName s:name ;
+                          ms:dataDescription ( "Rating " s:aggregateRating ) ;
+                          ms:mapPointPath s:geo ] ;
 
     ms:mapLayer <http://matej.snoha.info/dp/resource/mapLayer/ds> .

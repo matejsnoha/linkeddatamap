@@ -4,6 +4,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.rdf.Jena;
 import info.snoha.matej.linkeddatamap.rdf.Prefixes;
+import info.snoha.matej.linkeddatamap.rdf.Shacl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -39,7 +40,7 @@ public class DataLayerManager {
 					.dataPointType(jena.propertyValue(structure, Prefixes.MS + "dataPointType"))
 					.dataName(jena.propertyValue(structure, Prefixes.MS + "dataName"))
 					.dataDescription(jena.propertyList(structure, Prefixes.MS + "dataDescription"))
-					.mapPointPath(jena.propertyValue(structure, Prefixes.MS + "mapPointPath"))
+					.mapPointPath(Shacl.parseToString(jena, structure, Prefixes.MS + "mapPointPath"))
 					.mapLayer(jena.propertyValue(r, Prefixes.MS + "mapLayer"))
 					;
 

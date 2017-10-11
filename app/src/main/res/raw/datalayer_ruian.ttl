@@ -5,7 +5,8 @@
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
 @prefix ms: <http://matej.snoha.info/dp/> .
-@prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .
+@prefix ruian: <https://ruian.linked.opendata.cz/slovník/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
 
 <http://matej.snoha.info/dp/resource/dataLayer/ruian>
 
@@ -17,7 +18,7 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-08-16"^^xsd:date ;
+    dcterms:modified "2017-10-02"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
@@ -27,9 +28,9 @@
                ];
 
     ms:dataLayerStructure [ a ms:DataLayerStructure ;
-                          ms:dataPointType <https://ruian.linked.opendata.cz/slovník/StavebníObjekt> ;
-                          ms:dataName <http://schema.org/name> ;
-                          ms:dataDescription ( "Pocet bytu " <https://ruian.linked.opendata.cz/slovník/početBytů> ", Pocet podlazi " <https://ruian.linked.opendata.cz/slovník/početPodlaží> ) ;
-                          ms:mapPointPath "^<https://ruian.linked.opendata.cz/slovník/stavebníObjekt>" ] ;
+                          ms:dataPointType ruian:StavebníObjekt ;
+                          ms:dataName s:name ;
+                          ms:dataDescription ( "Pocet bytu " ruian:početBytů ", Pocet podlazi " ruian:početPodlaží ) ;
+                          ms:mapPointPath [ sh:inversePath ruian:stavebníObjekt ] ] ;
 
     ms:mapLayer <http://matej.snoha.info/dp/resource/mapLayer/ruian> .

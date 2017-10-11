@@ -5,6 +5,7 @@
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
 @prefix ms: <http://matej.snoha.info/dp/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
 
 <http://matej.snoha.info/dp/resource/mapLayer/ds>
 
@@ -16,29 +17,17 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-09-20"^^xsd:date ;
+    dcterms:modified "2017-10-11"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ms:service [  a sd:Service ;
-                  sd:endpoint "http://matej.snoha.info/ld/dpm/sparql" ;
+                  sd:endpoint "https://ldm.matej.snoha.info/fuseki/doubleshot/query" ;
                   sd:supportedLanguage sd:SPARQL11Query ;
                   ms:jenaSpatial true ;
-                  # sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle> ;
-                  sd:defaultDataset [
-                      a sd:Dataset ;
-                      sd:namedGraph [
-                          a sd:NamedGraph ;
-                          sd:name "http://doubleshot" ;
-                          sd:graph [
-                              a sd:Graph ;
-                              void:triples 2000
-                          ]
-                      ]
-                  ]
                ];
 
     ms:mapLayerStructure [  a ms:MapLayerStructure ;
-                          ms:addressPointType <http://schema.org/GeoCoordinates> ;
-                          ms:addressPath "<http://schema.org/address>/<http://schema.org/description>";
-                          ms:latitudePath "<http://schema.org/latitude>" ;
-                          ms:longitudePath "<http://schema.org/longitude>" ] .
+                          ms:addressPointType s:GeoCoordinates ;
+                          ms:addressPath ( s:address s:description ) ;
+                          ms:latitudePath s:latitude ;
+                          ms:longitudePath s:longitude ] .

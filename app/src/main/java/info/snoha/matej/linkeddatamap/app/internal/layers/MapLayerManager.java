@@ -4,6 +4,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.rdf.Jena;
 import info.snoha.matej.linkeddatamap.rdf.Prefixes;
+import info.snoha.matej.linkeddatamap.rdf.Shacl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -38,9 +39,9 @@ public class MapLayerManager {
 					.sparqlNamedGraph(jena.propertyValue(graph, Prefixes.SD + "name"))
 					.sparqlJenaSpatial(jena.propertyValue(service, Prefixes.MS + "jenaSpatial"))
 					.addressPointType(jena.propertyValue(structure, Prefixes.MS + "addressPointType"))
-					.addressPath(jena.propertyValue(structure, Prefixes.MS + "addressPath"))
-					.latitudePath(jena.propertyValue(structure, Prefixes.MS + "latitudePath"))
-					.longitudePath(jena.propertyValue(structure, Prefixes.MS + "longitudePath"))
+					.addressPath(Shacl.parseToString(jena, structure, Prefixes.MS + "addressPath"))
+					.latitudePath(Shacl.parseToString(jena, structure, Prefixes.MS + "latitudePath"))
+					.longitudePath(Shacl.parseToString(jena, structure, Prefixes.MS + "longitudePath"))
 					;
 
 			return layer;

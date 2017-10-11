@@ -28,6 +28,10 @@ public class Jena {
 		return this;
 	}
 
+	public Model getModel() {
+		return model;
+	}
+
 	public Resource resourceWithType(String type) {
 		try {
 			return model.listResourcesWithProperty(
@@ -72,10 +76,9 @@ public class Jena {
 		// 		it.hasNext(); list.add((T) it.next().asLiteral().getValue())) ;
 
 		try {
-			Resource listResource = resource.getRequiredProperty(model.createProperty(property)).getObject().asResource();
-			ExtendedIterator<RDFNode> it = listResource.as(RDFList.class).iterator();
-			while (it.hasNext()) {
-				RDFNode node = it.next();
+			for (RDFNode node : toList(resource.getRequiredProperty(
+					model.createProperty(property)).getObject().asResource())) {
+
 				if (node.isLiteral()) {
 					list.add((T) node.asLiteral().getValue());
 				} else if (node.isURIResource()) {
@@ -88,5 +91,23 @@ public class Jena {
 			Log.debug("Could not read property list of " + property, e);
 		}
 		return list;
+	}
+
+	public static List<RDFNode> toList(Resource resource) {
+		try {
+			List<RDFNode> list = new ArrayList<>();
+			ExtendedIterator<RDFNode> it = resource.as(RDFList.class).iterator();
+			while (it.hasNext()) {
+				list.add(it.next());
+			}
+			return list;
+		} catch (Exception e) {
+			Log.debug("Could not convert to list " + resource, e);
+			return null;
+		}
+	}
+
+	public static boolean isList(Resource resource) {
+		return toList(resource) != null; // TODO ?
 	}
 }
