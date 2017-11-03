@@ -26,10 +26,10 @@ public class MapLayerManager {
 
 			Jena jena = new Jena().withModel(definition);
 
-			Resource r = jena.resourceWithType(Prefixes.MS + "MapLayer");
+			Resource r = jena.resourceWithType(Prefixes.LDM + "MapLayer");
 			Resource service = jena.resourceWithType(Prefixes.SD + "Service");
 			Resource graph = jena.resourceWithType(Prefixes.SD + "NamedGraph");
-			Resource structure = jena.resourceWithType(Prefixes.MS + "MapLayerStructure");
+			Resource structure = jena.resourceWithType(Prefixes.LDM + "MapLayerStructure");
 
 			MapLayer layer = new MapLayer()
 					.uri(jena.resourceUri(r))
@@ -37,11 +37,11 @@ public class MapLayerManager {
 					.description(jena.propertyValue(r, Prefixes.DCTERMS + "description"))
 					.sparqlEndpoint(jena.propertyValue(service, Prefixes.SD + "endpoint"))
 					.sparqlNamedGraph(jena.propertyValue(graph, Prefixes.SD + "name"))
-					.sparqlJenaSpatial(jena.propertyValue(service, Prefixes.MS + "jenaSpatial"))
-					.addressPointType(jena.propertyValue(structure, Prefixes.MS + "addressPointType"))
-					.addressPath(Shacl.parseToString(jena, structure, Prefixes.MS + "addressPath"))
-					.latitudePath(Shacl.parseToString(jena, structure, Prefixes.MS + "latitudePath"))
-					.longitudePath(Shacl.parseToString(jena, structure, Prefixes.MS + "longitudePath"))
+					.sparqlJenaSpatial(jena.propertyValue(service, Prefixes.LDM + "jenaSpatial"))
+					.addressPointType(jena.propertyValue(structure, Prefixes.LDM + "addressPointType"))
+					.addressPath(Shacl.parseToString(jena, structure, Prefixes.LDM + "addressPath"))
+					.latitudePath(Shacl.parseToString(jena, structure, Prefixes.LDM + "latitudePath"))
+					.longitudePath(Shacl.parseToString(jena, structure, Prefixes.LDM + "longitudePath"))
 					;
 
 			return layer;

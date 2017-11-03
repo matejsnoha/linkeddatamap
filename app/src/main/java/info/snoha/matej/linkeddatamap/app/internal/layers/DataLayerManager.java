@@ -26,10 +26,10 @@ public class DataLayerManager {
 
 			Jena jena = new Jena().withModel(definition);
 
-			Resource r = jena.resourceWithType(Prefixes.MS + "DataLayer");
+			Resource r = jena.resourceWithType(Prefixes.LDM + "DataLayer");
 			Resource service = jena.resourceWithType(Prefixes.SD + "Service");
 			Resource graph = jena.resourceWithType(Prefixes.SD + "NamedGraph");
-			Resource structure = jena.resourceWithType(Prefixes.MS + "DataLayerStructure");
+			Resource structure = jena.resourceWithType(Prefixes.LDM + "DataLayerStructure");
 
 			DataLayer layer = new DataLayer()
 					.uri(jena.resourceUri(r))
@@ -37,11 +37,11 @@ public class DataLayerManager {
 					.description(jena.propertyValue(r, Prefixes.DCTERMS + "description"))
 					.sparqlEndpoint(jena.propertyValue(service, Prefixes.SD + "endpoint"))
 					.sparqlNamedGraph(jena.propertyValue(graph, Prefixes.SD + "name"))
-					.dataPointType(jena.propertyValue(structure, Prefixes.MS + "dataPointType"))
-					.dataName(jena.propertyValue(structure, Prefixes.MS + "dataName"))
-					.dataDescription(jena.propertyList(structure, Prefixes.MS + "dataDescription"))
-					.mapPointPath(Shacl.parseToString(jena, structure, Prefixes.MS + "mapPointPath"))
-					.mapLayer(jena.propertyValue(r, Prefixes.MS + "mapLayer"))
+					.dataPointType(jena.propertyValue(structure, Prefixes.LDM + "dataPointType"))
+					.dataName(jena.propertyValue(structure, Prefixes.LDM + "dataName"))
+					.dataDescription(jena.propertyList(structure, Prefixes.LDM + "dataDescription"))
+					.mapPointPath(Shacl.parseToString(jena, structure, Prefixes.LDM + "mapPointPath"))
+					.mapLayer(jena.propertyValue(r, Prefixes.LDM + "mapLayer"))
 					;
 
 			return layer;

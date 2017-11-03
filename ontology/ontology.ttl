@@ -7,9 +7,9 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
-@prefix ms: <http://matej.snoha.info/dp/> .
+@prefix ldm: <https://purl.org/ldm/> .
 
-ms:
+ldm:
     a owl:Ontology ;
     dcterms:title "Linked Data Map Ontology"@en ;
     dcterms:description "Linked Data Map - visualizing Linked Data on a map"@en ;
@@ -23,36 +23,36 @@ ms:
 #    Classes
 #################################################################
 
-###  http://matej.snoha.info/dp/Layer
-ms:Layer
+###  https://purl.org/ldm/Layer
+ldm:Layer
     a rdfs:Class ;
     rdfs:subClassOf void:DataSet ;
     rdfs:label "Layer"@en ;
     rdfs:comment "Base abstract class for Layers"@en .
 
-###  http://matej.snoha.info/dp/MapLayer
-ms:MapLayer
+###  https://purl.org/ldm/MapLayer
+ldm:MapLayer
     a rdfs:Class ;
-    rdfs:subClassOf ms:Layer ;
+    rdfs:subClassOf ldm:Layer ;
     rdfs:label "Map Layer"@en ;
     rdfs:comment "Map Layer with address points with address/lat/lng"@en .
 
-###  http://matej.snoha.info/dp/DataLayer
-ms:DataLayer
+###  https://purl.org/ldm/DataLayer
+ldm:DataLayer
     a rdfs:Class ;
-    rdfs:subClassOf ms:Layer ;
+    rdfs:subClassOf ldm:Layer ;
     rdfs:label "Data Layer"@en ;
     rdfs:comment "Data Layer with data points with name/description linked to a Map Layer"@en .
 
-###  http://matej.snoha.info/dp/MapLayerStructure
-ms:MapLayerStructure
+###  https://purl.org/ldm/MapLayerStructure
+ldm:MapLayerStructure
     a rdfs:Class ;
     rdfs:subClassOf void:DataSet ;
     rdfs:label "Map Layer structure"@en ;
     rdfs:comment "Structure of the Map Layer: address point type, address path, latitude path, longitude path"@en .
 
-###  http://matej.snoha.info/dp/DataLayerStructure
-ms:DataLayerStructure
+###  https://purl.org/ldm/DataLayerStructure
+ldm:DataLayerStructure
     a rdfs:Class ;
     rdfs:subClassOf void:DataSet ;
     rdfs:label "Data Layer structure"@en ;
@@ -62,91 +62,91 @@ ms:DataLayerStructure
 #    Properties
 #################################################################
 
-###  http://matej.snoha.info/dp/service
-ms:service
+###  https://purl.org/ldm/service
+ldm:service
     a rdf:Property ;
-    rdfs:domain ms:Layer ;
+    rdfs:domain ldm:Layer ;
     rdfs:range sd:Service ;
     rdfs:label "SPARQL service description"@en ;
     rdfs:comment "Property for a SPARQL service description (endpoint, named graph, etc.)"@en .
 
-###  http://matej.snoha.info/dp/jenaSpatial
-ms:jenaSpatial
+###  https://purl.org/ldm/jenaSpatial
+ldm:jenaSpatial
     a rdf:Property ;
     rdfs:domain sd:Service ;
     rdfs:range xsd:boolean ;
     rdfs:label "Jena Spatial support"@en ;
     rdfs:comment "Property (flag) that indicates if the SPARQL endpoint supports Jena Spatial"@en .
 
-###  http://matej.snoha.info/dp/addressPointType
-ms:addressPointType
+###  https://purl.org/ldm/addressPointType
+ldm:addressPointType
     a rdf:Property ;
-    rdfs:domain ms:MapLayerStructure ;
+    rdfs:domain ldm:MapLayerStructure ;
     rdfs:range rdfs:Class ;
     rdfs:label "Address Point type"@en ;
     rdfs:comment "Class of address points"@en .
 
-###  http://matej.snoha.info/dp/addressPath
-ms:addressPath
+###  https://purl.org/ldm/addressPath
+ldm:addressPath
     a rdf:Property ;
-    rdfs:domain ms:MapLayerStructure ;
+    rdfs:domain ldm:MapLayerStructure ;
     rdfs:range xsd:string ;
     rdfs:label "Address path"@en ;
     rdfs:comment "Property path to address points"@en .
 
-###  http://matej.snoha.info/dp/latitudePath
-ms:latitudePath
+###  https://purl.org/ldm/latitudePath
+ldm:latitudePath
     a rdf:Property ;
-    rdfs:domain ms:MapLayerStructure ;
+    rdfs:domain ldm:MapLayerStructure ;
     rdfs:range xsd:string ;
     rdfs:label "Latitude path"@en ;
     rdfs:comment "Property path to WGS84 latitude"@en .
 
-###  http://matej.snoha.info/dp/longitudePath
-ms:longitudePath
+###  https://purl.org/ldm/longitudePath
+ldm:longitudePath
     a rdf:Property ;
-    rdfs:domain ms:MapLayerStructure ;
+    rdfs:domain ldm:MapLayerStructure ;
     rdfs:range xsd:string ;
     rdfs:label "Longitude path"@en ;
     rdfs:comment "Property path to WGS84 longitude"@en .
 
-###  http://matej.snoha.info/dp/dataPointType
-ms:dataPointType
+###  https://purl.org/ldm/dataPointType
+ldm:dataPointType
     a rdf:Property ;
-    rdfs:domain ms:DataLayerStructure ;
+    rdfs:domain ldm:DataLayerStructure ;
     rdfs:range rdfs:Class ;
     rdfs:label "Data Point type"@en ;
     rdfs:comment "Class of data points"@en .
 
-###  http://matej.snoha.info/dp/dataName
-ms:dataName
+###  https://purl.org/ldm/dataName
+ldm:dataName
     a rdf:Property ;
-    rdfs:domain ms:DataLayerStructure ;
+    rdfs:domain ldm:DataLayerStructure ;
     rdfs:range xsd:string ;
     rdfs:label "Data name"@en ;
     rdfs:comment "Property path to data name"@en .
 
-###  http://matej.snoha.info/dp/dataDescription
-ms:dataDescription
+###  https://purl.org/ldm/dataDescription
+ldm:dataDescription
     a rdf:Property ;
-    rdfs:domain ms:DataLayerStructure ;
+    rdfs:domain ldm:DataLayerStructure ;
     rdfs:range rdf:List ;
     rdfs:label "Data description"@en ;
     rdfs:comment "List of literals and property paths to build a description"@en .
 
-###  http://matej.snoha.info/dp/mapPointPath
-ms:mapPointPath
+###  https://purl.org/ldm/mapPointPath
+ldm:mapPointPath
     a rdf:Property ;
-    rdfs:domain ms:DataLayerStructure ;
+    rdfs:domain ldm:DataLayerStructure ;
     rdfs:range xsd:string ;
     rdfs:label "Map Address Point path"@en ;
     rdfs:comment "Property path to linked map points"@en .
 
-###  http://matej.snoha.info/dp/mapLayer
-ms:mapLayer
+###  https://purl.org/ldm/mapLayer
+ldm:mapLayer
     a rdf:Property ;
-    rdfs:domain ms:DataLayer ;
-    rdfs:range ms:MapLayer ;
+    rdfs:domain ldm:DataLayer ;
+    rdfs:range ldm:MapLayer ;
     rdfs:label "Map Layer"@en ;
     rdfs:comment "Property for linking a map layer to a data layer"@en .
 

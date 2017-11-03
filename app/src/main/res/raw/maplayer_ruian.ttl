@@ -4,13 +4,14 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
-@prefix ms: <http://matej.snoha.info/dp/> .
+@prefix ldm: <https://purl.org/ldm/> .
+@prefix ldmres: <https://purl.org/ldm/resource/> .
 @prefix ruian: <https://ruian.linked.opendata.cz/slovník/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-<http://matej.snoha.info/dp/resource/mapLayer/ruian>
+ldmres:mapLayer_ruian
 
-    a ms:MapLayer ;
+    a ldm:MapLayer ;
     a void:Dataset ;
 
     dcterms:title "RUIAN" ;
@@ -18,17 +19,17 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-10-02"^^xsd:date ;
+    dcterms:modified "2017-11-03"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
-    ms:service [  a sd:Service ;
+    ldm:service [  a sd:Service ;
                   sd:endpoint "https://ruian.linked.opendata.cz/sparql" ;
                   sd:supportedLanguage sd:SPARQL11Query ;
-                  # sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle> ;
+                  # ldm:jenaSpatial true ;
                ];
 
-    ms:mapLayerStructure [  a ms:MapLayerStructure ;
-                          ms:addressPointType ruian:AdresníMisto ;
-                          ms:addressPath s:name ; #TODO multiple items similar as data description
-                          ms:latitudePath ( ruian:adresníBod s:geo s:latitude ) ;
-                          ms:longitudePath ( ruian:adresníBod s:geo s:longitude ) ] .
+    ldm:mapLayerStructure [  a ldm:MapLayerStructure ;
+                          ldm:addressPointType ruian:AdresníMisto ;
+                          ldm:addressPath s:name ; #TODO multiple items similar as data description
+                          ldm:latitudePath ( ruian:adresníBod s:geo s:latitude ) ;
+                          ldm:longitudePath ( ruian:adresníBod s:geo s:longitude ) ] .

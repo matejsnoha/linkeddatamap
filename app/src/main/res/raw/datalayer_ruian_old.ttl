@@ -4,13 +4,14 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
-@prefix ms: <http://matej.snoha.info/dp/> .
+@prefix ldm: <https://purl.org/ldm/> .
+@prefix ldmres: <https://purl.org/ldm/resource/> .
 @prefix ruian: <http://ruian.linked.opendata.cz/ontology/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-<http://matej.snoha.info/dp/resource/dataLayer/ruian-old>
+ldmres:dataLayer_ruian-old
 
-    a ms:DataLayer ;
+    a ldm:DataLayer ;
     a s:Dataset ;
 
     dcterms:title "RUIAN (old)" ;
@@ -18,13 +19,13 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-10-11"^^xsd:date ;
+    dcterms:modified "2017-10-18"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
-    ms:dataLayerStructure [ a ms:DataLayerStructure ;
-                          ms:dataPointType ruian:StavebniObjekt ;
-                          ms:dataName s:name ;
-                          ms:dataDescription ( "Pocet bytu " ruian:pocetBytu ", Pocet podlazi " ruian:pocetPodlazi ) ;
-                          ms:mapPointPath [ sh:inversePath ruian:stavebniObjekt ] ] ;
+    ldm:dataLayerStructure [ a ldm:DataLayerStructure ;
+                          ldm:dataPointType ruian:StavebniObjekt ;
+                          ldm:dataName s:name ;
+                          ldm:dataDescription ( "Pocet bytu " ruian:pocetBytu ", Pocet podlazi " ruian:pocetPodlazi ) ;
+                          ldm:mapPointPath [ sh:inversePath ruian:stavebniObjekt ] ] ;
 
-    ms:mapLayer <http://matej.snoha.info/dp/resource/mapLayer/ruian-old> .
+    ldm:mapLayer ldmres:mapLayer_ruian-old .

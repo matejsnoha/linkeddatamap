@@ -25,10 +25,10 @@ public class Uris {
 	}
 
 	public static String ms(String what) {
-		return prefix(Prefixes.MS, what);
+		return prefix(Prefixes.LDM, what);
 	}
 
 	public static String msRes(String what) {
-		return prefix(Prefixes.MS_RES, what);
+		return prefix(Prefixes.LDMRES, what);
 	}
 }

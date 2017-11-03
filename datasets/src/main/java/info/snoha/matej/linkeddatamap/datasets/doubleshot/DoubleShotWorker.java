@@ -7,6 +7,7 @@ import info.snoha.matej.linkeddatamap.Http;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.Utils;
 import info.snoha.matej.linkeddatamap.rdf.NTriples;
+import info.snoha.matej.linkeddatamap.rdf.Prefixes;
 
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -21,7 +22,7 @@ import static info.snoha.matej.linkeddatamap.rdf.Uris.schema;
 
 public class DoubleShotWorker {
 
-    private static final String RESOURCE_BASE = "http://matej.snoha.info/dp/resource/";
+    private static final String RESOURCE_BASE = Prefixes.LDMRES;
 
     public static void main(String[] args) {
 

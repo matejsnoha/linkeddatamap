@@ -4,12 +4,13 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 @prefix s: <http://schema.org/> .
-@prefix ms: <http://matej.snoha.info/dp/> .
+@prefix ldm: <https://purl.org/ldm/> .
+@prefix ldmres: <https://purl.org/ldm/resource/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-<http://matej.snoha.info/dp/resource/dataLayer/ds>
+ldmres:dataLayer_ds
 
-    a ms:DataLayer ;
+    a ldm:DataLayer ;
     a void:Dataset ;
 
     dcterms:title "DoubleShot" ;
@@ -17,13 +18,13 @@
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-10-11"^^xsd:date ;
+    dcterms:modified "2017-10-18"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
-    ms:dataLayerStructure [ a ms:DataLayerStructure ;
-                          ms:dataPointType s:CafeOrCoffeeShop ;
-                          ms:dataName s:name ;
-                          ms:dataDescription ( "Rating " s:aggregateRating ) ;
-                          ms:mapPointPath s:geo ] ;
+    ldm:dataLayerStructure [ a ldm:DataLayerStructure ;
+                          ldm:dataPointType s:CafeOrCoffeeShop ;
+                          ldm:dataName s:name ;
+                          ldm:dataDescription ( "Rating " s:aggregateRating ) ;
+                          ldm:mapPointPath s:geo ] ;
 
-    ms:mapLayer <http://matej.snoha.info/dp/resource/mapLayer/ds> .
+    ldm:mapLayer ldmres:mapLayer_ds .

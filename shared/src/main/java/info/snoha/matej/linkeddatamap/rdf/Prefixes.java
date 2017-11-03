@@ -9,7 +9,7 @@ public class Prefixes {
 	public static final String SD = "http://www.w3.org/ns/sparql-service-description#";
 	public static final String SH = "http://www.w3.org/ns/shacl#";
 
-	public static final String MS = "http://matej.snoha.info/dp/";
-	public static final String MS_RES = "http://matej.snoha.info/dp/resource/";
+	public static final String LDM = "https://purl.org/ldm/";
+	public static final String LDMRES = LDM + "resource/";
 
 }
