@@ -1,7 +1,6 @@
 package info.snoha.matej.linkeddatamap.app.gui.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -23,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationCallback;
@@ -46,6 +46,7 @@ import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 
+import io.fabric.sdk.android.Fabric;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -106,6 +107,7 @@ public class MapsActivity extends AppCompatActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Fabric.with(this, new Crashlytics());
 
 		Log.info("Maps Activity starting");
 
@@ -132,7 +134,7 @@ public class MapsActivity extends AppCompatActivity
 		LayerManager.with(this);
 		MapManager.with(this, null, this::showProgress, this::hideProgress); // map initialized later
 
-		final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+		final FloatingActionButton fab = findViewById(R.id.fab);
 		fab.setOnClickListener(v -> {
 
 			Location location = getCurrentLocation();
@@ -222,7 +224,7 @@ public class MapsActivity extends AppCompatActivity
 
 		});
 
-		AppCompatButton nearbyButton = (AppCompatButton) findViewById(R.id.button_nearby);
+		AppCompatButton nearbyButton = findViewById(R.id.button_nearby);
 		nearbyButton.setTextColor(Color.BLACK); // < API21
 		nearbyButton.setOnClickListener((View v) -> {
 
@@ -375,7 +377,7 @@ public class MapsActivity extends AppCompatActivity
 	}
 
 	private void hideNearby() {
-		RecyclerView listView = (RecyclerView) findViewById(R.id.nearby);
+		RecyclerView listView = findViewById(R.id.nearby);
 		UI.run(() -> {
 			listView.setVisibility(View.GONE);
 			listView.setAdapter(new NearbyAdapter(this, Collections.emptyList()));
@@ -408,7 +410,7 @@ public class MapsActivity extends AppCompatActivity
 			return;
 		}
 
-		RecyclerView listView = (RecyclerView) findViewById(R.id.nearby);
+		RecyclerView listView = findViewById(R.id.nearby);
 
 		UI.run(() -> {
 			// TODO set visibility sooner or check for null timer - bug with nearby showing after close

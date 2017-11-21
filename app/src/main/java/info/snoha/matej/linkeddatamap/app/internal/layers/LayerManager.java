@@ -23,7 +23,7 @@ import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.set
 
 public class LayerManager {
 
-    public static final int LAYER_COUNT = 6;
+    public static final int LAYER_COUNT = 7; // -1
     public static final int LAYER_NONE = 0;
 
 	private static Context context;
@@ -65,6 +65,16 @@ public class LayerManager {
         return ids;
     }
 
+	public static List<String> getMapLayerNames(boolean onlyEnabled) {
+		List<String> names = new ArrayList<>(LAYER_COUNT);
+		for (int i = 1; i <= LAYER_COUNT; i++) {
+			if (!onlyEnabled || getBooleanPreferenceValue(context, "pref_maplayer_" + i + "_enabled")) {
+				names.add(getStringPreferenceValue(context, "pref_maplayer_" + i + "_name"));
+			}
+		}
+		return names;
+	}
+
 	public static List<Integer> getMapLayerIDs(boolean onlyEnabled) {
 		List<Integer> ids = new ArrayList<>(LAYER_COUNT);
 		for (int i = 1; i <= LAYER_COUNT; i++) {
@@ -91,6 +101,62 @@ public class LayerManager {
     public static String getLayerName(int layerID) {
         return getDataLayerNames(false).get(layerID - 1);
     }
+
+    //
+
+	public static String getDataLayerName(int layerID) {
+		return getStringPreferenceValue(context, "pref_datalayer_" + layerID + "_name");
+	}
+
+	public static void setDataLayerName(int layerID, String name) {
+		setStringPreferenceValue(context, "pref_datalayer_" + layerID + "_name", name);
+	}
+
+	public static String getMapLayerName(int layerID) {
+		return getStringPreferenceValue(context, "pref_maplayer_" + layerID + "_name");
+	}
+
+	public static void setMapLayerName(int layerID, String name) {
+		setStringPreferenceValue(context, "pref_maplayer_" + layerID + "_name", name);
+	}
+
+	//
+
+	public static boolean isDataLayerEnabled(int layerID) {
+		return getBooleanPreferenceValue(context, "pref_datalayer_" + layerID + "_enabled");
+	}
+
+	public static void setDataLayerEnabled(int layerID, boolean enabled) {
+		setBooleanPreferenceValue(context, "pref_datalayer_" + layerID + "_enabled", enabled);
+	}
+
+	public static boolean isMapLayerEnabled(int layerID) {
+		return getBooleanPreferenceValue(context, "pref_maplayer_" + layerID + "_enabled");
+	}
+
+	public static void setMapLayerEnabled(int layerID, boolean enabled) {
+		setBooleanPreferenceValue(context, "pref_maplayer_" + layerID + "_enabled", enabled);
+	}
+
+	//
+
+	public static String getDataLayerDefinition(int layerID) {
+		return getStringPreferenceValue(context, "pref_datalayer_" + layerID + "_definition");
+	}
+
+	public static void setDataLayerDefinition(int layerID, String name) {
+		setStringPreferenceValue(context, "pref_datalayer_" + layerID + "_definition", name);
+	}
+
+	public static String getMapLayerDefinition(int layerID) {
+		return getStringPreferenceValue(context, "pref_maplayer_" + layerID + "_definition");
+	}
+
+	public static void setMapLayerDefinition(int layerID, String name) {
+		setStringPreferenceValue(context, "pref_maplayer_" + layerID + "_definition", name);
+	}
+
+	//
 
     public static void getMarkers(int layerID, BoundingBox geoLimits, Callback callback) {
         if (layerID == LAYER_NONE) {
@@ -155,12 +221,12 @@ public class LayerManager {
 					AndroidUtils.readRawResource(context, R.raw.datalayer_doubleshot));
 
 			setBooleanPreferenceValue(context, "pref_maplayer_2_enabled", true);
-			setStringPreferenceValue(context, "pref_maplayer_2_name", "RUIAN (old)");
+			setStringPreferenceValue(context, "pref_maplayer_2_name", "RUIAN (Prague, old)");
 			setStringPreferenceValue(context, "pref_maplayer_2_definition",
 					AndroidUtils.readRawResource(context, R.raw.maplayer_ruian_old));
 
 			setBooleanPreferenceValue(context, "pref_datalayer_2_enabled", true);
-			setStringPreferenceValue(context, "pref_datalayer_2_name", "RUIAN (old)");
+			setStringPreferenceValue(context, "pref_datalayer_2_name", "RUIAN (Prague, old)");
 			setStringPreferenceValue(context, "pref_datalayer_2_definition",
 					AndroidUtils.readRawResource(context, R.raw.datalayer_ruian_old));
 
@@ -182,7 +248,7 @@ public class LayerManager {
 
 		// load map layers
 		Map<String, MapLayer> mapLayersByUri = new LinkedHashMap<>();
-		for (int layerId : getMapLayerIDs(true)) {
+		for (int layerId : getMapLayerIDs(false)) {
 
 			String mapLayerDefinition = getStringPreferenceValue(
 					context, "pref_maplayer_" + layerId + "_definition");

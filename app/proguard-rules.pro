@@ -28,3 +28,6 @@
 -dontwarn org.apache.**
 -dontwarn android.net.http.AndroidHttpClient
 -dontwarn com.google.android.gms.**
+-dontwarn com.caverock.**
+-dontwarn java.rmi.**
+-dontwarn org.w3c.**

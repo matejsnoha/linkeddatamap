@@ -36,6 +36,9 @@
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".app.gui.activities.MapsActivity"/>
         </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="76996531c682747c894ad8b0028d01273f8a3586" />
     </application>
 
 </manifest>

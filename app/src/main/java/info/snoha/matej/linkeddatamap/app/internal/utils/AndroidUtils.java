@@ -1,11 +1,17 @@
 package info.snoha.matej.linkeddatamap.app.internal.utils;
 
 import android.content.Context;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 
+import android.view.View;
+import android.widget.ImageView;
 import info.snoha.matej.linkeddatamap.Log;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -32,6 +38,14 @@ public class AndroidUtils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static int getApiVersion() {
+        return Build.VERSION.SDK_INT;
+    }
+
+    public static boolean isApiAtLeast(int targetApi) {
+        return getApiVersion() >= targetApi;
     }
 
     public static Boolean getBooleanPreferenceValue(Context context, String key) {
@@ -95,5 +109,20 @@ public class AndroidUtils {
             Log.error("Could not open raw resource " + resource, e);
             return null;
         }
+    }
+
+    public static void changeViewColor(ImageView view, int targetColor) {
+
+        int red = (targetColor & 0xFF0000) / 0xFFFF;
+        int green = (targetColor & 0xFF00) / 0xFF;
+        int blue = targetColor & 0xFF;
+
+        float[] mat = { 0, 0, 0, 0, red
+                , 0, 0, 0, 0, green
+                , 0, 0, 0, 0, blue
+                , 0, 0, 0, 1, 0 };
+
+
+        view.setColorFilter(new ColorMatrixColorFilter(mat));
     }
 }

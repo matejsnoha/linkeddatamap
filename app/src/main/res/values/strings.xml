@@ -5,6 +5,20 @@
     <string name="title_activity_maps">Linked Data Map</string>
     <string name="title_activity_settings">Settings</string>
 
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="settings">Settings</string>
+    <string name="map_settings">Map Settings</string>
+    <string name="location_permission">Location permission</string>
+    <string name="map_layers">Map Layers</string>
+    <string name="data_layers">Data Layers</string>
+    <string name="layer_name">Layer name</string>
+    <string name="state">State</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="definition">Definition</string>
+
     <string-array name="pref_cache_list_titles">
         <item>Use only offline cache</item>
         <item>Prefer offline cache</item>

@@ -329,7 +329,7 @@ public class MapManager {
 		}
 	}
 
-	private static int getLayerColor(int layer) {
+	public static int getLayerColor(int layer) {
 		switch (layer) {
 			case 1:
 				return Color.RED;

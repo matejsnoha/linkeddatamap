@@ -1,16 +1,24 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
     }
 
     dependencies {
 
         // Retrolambda, Apache2
         classpath 'me.tatarka:gradle-retrolambda:3.6.1'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 apply plugin: 'me.tatarka.retrolambda'
 
 retrolambda {
@@ -20,15 +28,14 @@ retrolambda {
 }
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 26
 
     defaultConfig {
         applicationId "info.snoha.matej.linkeddatamap"
-        minSdkVersion 16
-        targetSdkVersion 25
-        versionCode 15
-        versionName "0.15"
+        minSdkVersion 19
+        targetSdkVersion 26
+        versionCode 1_00_00
+        versionName "1.0.0"
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
             targetCompatibility JavaVersion.VERSION_1_8
@@ -41,10 +48,10 @@ android {
     }
 
     buildTypes {
-//        debug {
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//        }
+        debug {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -62,6 +69,8 @@ android {
 
 dependencies {
 
+    ext.supportLibVersion = "26.0.2"
+
     compile project(':shared')
 
     // Android Support Library - Multidex, required for multidex on API levels < 21
@@ -74,21 +83,49 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.6'
     compile 'org.slf4j:slf4j-log4j12:1.7.6'
 
+    // Android Support Libraries
+    compile "com.android.support:appcompat-v7:$supportLibVersion"
+    compile "com.android.support:support-v13:$supportLibVersion"
+    compile "com.android.support:preference-v7:$supportLibVersion"
+    compile "com.android.support:design:$supportLibVersion"
+
+    // AndroidSVG, Apache 2
+    compile 'com.caverock:androidsvg:1.2.2-beta-1'
+
+    // Material Dialogs
+    compile ('com.afollestad.material-dialogs:core:0.9.4.7') {
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+        exclude group: 'com.android.support', module: 'support-v13'
+    }
+
+    // OkHttp
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
-    compile 'com.afollestad.material-dialogs:core:0.9.4.5'
-    compile 'com.afollestad.material-dialogs:commons:0.9.4.5'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.google.android.gms:play-services-maps:10.2.4'
-    compile 'com.google.android.gms:play-services-location:10.2.4'
+
+    // Google Play services
+    compile 'com.google.android.gms:play-services-maps:11.0.4'
+    compile 'com.google.android.gms:play-services-location:11.0.4'
+
+    // Google Maps
     compile 'com.google.maps.android:android-maps-utils:0.5'
-    compile 'com.android.support:design:25.3.1'
+
+    // Gson
     compile 'com.google.code.gson:gson:2.8.1'
+
+    // Apache utils, Apache 2
     compile 'commons-io:commons-io:2.5'
     compile 'org.apache.commons:commons-lang3:3.5'
     compile 'org.apache.commons:commons-collections4:4.1'
     compile 'org.apache.commons:commons-csv:1.4'
-    compile 'com.android.support:support-v4:25.3.1'
 
     // Android Logging Log4J, Apache2
     compile 'de.mindpipe.android:android-logging-log4j:1.0.3'
+
+    // Fabric
+
+    compile('com.crashlytics.sdk.android:crashlytics:+@aar') {
+        transitive = true;
+    }
+    compile('com.crashlytics.sdk.android:answers:+@aar') {
+        transitive = true;
+    }
 }
