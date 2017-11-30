@@ -21,6 +21,10 @@ public class Http {
 		return str != null && str.startsWith("http");
 	}
 
+	public static OkHttpClient getClient() {
+		return client;
+	}
+
 	public static Reader httpGetReader(String url) {
 		try {
 			return client.newCall(

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configure class="org.eclipse.jetty.webapp.WebAppContext">
+    
+    <!-- form and upload size -->
+	<Set name="maxFormContentSize">1048576</Set>
+	<Set name="maxFormKeys">1024</Set>
+	
+	<!-- 
+	<Get name="errorHandler">
+   		<Call name="addErrorPage">
+	      	<Arg type="int">400</Arg>
+			<Arg type="int">599</Arg>
+			<Arg type="String">/error.html</Arg>
+    	</Call>
+  	</Get>
+  	 -->
+</Configure>

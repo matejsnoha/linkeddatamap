@@ -31,6 +31,9 @@ dependencies {
     // Apache Commons Collections4, Apache2
     compile 'org.apache.commons:commons-collections4:4.1'
 
+    // Apache Commons IO, Apache2
+    compile 'commons-io:commons-io:2.5'
+
     compile fileTree(dir: '../libs', include: '*.jar')
     compile 'org.slf4j:slf4j-api:1.7.6'
     compile 'org.slf4j:slf4j-log4j12:1.7.6'
