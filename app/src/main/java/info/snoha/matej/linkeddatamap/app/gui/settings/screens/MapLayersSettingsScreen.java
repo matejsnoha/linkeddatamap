@@ -3,13 +3,13 @@ package info.snoha.matej.linkeddatamap.app.gui.settings.screens;
 import android.content.Context;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.settings.items.MapLayerSubscreenSettingsItem;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
 
 public class MapLayersSettingsScreen extends AbstractSettingsScreen {
 
     public MapLayersSettingsScreen(Context context) {
         super(context);
-        for (int i = 1; i < LayerManager.LAYER_COUNT; i++) {
+        for (int i = 1; i < LocalLayerManager.LAYER_COUNT; i++) {
             SettingsScreenRegistry.add(MapLayerDetailSettingsScreen.class.getSimpleName() + i,
                     new MapLayerDetailSettingsScreen(context, i));
             addSettingsItems(new MapLayerSubscreenSettingsItem(context, i));

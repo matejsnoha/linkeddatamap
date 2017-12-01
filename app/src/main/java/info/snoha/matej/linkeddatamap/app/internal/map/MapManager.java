@@ -13,7 +13,7 @@ import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
 import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
@@ -79,7 +79,7 @@ public class MapManager {
 
 		visibleLayers = Arrays.asList(layerIDs);
 
-        if (layerIDs.length == 0 || (layerIDs.length == 1 && layerIDs[0] == LayerManager.LAYER_NONE)) {
+        if (layerIDs.length == 0 || (layerIDs.length == 1 && layerIDs[0] == LocalLayerManager.LAYER_NONE)) {
 
             setPreloadedMarkers(Collections.emptyList());
             return;
@@ -143,7 +143,7 @@ public class MapManager {
 
 		for (int layerId : visibleLayers) {
 
-			LayerManager.getMarkers(layerId, geoLimits, new LayerManager.Callback() {
+			LocalLayerManager.getMarkers(layerId, geoLimits, new LocalLayerManager.Callback() {
 
 				@Override
 				public void onSuccess(List<MarkerModel> markers) {

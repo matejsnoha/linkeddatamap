@@ -9,19 +9,18 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
 public class Api {
 
-    protected OkHttpClient httpClient = Http.getClient();
-    protected Gson gson = new Gson();
+    protected static OkHttpClient httpClient = Http.getClient();
+    protected static Gson gson = new Gson();
 
     protected static final String CLOUD_URL = "https://ldm.matej.snoha.info/api/1/";
 
-    public Response httpRequest(String requestType, String url, Map<String, String> parameters,
-                                       Map<String, String> headers) throws IOException{
+    public static Response httpRequest(String requestType, String url, Map<String, String> parameters,
+                                       Map<String, String> headers) {
 
         Response result = null;
 
@@ -106,7 +105,7 @@ public class Api {
         return result;
     }
 
-    public String getResponseString(Response response) {
+    public static String getResponseString(Response response) {
         try {
             return response != null
                     && response.isSuccessful()
@@ -119,28 +118,28 @@ public class Api {
     }
 
     public String httpGet(String url,
-                                 Map<String, String> parameters, Map<String, String> headers) throws IOException {
+                                 Map<String, String> parameters, Map<String, String> headers) {
 
         Response response = httpRequest("GET", url, parameters, headers);
         return getResponseString(response);
     }
 
-    public <T> T httpGet(String url, Map<String, String> parameters, Map<String, String> headers,
-                         Class<T> responseClass) throws IOException {
+    public static <T> T httpGet(String url, Map<String, String> parameters, Map<String, String> headers,
+                         Class<T> responseClass) {
 
         Response response = httpRequest("GET", url, parameters, headers);
         return gson.fromJson(getResponseString(response), responseClass);
     }
 
-    public String httpPut(String url,
-                                 Map<String, String> parameters, Map<String, String> headers) throws IOException {
+    public static String httpPut(String url,
+                                 Map<String, String> parameters, Map<String, String> headers) {
 
         Response response = httpRequest("PUT", url, parameters, headers);
         return getResponseString(response);
     }
 
-    public String httpPost(String url,
-                                  Map<String, String> parameters, Map<String, String> headers) throws IOException {
+    public static String httpPost(String url,
+                                  Map<String, String> parameters, Map<String, String> headers) {
 
         Response response = httpRequest("POST", url, parameters, headers);
         return getResponseString(response);

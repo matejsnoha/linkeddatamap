@@ -5,7 +5,7 @@ import android.text.InputType;
 import android.view.View;
 import com.afollestad.materialdialogs.MaterialDialog;
 import info.snoha.matej.linkeddatamap.R;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
 
 public class MapLayerNameSettingsItem extends AbstractSettingsItem {
 
@@ -28,17 +28,17 @@ public class MapLayerNameSettingsItem extends AbstractSettingsItem {
 
     @Override
     public String getSummary() {
-        return LayerManager.getMapLayerName(layer);
+        return LocalLayerManager.getMapLayerName(layer);
     }
 
     @Override
     public void onClick(View view) {
         new MaterialDialog.Builder(getContext())
                 .title(R.string.layer_name)
-                .input(null, LayerManager.getMapLayerName(layer), (dialog, input) -> {
+                .input(null, LocalLayerManager.getMapLayerName(layer), (dialog, input) -> {
                     String name = input.toString().trim();
                     if (!name.isEmpty()) {
-                        LayerManager.setMapLayerName(layer, name);
+                        LocalLayerManager.setMapLayerName(layer, name);
                     }
                     refreshSummary();
                 })

@@ -3,7 +3,7 @@ package info.snoha.matej.linkeddatamap.app.gui.settings.items;
 import android.content.Context;
 import android.view.View;
 import info.snoha.matej.linkeddatamap.R;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
 
 public class MapLayerStateSettingsItem extends AbstractSettingsItem {
 
@@ -26,14 +26,14 @@ public class MapLayerStateSettingsItem extends AbstractSettingsItem {
 
     @Override
     public String getSummary() {
-        return getContext().getResources().getString(LayerManager.isMapLayerEnabled(layer)
+        return getContext().getResources().getString(LocalLayerManager.isMapLayerEnabled(layer)
                 ? R.string.enabled
                 : R.string.disabled);
     }
 
     @Override
     public void onClick(View view) {
-        LayerManager.setMapLayerEnabled(layer, !LayerManager.isMapLayerEnabled(layer));
+        LocalLayerManager.setMapLayerEnabled(layer, !LocalLayerManager.isMapLayerEnabled(layer));
         refreshSummary();
     }
 }

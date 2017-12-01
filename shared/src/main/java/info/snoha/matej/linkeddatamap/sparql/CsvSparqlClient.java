@@ -1,4 +1,4 @@
-package info.snoha.matej.linkeddatamap.app.internal.sparql;
+package info.snoha.matej.linkeddatamap.sparql;
 
 import info.snoha.matej.linkeddatamap.Log;
 import okhttp3.FormBody;
@@ -34,9 +34,19 @@ public class CsvSparqlClient {
 
 	public interface Callback {
 
+		void onFailure(String reason);
+	}
+
+	public interface CSVCallback extends Callback {
+
 		void onSuccess(List<String> columns, List<List<String>> results);
 
-		void onFailure(String reason);
+	}
+
+	public interface RawCallback extends Callback {
+
+		void onSuccess(String result);
+
 	}
 
 	public static void execute(String endpointUrl, String query, final Callback callback) {
@@ -105,23 +115,37 @@ public class CsvSparqlClient {
 			final Response response = client.newCall(request).execute();
 			long duration = System.currentTimeMillis() - startTime;
 
-			List<String> columns = null;
-			List<List<String>> results = new ArrayList<>();
-			Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(response.body().charStream());
-			for (CSVRecord record : records) {
-				if (columns == null) {
-					columns = IteratorUtils.toList(record.iterator());
-					continue;
+			if (callback instanceof CSVCallback) {
+
+				List<String> columns = null;
+				List<List<String>> results = new ArrayList<>();
+				Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(response.body().charStream());
+				for (CSVRecord record : records) {
+					if (columns == null) {
+						columns = IteratorUtils.toList(record.iterator());
+						continue;
+					}
+					results.add(IteratorUtils.toList(record.iterator()));
 				}
-				results.add(IteratorUtils.toList(record.iterator()));
-			}
 
-			if (columns == null) {
-				throw new Exception("Could not parse SPARQL result");
-			}
+				if (columns == null) {
+					throw new Exception("Could not parse SPARQL result");
+				}
 
-			Log.info("Sparql query success in " + formatDuration(duration) + ", " + results.size() + " results");
-			callback.onSuccess(columns, results);
+				Log.info("Sparql query success in " + formatDuration(duration) + ", "
+						+ results.size() + " results");
+
+				((CSVCallback) callback).onSuccess(columns, results);
+
+			} else if (callback instanceof RawCallback) {
+
+				String result = response.body().string();
+				Log.info("Sparql query success in " + formatDuration(duration) + ", "
+						+ result.length() + " chars raw result");
+
+				((RawCallback) callback).onSuccess(result);
+
+			}
 
 		} catch (Exception e) {
 

@@ -1,6 +1,9 @@
 package info.snoha.matej.linkeddatamap.cloud;
 
 import info.snoha.matej.linkeddatamap.Log;
+import info.snoha.matej.linkeddatamap.cloud.layers.DataLayerListAction;
+import info.snoha.matej.linkeddatamap.cloud.layers.LayerGetAction;
+import info.snoha.matej.linkeddatamap.cloud.layers.MapLayerListAction;
 import info.snoha.matej.linkeddatamap.cloud.status.StatusAction;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +14,7 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 /**
- *  Returns the action to execute based on the request. <br>
+ *  Returns the action to execute based on the request.
  */
 public class ActionFactory {
 
@@ -28,15 +31,27 @@ public class ActionFactory {
 		// status
 		
 		actions.put(
-				"GET/1/status",
+				"GET/api/1/status",
 				new StatusAction());
-		
-		// TODO
 
+		// layers
+
+		actions.put(
+				"GET/api/1/layers/\\?type=map",
+				new MapLayerListAction());
+
+		actions.put(
+				"GET/api/1/layers/\\?type=data",
+				new DataLayerListAction());
+
+		actions.put(
+				"GET/api/1/layers/.*",
+				new LayerGetAction());
+		
 		// static web
 		
 		actions.put(
-				"GET/favicon.ico", 
+				"GET/api/favicon.ico",
 				new RedirectAction("/static/favicon.ico"));
 		
 		actions.put(

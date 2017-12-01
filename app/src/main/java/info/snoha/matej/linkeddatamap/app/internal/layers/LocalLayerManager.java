@@ -7,8 +7,7 @@ import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
 import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
-import info.snoha.matej.linkeddatamap.app.internal.sparql.CsvSparqlClient;
-import info.snoha.matej.linkeddatamap.app.internal.sparql.LayerQueryBuilder;
+import info.snoha.matej.linkeddatamap.sparql.CsvSparqlClient;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.get
 import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.setBooleanPreferenceValue;
 import static info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils.setStringPreferenceValue;
 
-public class LayerManager {
+public class LocalLayerManager {
 
     public static final int LAYER_COUNT = 7; // -1
     public static final int LAYER_NONE = 0;
@@ -38,7 +37,7 @@ public class LayerManager {
 	}
 
     public static void with(Context context) {
-        LayerManager.context = context;
+        LocalLayerManager.context = context;
 
         initPreferences(false); // FIXME do not overwrite in release
 
@@ -144,16 +143,16 @@ public class LayerManager {
 		return getStringPreferenceValue(context, "pref_datalayer_" + layerID + "_definition");
 	}
 
-	public static void setDataLayerDefinition(int layerID, String name) {
-		setStringPreferenceValue(context, "pref_datalayer_" + layerID + "_definition", name);
+	public static void setDataLayerDefinition(int layerID, String definition) {
+		setStringPreferenceValue(context, "pref_datalayer_" + layerID + "_definition", definition);
 	}
 
 	public static String getMapLayerDefinition(int layerID) {
 		return getStringPreferenceValue(context, "pref_maplayer_" + layerID + "_definition");
 	}
 
-	public static void setMapLayerDefinition(int layerID, String name) {
-		setStringPreferenceValue(context, "pref_maplayer_" + layerID + "_definition", name);
+	public static void setMapLayerDefinition(int layerID, String definition) {
+		setStringPreferenceValue(context, "pref_maplayer_" + layerID + "_definition", definition);
 	}
 
 	//
@@ -180,7 +179,7 @@ public class LayerManager {
 			return;
 		}
 
-		CsvSparqlClient.execute(endpointUrl, query, new CsvSparqlClient.Callback() {
+		CsvSparqlClient.execute(endpointUrl, query, new CsvSparqlClient.CSVCallback() {
 
 			@Override
 			public void onSuccess(List<String> columns, List<List<String>> results) {
@@ -220,6 +219,7 @@ public class LayerManager {
 			setStringPreferenceValue(context, "pref_datalayer_1_definition",
 					AndroidUtils.readRawResource(context, R.raw.datalayer_doubleshot));
 
+			/*
 			setBooleanPreferenceValue(context, "pref_maplayer_2_enabled", true);
 			setStringPreferenceValue(context, "pref_maplayer_2_name", "RUIAN (Prague, old)");
 			setStringPreferenceValue(context, "pref_maplayer_2_definition",
@@ -229,15 +229,16 @@ public class LayerManager {
 			setStringPreferenceValue(context, "pref_datalayer_2_name", "RUIAN (Prague, old)");
 			setStringPreferenceValue(context, "pref_datalayer_2_definition",
 					AndroidUtils.readRawResource(context, R.raw.datalayer_ruian_old));
+			*/
 
-			setBooleanPreferenceValue(context, "pref_maplayer_3_enabled", true);
-			setStringPreferenceValue(context, "pref_maplayer_3_name", "RUIAN");
-			setStringPreferenceValue(context, "pref_maplayer_3_definition",
+			setBooleanPreferenceValue(context, "pref_maplayer_2_enabled", true);
+			setStringPreferenceValue(context, "pref_maplayer_2_name", "RUIAN");
+			setStringPreferenceValue(context, "pref_maplayer_2_definition",
 					AndroidUtils.readRawResource(context, R.raw.maplayer_ruian));
 
-			setBooleanPreferenceValue(context, "pref_datalayer_3_enabled", true);
-			setStringPreferenceValue(context, "pref_datalayer_3_name", "RUIAN");
-			setStringPreferenceValue(context, "pref_datalayer_3_definition",
+			setBooleanPreferenceValue(context, "pref_datalayer_2_enabled", true);
+			setStringPreferenceValue(context, "pref_datalayer_2_name", "RUIAN");
+			setStringPreferenceValue(context, "pref_datalayer_2_definition",
 					AndroidUtils.readRawResource(context, R.raw.datalayer_ruian));
 
 			setBooleanPreferenceValue(context, "initialized", true);
@@ -245,6 +246,9 @@ public class LayerManager {
 	}
 
 	private static void loadLayers() {
+
+		// clear old layers
+		layers.clear();
 
 		// load map layers
 		Map<String, MapLayer> mapLayersByUri = new LinkedHashMap<>();
@@ -263,7 +267,7 @@ public class LayerManager {
 
 		// load data layers
 		Map<String, DataLayer> dataLayersByUri = new LinkedHashMap<>();
-		for (int layerId : getDataLayerIDs(true)) {
+		for (int layerId : getDataLayerIDs(false)) {
 
 			String dataLayerDefinition = getStringPreferenceValue(
 					context, "pref_datalayer_" + layerId + "_definition");

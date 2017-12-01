@@ -33,4 +33,6 @@ dependencies {
 
     compile project(':shared')
 
+    compile fileTree(dir: 'lib', include: '*.jar')
+
 }

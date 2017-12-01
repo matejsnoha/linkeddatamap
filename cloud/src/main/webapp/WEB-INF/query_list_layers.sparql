@@ -1,0 +1,9 @@
+PREFIX ldm:  <https://purl.org/ldm/>
+
+SELECT ?layer
+
+FROM <{{graph}}>
+
+WHERE {
+	?layer a ldm:{{layerType}} .
+}

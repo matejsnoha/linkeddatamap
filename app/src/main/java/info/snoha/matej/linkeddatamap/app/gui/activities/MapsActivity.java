@@ -40,7 +40,7 @@ import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.nearby.NearbyAdapter;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
 import info.snoha.matej.linkeddatamap.app.internal.map.MapManager;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
@@ -131,7 +131,7 @@ public class MapsActivity extends AppCompatActivity
 				.findFragmentById(R.id.map);
 		mapFragment.getMapAsync(this);
 
-		LayerManager.with(this);
+		LocalLayerManager.with(this);
 		MapManager.with(this, null, this::showProgress, this::hideProgress); // map initialized later
 
 		final FloatingActionButton fab = findViewById(R.id.fab);
@@ -182,25 +182,25 @@ public class MapsActivity extends AppCompatActivity
 
 		((AppCompatButton) findViewById(R.id.button_clear)).setTextColor(Color.BLACK); // < API21
 		findViewById(R.id.button_clear).setOnClickListener(v -> {
-			MapManager.setDataLayers(cameraPosition, LayerManager.LAYER_NONE);
+			MapManager.setDataLayers(cameraPosition, LocalLayerManager.LAYER_NONE);
 			hideNearby();
 		});
 
 		((AppCompatButton) findViewById(R.id.button_layers)).setTextColor(Color.BLACK); // < API21
 		findViewById(R.id.button_layers).setOnClickListener(v -> {
 
-			if (LayerManager.getDataLayerIDs(true).size() == 0) {
+			if (LocalLayerManager.getDataLayerIDs(true).size() == 0) {
 				UI.message(MapsActivity.this, "No layers.\n" +
 						"Please specify some in Settings --> Map Layers & Data Layers");
 				return;
 			}
 
-			List<String> enabledLayerNames = LayerManager.getDataLayerNames(true);
+			List<String> enabledLayerNames = LocalLayerManager.getDataLayerNames(true);
 			List<Integer> selectedLayerDialogIndexes = new ArrayList<>();
 			for (int layerID : MapManager.getVisibleLayers()) {
-				if (layerID != LayerManager.LAYER_NONE) {
+				if (layerID != LocalLayerManager.LAYER_NONE) {
 					selectedLayerDialogIndexes.add(enabledLayerNames.indexOf(
-							LayerManager.getLayerName(layerID)
+							LocalLayerManager.getLayerName(layerID)
 					));
 				}
 			}
@@ -215,7 +215,7 @@ public class MapsActivity extends AppCompatActivity
 								for (CharSequence name : text) {
 									layerNames.add(name.toString());
 								}
-								MapManager.setDataLayers(cameraPosition, LayerManager.getDataLayerIDs(layerNames));
+								MapManager.setDataLayers(cameraPosition, LocalLayerManager.getDataLayerIDs(layerNames));
 								return true;
 							})
 					.positiveText("OK")

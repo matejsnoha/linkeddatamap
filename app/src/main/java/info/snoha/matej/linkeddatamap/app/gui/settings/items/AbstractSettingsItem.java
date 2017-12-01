@@ -103,7 +103,6 @@ public abstract class AbstractSettingsItem extends LinearLayout
             } else {
                 getSummaryView().setVisibility(GONE);
             }
-            Log.info("--------- " + summary + "----------");
         } catch (Exception e) {
             Log.warn("Settings item summary could not be refreshed", e);
             getSummaryView().setVisibility(GONE);

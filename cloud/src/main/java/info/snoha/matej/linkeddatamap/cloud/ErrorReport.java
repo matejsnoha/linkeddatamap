@@ -45,9 +45,9 @@ public class ErrorReport {
         		+ "<a href=\"mailto:matej@snoha.info\">matej@snoha.info</a>\n"
         		+ "and include the following report:<br><br>\n"
         		+ "<pre>\n"
-        		+ "======= Linked Data Map Cloud Error Report =======\n"
+        		+ "==== Linked Data Map Cloud Error Report ====\n"
         		+ publicReport
-        		+ "===========================================\n"
+        		+ "============================================\n"
         		+ "</pre>\n"
         		+ "</body>\n"
         		+ "</html>\n");

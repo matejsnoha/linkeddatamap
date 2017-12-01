@@ -14,7 +14,7 @@ public class Status extends Api {
         }
     }
 
-    public StatusResponse getStatus() throws IOException {
+    public static StatusResponse getStatus() throws IOException {
         return httpGet(CLOUD_URL + "status", null, null, StatusResponse.class);
     }
 }
