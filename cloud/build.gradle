@@ -22,7 +22,7 @@ gretty {
 }
 
 war {
-    archiveName 'api.war'
+    archiveName = 'api.war'
 }
 
 repositories {

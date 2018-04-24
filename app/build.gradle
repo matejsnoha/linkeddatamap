@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url 'https://maven.fabric.io/public' }
+        maven { url = 'https://maven.fabric.io/public' }
     }
 
     dependencies {
@@ -16,29 +16,30 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 repositories {
-    maven { url 'https://maven.fabric.io/public' }
+    maven { url = 'https://maven.fabric.io/public' }
+    google()
 }
 
 apply plugin: 'me.tatarka.retrolambda'
 
 retrolambda {
-    javaVersion JavaVersion.VERSION_1_6
+    javaVersion = JavaVersion.VERSION_1_6
     defaultMethods false
     incremental true
 }
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
 
     defaultConfig {
         applicationId "info.snoha.matej.linkeddatamap"
         minSdkVersion 19
-        targetSdkVersion 26
-        versionCode 1_01_00
-        versionName "1.1.0"
+        targetSdkVersion 27
+        versionCode 1_02_00
+        versionName "1.2.0"
         compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_8
-            targetCompatibility JavaVersion.VERSION_1_8
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
         }
         multiDexEnabled true
     }
@@ -69,18 +70,18 @@ android {
 
 dependencies {
 
-    ext.supportLibVersion = "26.0.2"
+    ext.supportLibVersion = "27.1.1"
 
     compile project(':shared')
 
     // Android Support Library - Multidex, required for multidex on API levels < 21
-    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:multidex:1.0.3'
 
     // JENA - https://github.com/sbrunk/jena-android
     compile fileTree(dir: '../libs', include: '*.jar')
 
     // JENA dependencies
-    compile 'org.slf4j:slf4j-api:1.7.6'
+    compile 'org.slf4j:slf4j-api:1.7.12'
     compile 'org.slf4j:slf4j-log4j12:1.7.6'
 
     // Android Support Libraries
@@ -102,8 +103,8 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
 
     // Google Play services
-    compile 'com.google.android.gms:play-services-maps:11.0.4'
-    compile 'com.google.android.gms:play-services-location:11.0.4'
+    compile 'com.google.android.gms:play-services-maps:12.0.1'
+    compile 'com.google.android.gms:play-services-location:12.0.1'
 
     // Google Maps
     compile 'com.google.maps.android:android-maps-utils:0.5'

@@ -3,6 +3,7 @@ package info.snoha.matej.linkeddatamap.app.gui.settings.items;
 import android.content.Context;
 import android.view.View;
 import info.snoha.matej.linkeddatamap.R;
+import info.snoha.matej.linkeddatamap.app.gui.activities.MapsActivity;
 
 public class LocationPermissionSettingsItem extends AbstractSettingsItem {
 
@@ -22,11 +23,11 @@ public class LocationPermissionSettingsItem extends AbstractSettingsItem {
 
     @Override
     public String getSummary() {
-        return "OK"; // FIXME
+        return MapsActivity.getInstance().hasLocationPermission() ? "OK" : "Click to grant permission";
     }
 
     @Override
     public void onClick(View view) {
-        // FIXME
+        MapsActivity.getInstance().requestLocationPermission();
     }
 }

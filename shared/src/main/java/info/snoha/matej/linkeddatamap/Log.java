@@ -2,26 +2,18 @@ package info.snoha.matej.linkeddatamap;
 
 import com.google.gson.Gson;
 import de.mindpipe.android.logging.log4j.LogConfigurator;
-import org.apache.commons.collections4.queue.CircularFifoQueue;
-import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.EnhancedPatternLayout;
-import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Log {
 
 	private static Logger localLogger;
-
-	private static final int HISTORY_SIZE = 1000; // lines
 
 	private static final String PATTERN = "%d %-5p [%t in %C{1}.%M():%L] %m%n";
 	private static final String PATTERN_LOGCAT = "[%t in %C{1}.%M():%L] %m%n"; // no date and level
@@ -57,10 +49,6 @@ public class Log {
 		}
 
 		localLogger = Logger.getLogger("info.snoha.matej.linkeddatamap");
-
-		// keep a rolling buffer of messages with all priorities
-		localLogger.addAppender(new RecordingAppender(
-				new EnhancedPatternLayout(PATTERN), HISTORY_SIZE));
 
 		// set log level
 		localLogger.setLevel(Level.ALL);
@@ -187,40 +175,6 @@ public class Log {
 			}
 		}
 		return res.toString();
-	}
-
-	private static class RecordingAppender extends AppenderSkeleton {
-
-		private CircularFifoQueue<String> history;
-
-		public RecordingAppender(Layout layout, int historySize) {
-			this.layout = layout;
-			this.history = new CircularFifoQueue<>(historySize);
-		}
-
-		@Override
-		protected void append(LoggingEvent event) {
-			// called for filtered events according to level
-		}
-
-		@Override
-		public void close() {
-		}
-
-		@Override
-		public synchronized void doAppend(LoggingEvent event) {
-			super.doAppend(event);
-			history.add(layout.format(event)); // called for all events
-		}
-
-		@Override
-		public boolean requiresLayout() {
-			return true;
-		}
-
-		public synchronized List<String> getHistory() {
-			return new ArrayList<>(history);
-		}
 	}
 }
 

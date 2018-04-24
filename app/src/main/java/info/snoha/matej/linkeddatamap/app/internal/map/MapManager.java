@@ -107,7 +107,7 @@ public class MapManager {
 		if (map == null || position == null) {
 
 			// not initialized or no change
-			Log.warn("Map not initialized yet");
+			Log.debug("Map not initialized yet");
 			if (callback != null) {
 				UI.run(callback);
 			}

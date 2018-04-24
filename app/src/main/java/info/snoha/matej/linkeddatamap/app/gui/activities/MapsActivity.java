@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -23,15 +22,12 @@ import android.view.View;
 import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -54,19 +50,22 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MapsActivity extends AppCompatActivity
-		implements OnMapReadyCallback,
-		GoogleApiClient.ConnectionCallbacks,
-		GoogleApiClient.OnConnectionFailedListener {
+		implements OnMapReadyCallback {
+
+	/** Activity singleton **/
+
+	private static MapsActivity instance;
 
 	/** MAP **/
 
 	private GoogleMap map;
-	private GoogleApiClient apiClient;
 
-	/** Position tracking **/
+	/** Location tracking **/
 
-	private boolean positionTracking;
-	private Timer positionTrackingTimer;
+	private Location location;
+	private boolean locationTracking;
+	private Timer locationTrackingTimer;
+	private LocationSource.OnLocationChangedListener locationChangeListenerForMap;
 	private static final int POSITION_TRACKING_FREQUENCY = 1_000;
 	private static final int LOCATION_PERMISSION_REQUEST_CODE = 11;
 
@@ -83,21 +82,29 @@ public class MapsActivity extends AppCompatActivity
 	private static final int NEARBY_TRACKING_FREQUENCY = 3_000;
 	private static final int NEARBY_COUNT = 20;
 
+	public MapsActivity() {
+		instance = this;
+	}
+
+	public static MapsActivity getInstance() {
+		return instance;
+	}
+
 	protected void onStart() {
 		super.onStart();
-		apiClient.connect();
+		startLocationTracking();
 	}
 
 	protected void onStop() {
 		super.onStop();
-		if (apiClient.isConnected()) {
-			apiClient.disconnect();
-		}
 		if (cameraTrackingTimer != null) {
 			cameraTrackingTimer.cancel();
 		}
 		if (nearbyTrackingTimer != null) {
 			nearbyTrackingTimer.cancel();
+		}
+		if (locationTrackingTimer != null) {
+			locationTrackingTimer.cancel();
 		}
 		Log.info("Maps Activity stopped");
 	}
@@ -120,12 +127,6 @@ public class MapsActivity extends AppCompatActivity
 			actionBar.setTitle(getTitle() + " " + AndroidUtils.getVersion(this));
 		}
 
-		apiClient = new GoogleApiClient.Builder(this)
-				.addConnectionCallbacks(this)
-				.addOnConnectionFailedListener(this)
-				.addApi(LocationServices.API)
-				.build();
-
 		setContentView(R.layout.activity_maps);
 		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map);
@@ -134,7 +135,7 @@ public class MapsActivity extends AppCompatActivity
 		LocalLayerManager.with(this);
 		MapManager.with(this, null, this::showProgress, this::hideProgress); // map initialized later
 
-		final FloatingActionButton fab = findViewById(R.id.fab);
+		FloatingActionButton fab = findViewById(R.id.fab);
 		fab.setOnClickListener(v -> {
 
 			Location location = getCurrentLocation();
@@ -145,21 +146,21 @@ public class MapsActivity extends AppCompatActivity
 						? CameraUpdateFactory.newLatLngZoom(latLng, 15)
 						: CameraUpdateFactory.newLatLng(latLng);
 
-				map.moveCamera(update);
-				//map.animateCamera(update); // FIXME map textures do not load until touched physically
+				Log.info("FAB moving camera to " + location.getLatitude() + " " + location.getLongitude());
+				map.animateCamera(update);
 			}
 		});
 		fab.setOnLongClickListener(v -> {
 
 			new MaterialDialog.Builder(MapsActivity.this)
-					.title("Turn position tracking " + (positionTracking ? "OFF" : "ON") + "?")
+					.title("Turn location tracking " + (locationTracking ? "OFF" : "ON") + "?")
 					.neutralText("Cancel")
 					.positiveText("OK")
 					.onPositive((dialog, which) -> {
-						positionTracking = !positionTracking;
-						if (positionTracking) {
-							positionTrackingTimer = new Timer("Position Tracking Timer");
-							positionTrackingTimer.scheduleAtFixedRate(
+						locationTracking = !locationTracking;
+						if (locationTracking) {
+							locationTrackingTimer = new Timer("Location Tracking Timer");
+							locationTrackingTimer.scheduleAtFixedRate(
 									new TimerTask() {
 										@Override
 										public void run() {
@@ -170,9 +171,9 @@ public class MapsActivity extends AppCompatActivity
 							);
 
 						} else {
-							if (positionTrackingTimer != null) {
-								positionTrackingTimer.cancel();
-								positionTrackingTimer = null;
+							if (locationTrackingTimer != null) {
+								locationTrackingTimer.cancel();
+								locationTrackingTimer = null;
 							}
 						}
 					})
@@ -251,8 +252,23 @@ public class MapsActivity extends AppCompatActivity
 			}
 		});
 
-		// manually request location, so the permission dialog pops up if needed
-		getCurrentLocation(true);
+		requestLocationPermission();
+	}
+
+	public void requestLocationPermission() {
+		// check and request location permission if needed
+		if (!hasLocationPermission()) {
+
+			UI.message(this, "Missing location permission");
+			ActivityCompat.requestPermissions(this,
+					new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+					LOCATION_PERMISSION_REQUEST_CODE);
+		}
+	}
+
+	public boolean hasLocationPermission() {
+		return ActivityCompat.checkSelfPermission(this,
+				Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 	}
 
 	@Override
@@ -303,9 +319,9 @@ public class MapsActivity extends AppCompatActivity
 			return true;
 		});
 
-		map.setOnCameraChangeListener(cameraPosition -> MapsActivity.this.cameraPosition = cameraPosition);
+		map.setOnCameraMoveListener(() -> MapsActivity.this.cameraPosition = map.getCameraPosition());
 
-		// TODO
+		// TODO define in data layer and also zoom
 		LatLng mapCenter = new LatLng(50.0819015, 14.4326654);
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(mapCenter, 6));
 
@@ -319,61 +335,54 @@ public class MapsActivity extends AppCompatActivity
 				MapManager.updateMarkersOnMap(cameraPosition);
 			}
 		}, 0, CAMERA_TRACKING_FREQUENCY);
+
+		Log.info("Map initialized");
 	}
 
 	private Location getCurrentLocation() {
-		return getCurrentLocation(false);
+		return location;
 	}
 
-	private Location getCurrentLocation(Boolean askForPermissions) {
-		try {
-			Location location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
+	private void startLocationTracking() {
 
-			if (askForPermissions && location == null && ActivityCompat.checkSelfPermission(this,
-					Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-				throw new SecurityException("Missing location permission");
-			}
-			return location;
-
-		} catch (SecurityException e) {
-
-			if (askForPermissions) {
-				UI.message(this, "Missing location permission");
-				ActivityCompat.requestPermissions(this,
-						new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-						LOCATION_PERMISSION_REQUEST_CODE);
-			}
-			return null;
-		}
-	}
-
-	@Override
-	public void onConnected(Bundle bundle) {
-
-		LocationRequest request = new LocationRequest();
+		LocationRequest request = LocationRequest.create();
 		request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		request.setInterval(POSITION_TRACKING_FREQUENCY);
-		try {
-			LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, request, new LocationCallback() {
+		request.setFastestInterval(POSITION_TRACKING_FREQUENCY);
 
-				@Override
-				public void onLocationResult(LocationResult result) {
-				}
-			}, Looper.getMainLooper());
+		try {
+			if (map != null) {
+				map.setMyLocationEnabled(true);
+				map.setLocationSource(new LocationSource() {
+					@Override
+					public void activate(OnLocationChangedListener onLocationChangedListener) {
+						locationChangeListenerForMap = onLocationChangedListener;
+						if (location != null) {
+							locationChangeListenerForMap.onLocationChanged(location);
+						}
+					}
+
+					@Override
+					public void deactivate() {
+						locationChangeListenerForMap = null;
+					}
+				});
+			}
+
+			LocationServices.getFusedLocationProviderClient(this).getLastLocation()
+					.addOnSuccessListener(location -> {
+
+						this.location = location;
+						if (locationChangeListenerForMap != null) {
+							locationChangeListenerForMap.onLocationChanged(location);
+						}
+					});
+
 		} catch (SecurityException e) {
 			UI.message(this, "Missing location permission");
 		}
-	}
 
-	@Override
-	public void onConnectionSuspended(int i) {
-		UI.message(this, "Google APIs disconnected");
-	}
 
-	@Override
-	public void onConnectionFailed(ConnectionResult connectionResult) {
-		UI.message(this, "Google APIs failed to connect");
 	}
 
 	private void hideNearby() {
@@ -391,7 +400,7 @@ public class MapsActivity extends AppCompatActivity
 		Location location = getCurrentLocation();
 		if (location == null) {
 			if (showMessages) {
-				UI.message(MapsActivity.this, "Unknown location");
+				UI.message(this, "Unknown location");
 			}
 			hideNearby();
 			return;
@@ -404,7 +413,7 @@ public class MapsActivity extends AppCompatActivity
 
 		if (nearbyMarkers.isEmpty()) {
 			if (showMessages) {
-				UI.message(MapsActivity.this, "Nothing near your location");
+				UI.message(this, "Nothing near your location");
 			}
 			hideNearby();
 			return;
@@ -435,6 +444,15 @@ public class MapsActivity extends AppCompatActivity
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		recreate(); // restarts activity (google map won't show the blue location dot otherwise)
+
+		if (hasLocationPermission()) {
+			try {
+				startLocationTracking();
+			} catch (SecurityException e) {
+				Log.error("Missing location permission, even though it was just granted");
+			}
+		} else {
+			UI.message(this, "You can enable location permission later in app settings");
+		}
 	}
 }
