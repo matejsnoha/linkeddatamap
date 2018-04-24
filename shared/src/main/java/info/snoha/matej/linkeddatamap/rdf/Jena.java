@@ -15,6 +15,8 @@ import java.util.List;
 
 public class Jena {
 
+	public static final boolean DEBUG = false;
+
 	private Model model;
 
 	public Jena withModel(InputStream modelStream) {
@@ -37,7 +39,9 @@ public class Jena {
 			return model.listResourcesWithProperty(
 					RDF.type, model.createResource(type)).nextResource();
 		} catch (Exception e) {
-			Log.debug("Could not find resource of type " + type, e);
+			if (DEBUG) {
+				Log.debug("Could not find resource of type " + type, e);
+			}
 			return null;
 		}
 	}
@@ -46,7 +50,9 @@ public class Jena {
 		try {
 			return "<" + resource.getURI() + ">";
 		} catch (Exception e) {
-			Log.debug("Could not read resource uri for " + resource, e);
+			if (DEBUG) {
+				Log.debug("Could not read resource uri for " + resource, e);
+			}
 			return null;
 		}
 	}
@@ -62,7 +68,9 @@ public class Jena {
 				throw new IllegalArgumentException("Unsupported RDF node type");
 			}
 		} catch (Exception e) {
-			Log.debug("Could not read property " + property, e);
+			if (DEBUG) {
+				Log.debug("Could not read property " + property, e);
+			}
 			return null;
 		}
 	}
@@ -88,7 +96,9 @@ public class Jena {
 				}
 			}
 		} catch (Exception e) {
-			Log.debug("Could not read property list of " + property, e);
+			if (DEBUG) {
+				Log.debug("Could not read property list of " + property, e);
+			}
 		}
 		return list;
 	}
@@ -102,7 +112,9 @@ public class Jena {
 			}
 			return list;
 		} catch (Exception e) {
-			Log.debug("Could not convert to list " + resource, e);
+			if (DEBUG) {
+				Log.debug("Could not convert to list " + resource, e);
+			}
 			return null;
 		}
 	}

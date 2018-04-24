@@ -23,7 +23,7 @@ public class BoundingBox {
 	}
 
 	public BoundingBox setMinLat(float minLat) {
-		this.minLat = minLat;
+		this.minLat = Math.max(-90, minLat);
 		return this;
 	}
 
@@ -32,7 +32,7 @@ public class BoundingBox {
 	}
 
 	public BoundingBox setMaxLat(float maxLat) {
-		this.maxLat = maxLat;
+		this.maxLat = Math.min(90, maxLat);
 		return this;
 	}
 
@@ -41,7 +41,7 @@ public class BoundingBox {
 	}
 
 	public BoundingBox setMinLong(float minLong) {
-		this.minLong = minLong;
+		this.minLong = Math.max(-180, minLong);
 		return this;
 	}
 
@@ -50,7 +50,7 @@ public class BoundingBox {
 	}
 
 	public BoundingBox setMaxLong(float maxLong) {
-		this.maxLong = maxLong;
+		this.maxLong = Math.min(180, maxLong);
 		return this;
 	}
 }

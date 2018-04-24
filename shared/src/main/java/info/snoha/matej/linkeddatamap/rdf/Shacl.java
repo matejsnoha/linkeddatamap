@@ -151,7 +151,9 @@ public class Shacl {
 			PropertyPath path = (PropertyPath) node.visitWith(new ShaclParserVisitor(jena));
 			return path != null ? path.toString() : null;
 		} catch (Exception e) {
-			Log.debug("Could not parse SHACL path to string", e);
+			if (Jena.DEBUG) {
+				Log.debug("Could not parse SHACL path to string", e);
+			}
 			return null;
 		}
 	}

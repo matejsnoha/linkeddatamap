@@ -62,25 +62,28 @@ public class MapsActivity extends AppCompatActivity
 
 	/** Location tracking **/
 
+	private static final int POSITION_TRACKING_FREQUENCY = 1_000;
+	private static final int LOCATION_PERMISSION_REQUEST_CODE = 11;
+
 	private Location location;
 	private boolean locationTracking;
 	private Timer locationTrackingTimer;
 	private LocationSource.OnLocationChangedListener locationChangeListenerForMap;
-	private static final int POSITION_TRACKING_FREQUENCY = 1_000;
-	private static final int LOCATION_PERMISSION_REQUEST_CODE = 11;
 
 	/** Map camera tracking **/
 
+	private static final int CAMERA_TRACKING_FREQUENCY = 3_000;
+
 	private CameraPosition cameraPosition;
 	private Timer cameraTrackingTimer;
-	private static final int CAMERA_TRACKING_FREQUENCY = 3_000;
 
 	/** Nearby tracking **/
 
-	private boolean nearbyTracking;
-	private Timer nearbyTrackingTimer;
 	private static final int NEARBY_TRACKING_FREQUENCY = 3_000;
 	private static final int NEARBY_COUNT = 20;
+
+	private boolean nearbyTracking;
+	private Timer nearbyTrackingTimer;
 
 	public MapsActivity() {
 		instance = this;
@@ -319,11 +322,12 @@ public class MapsActivity extends AppCompatActivity
 			return true;
 		});
 
-		map.setOnCameraMoveListener(() -> MapsActivity.this.cameraPosition = map.getCameraPosition());
-
 		// TODO define in data layer and also zoom
 		LatLng mapCenter = new LatLng(50.0819015, 14.4326654);
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(mapCenter, 6));
+
+		cameraPosition = map.getCameraPosition();
+		map.setOnCameraMoveListener(() -> cameraPosition = map.getCameraPosition());
 
 		MapManager.with(this, map, this::showProgress, this::hideProgress);
 
