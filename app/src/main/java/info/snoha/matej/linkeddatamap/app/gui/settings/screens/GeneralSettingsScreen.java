@@ -11,10 +11,8 @@ public class GeneralSettingsScreen extends AbstractSettingsScreen {
         addSettingsItems(
                 new SubscreenSettingsItem(context, R.raw.map, R.string.map_settings, null,
                         MapSettingsScreen.class.getSimpleName()),
-                new SubscreenSettingsItem(context, R.raw.layers, R.string.map_layers, null,
-                        MapLayersSettingsScreen.class.getSimpleName()),
-                new SubscreenSettingsItem(context, R.raw.layers, R.string.data_layers, null,
-                        DataLayersSettingsScreen.class.getSimpleName())
+                new SubscreenSettingsItem(context, R.raw.layers, R.string.layers, null,
+                        LayersSettingsScreen.class.getSimpleName())
         );
     }
 

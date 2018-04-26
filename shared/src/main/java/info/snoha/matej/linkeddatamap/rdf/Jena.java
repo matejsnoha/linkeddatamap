@@ -9,6 +9,7 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import info.snoha.matej.linkeddatamap.Log;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,16 @@ public class Jena {
 	public static final boolean DEBUG = false;
 
 	private Model model;
+
+	public Jena withModel(String definition) {
+		model = ModelFactory.createDefaultModel();
+		try {
+			model.read(new ByteArrayInputStream(definition.getBytes("UTF-8")), null, "TURTLE");
+		} catch (Exception e) {
+			Log.warn("Jena could not load mode");
+		}
+		return this;
+	}
 
 	public Jena withModel(InputStream modelStream) {
 		model = ModelFactory.createDefaultModel();

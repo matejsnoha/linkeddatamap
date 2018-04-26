@@ -11,6 +11,7 @@
     <string name="settings">Settings</string>
     <string name="map_settings">Map Settings</string>
     <string name="location_permission">Location permission</string>
+    <string name="layers">Layers</string>
     <string name="map_layers">Map Layers</string>
     <string name="data_layers">Data Layers</string>
     <string name="layer_name">Layer name</string>

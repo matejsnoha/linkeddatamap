@@ -6,19 +6,19 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.api.Layers;
-import info.snoha.matej.linkeddatamap.app.gui.settings.screens.DataLayerDetailSettingsScreen;
+import info.snoha.matej.linkeddatamap.app.gui.settings.screens.LayerDetailSettingsScreen;
 import info.snoha.matej.linkeddatamap.app.gui.settings.screens.SettingsScreenRegistry;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
-import info.snoha.matej.linkeddatamap.app.internal.map.MapManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LayerDatabase;
 
 import java.util.List;
 
 public class DataLayerCloudSettingsItem extends AbstractSettingsItem {
 
-    private int layer;
+    private Layer layer;
 
-    public DataLayerCloudSettingsItem(Context context, int layer) {
+    public DataLayerCloudSettingsItem(Context context, Layer layer) {
         super(context);
         this.layer = layer;
     }
@@ -30,7 +30,7 @@ public class DataLayerCloudSettingsItem extends AbstractSettingsItem {
 
     @Override
     public int getIconColor() {
-        return MapManager.getLayerColor(layer);
+        return layer.getColorAndroid();
     }
 
     @Override
@@ -90,12 +90,16 @@ public class DataLayerCloudSettingsItem extends AbstractSettingsItem {
                     UI.message(getContext(), "Could not load layer: empty response");
                     return;
                 }
-                LocalLayerManager.setDataLayerDefinition(layer, response.layer);
-                UI.message(getContext(), "Layer successfully loaded");
-                UI.run(() ->
-                        SettingsScreenRegistry.get(DataLayerDetailSettingsScreen.class.getSimpleName() + layer)
-                                .refreshSummary()
-                );
+                Layer layer = LayerDatabase.addLayer(response.layer);
+                if (layer != null) {
+                    UI.message(getContext(), "Layer " + layer.getTitle() + " successfully loaded");
+                    UI.run(() ->
+                            SettingsScreenRegistry.get(LayerDetailSettingsScreen.class.getSimpleName() + layer)
+                                    .refreshSummary()
+                    );
+                } else {
+                    UI.message(getContext(), "Could not load layer");
+                }
             } catch (Exception e) {
                 Log.warn("Could not load layer " + url, e);
                 UI.message(getContext(), "Could not load layer: " + e);

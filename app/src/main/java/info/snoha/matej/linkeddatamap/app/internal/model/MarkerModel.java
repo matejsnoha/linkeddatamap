@@ -1,18 +1,20 @@
 package info.snoha.matej.linkeddatamap.app.internal.model;
 
+import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
+
 public class MarkerModel {
 
     private Position position;
     private String name;
     private String text;
     private String address;
-    private int layer;
+    private Layer layer;
 
-    public MarkerModel(int layer, Position position, String name, String text) {
+    public MarkerModel(Layer layer, Position position, String name, String text) {
         this(layer, position, name, text, null);
     }
 
-    public MarkerModel(int layer, Position position, String name, String text, String address) {
+    public MarkerModel(Layer layer, Position position, String name, String text, String address) {
         this.layer = layer;
         this.position = position;
         this.name = name;
@@ -58,11 +60,11 @@ public class MarkerModel {
         this.address = address;
     }
 
-    public int getLayer() {
+    public Layer getLayer() {
         return layer;
     }
 
-    public void setLayer(int layer) {
+    public void setLayer(Layer layer) {
         this.layer = layer;
     }
 }

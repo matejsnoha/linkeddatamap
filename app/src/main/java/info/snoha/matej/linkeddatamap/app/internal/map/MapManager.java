@@ -1,7 +1,6 @@
 package info.snoha.matej.linkeddatamap.app.internal.map;
 
 import android.content.Context;
-import android.graphics.Color;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -13,7 +12,8 @@ import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LayerDatabase;
 import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
@@ -22,7 +22,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +44,7 @@ public class MapManager {
     private static Runnable showProgress;
 	private static Runnable hideProgress;
 
-    private static List<Integer> visibleLayers = Collections.emptyList();
+    private static List<Layer> visibleLayers = Collections.emptyList();
 	private static List<MarkerModel> preloadedMarkers;
 
     private static boolean heatmapMode;
@@ -60,15 +59,11 @@ public class MapManager {
         MapManager.hideProgress = hideProgress;
     }
 
-    public static List<Integer> getVisibleLayers() {
+    public static List<Layer> getVisibleLayers() {
         return visibleLayers;
     }
 
-    public static void setDataLayers(final CameraPosition position, List<Integer> layers) {
-        setDataLayers(position, layers.toArray(new Integer[0]));
-    }
-
-    public static void setDataLayers(final CameraPosition cameraPosition, final Integer... layerIDs) {
+    public static void setDataLayers(final CameraPosition cameraPosition, List<Layer> layers) {
 
 		if (map == null || cameraPosition == null) {
 			Log.warn("Map not initialized yet");
@@ -77,10 +72,9 @@ public class MapManager {
 
 		UI.run(map::clear);
 
-		visibleLayers = Arrays.asList(layerIDs);
+		visibleLayers = layers;
 
-        if (layerIDs.length == 0 || (layerIDs.length == 1 && layerIDs[0] == LocalLayerManager.LAYER_NONE)) {
-
+        if (layers.isEmpty()) {
             setPreloadedMarkers(Collections.emptyList());
             return;
         }
@@ -141,9 +135,9 @@ public class MapManager {
 		CountDownLatch doneSignal = new CountDownLatch(visibleLayers.size());
 		List<MarkerModel> newPreloadedMarkers = new ArrayList<>();
 
-		for (int layerId : visibleLayers) {
+		for (Layer layer : visibleLayers) {
 
-			LocalLayerManager.getMarkers(layerId, geoLimits, new LocalLayerManager.Callback() {
+			LayerDatabase.getMarkers(layer, geoLimits, new LayerDatabase.Callback() {
 
 				@Override
 				public void onSuccess(List<MarkerModel> markers) {
@@ -212,7 +206,7 @@ public class MapManager {
 				map.clear();
 				for (MarkerModel marker : markersToRender) {
 					map.addMarker(new MarkerOptions()
-							.icon(BitmapDescriptorFactory.defaultMarker(getLayerHue(marker.getLayer())))
+							.icon(BitmapDescriptorFactory.defaultMarker(marker.getLayer().getColorHue()))
 							.position(new LatLng(marker.getPosition().getLatitude(),
 									marker.getPosition().getLongitude()))
 							.title(marker.getName())
@@ -226,10 +220,10 @@ public class MapManager {
 
 			List<TileProvider> heatmapTileProviders = new ArrayList<>();
 
-			for (int layerId : visibleLayers) {
+			for (Layer layer : visibleLayers) {
 
 				Collection<MarkerModel> markersInLayer = CollectionUtils.select(markers,
-						marker -> marker.getLayer() == layerId);
+						marker -> marker.getLayer() == layer);
 
 				if (!markersInLayer.isEmpty()) {
 
@@ -241,7 +235,7 @@ public class MapManager {
 							.opacity(0.5)
 							.gradient(new Gradient(
 									new int[]{
-											getLayerColor(layerId)},
+											layer.getColorAndroid()},
 									new float[]{
 											0.01f}))
 							.build());
@@ -309,40 +303,5 @@ public class MapManager {
 				+ ", -> " + (shouldUpdate ? "" : "not ") + "updating");
 
 		return shouldUpdate; // TODO
-	}
-
-	// TODO custom colors in settings
-    private static float getLayerHue(int layer) {
-		switch (layer) {
-			case 1:
-				return BitmapDescriptorFactory.HUE_RED;
-			case 2:
-				return BitmapDescriptorFactory.HUE_ORANGE;
-			case 3:
-				return BitmapDescriptorFactory.HUE_BLUE;
-			case 4:
-				return BitmapDescriptorFactory.HUE_GREEN;
-			case 5:
-				return BitmapDescriptorFactory.HUE_YELLOW;
-			default:
-				return BitmapDescriptorFactory.HUE_VIOLET;
-		}
-	}
-
-	public static int getLayerColor(int layer) {
-		switch (layer) {
-			case 1:
-				return Color.RED;
-			case 2:
-				return Color.parseColor("#FFA500");
-			case 3:
-				return Color.BLUE;
-			case 4:
-				return Color.GREEN;
-			case 5:
-				return Color.YELLOW;
-			default:
-				return Color.parseColor("#6600CC");
-		}
 	}
 }

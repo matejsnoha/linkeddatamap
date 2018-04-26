@@ -1,0 +1,77 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix s: <http://schema.org/> .
+@prefix ldm: <https://purl.org/ldm/> .
+@prefix ldmres: <https://purl.org/ldm/resource/> .
+@prefix ruian: <https://ruian.linked.opendata.cz/slovník/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+ldmres:layer_ruian
+
+    a ldm:Layer ;
+    a void:Dataset ;
+
+    dcterms:title "RUIAN" ;
+	dcterms:description "RUIAN - registry of land identification, addresses and properties of the Czech Republic" ;
+	dcterms:publisher [ a s:Person ;
+						s:name "Matej Snoha" ;
+						s:email "matej@snoha.info" ] ;
+	dcterms:modified "2018-04-25"^^xsd:date ;
+	dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
+
+    ldm:service [  a sd:Service ;
+                      sd:endpoint "https://ruian.linked.opendata.cz/sparql" ;
+                      sd:supportedLanguage sd:SPARQL11Query ;
+                      # ldm:jenaSpatial true ;
+                   ];
+
+    s:color "#4444FF" .
+
+ldmres:mapLayer_ruian
+
+    a ldm:MapLayer ;
+    a void:Dataset ;
+
+    dcterms:title "RUIAN Map Layer" ;
+    dcterms:description "RUIAN - registry of land identification, addresses and properties of the Czech Republic" ;
+    dcterms:publisher [ a s:Person ;
+                        s:name "Matej Snoha" ;
+                        s:email "matej@snoha.info" ] ;
+    dcterms:modified "2017-11-03"^^xsd:date ;
+    dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
+
+    ldm:service [  a sd:Service ;
+                  sd:endpoint "https://ruian.linked.opendata.cz/sparql" ;
+                  sd:supportedLanguage sd:SPARQL11Query ;
+                  # ldm:jenaSpatial true ;
+               ];
+
+    ldm:mapLayerStructure [  a ldm:MapLayerStructure ;
+                          ldm:addressPointType ruian:AdresníMisto ;
+                          ldm:addressPath s:name ; #TODO multiple items similar as data description
+                          ldm:latitudePath ( ruian:adresníBod s:geo s:latitude ) ;
+                          ldm:longitudePath ( ruian:adresníBod s:geo s:longitude ) ] .
+
+ldmres:dataLayer_ruian
+
+    a ldm:DataLayer ;
+    a s:Dataset ;
+
+    dcterms:title "RUIAN Data Layer" ;
+    dcterms:description "RUIAN - registry of land identification, addresses and properties of the Czech Republic" ;
+    dcterms:publisher [ a s:Person ;
+                        s:name "Matej Snoha" ;
+                        s:email "matej@snoha.info" ] ;
+    dcterms:modified "2017-10-02"^^xsd:date ;
+    dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
+
+    ldm:dataLayerStructure [ a ldm:DataLayerStructure ;
+                          ldm:dataPointType ruian:StavebníObjekt ;
+                          ldm:dataName s:name ;
+                          ldm:dataDescription ( "Pocet bytu " ruian:početBytů ", Pocet podlazi " ruian:početPodlaží ) ;
+                          ldm:mapPointPath [ sh:inversePath ruian:stavebníObjekt ] ] ;
+
+    ldm:mapLayer ldmres:mapLayer_ruian .

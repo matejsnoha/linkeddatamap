@@ -5,14 +5,14 @@ import android.text.InputType;
 import android.view.View;
 import com.afollestad.materialdialogs.MaterialDialog;
 import info.snoha.matej.linkeddatamap.R;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
-import info.snoha.matej.linkeddatamap.app.internal.map.MapManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LayerDatabase;
 
 public class DataLayerNameSettingsItem extends AbstractSettingsItem {
 
-    private int layer;
+    private Layer layer;
 
-    public DataLayerNameSettingsItem(Context context, int layer) {
+    public DataLayerNameSettingsItem(Context context, Layer layer) {
         super(context);
         this.layer = layer;
     }
@@ -24,7 +24,7 @@ public class DataLayerNameSettingsItem extends AbstractSettingsItem {
 
     @Override
     public int getIconColor() {
-        return MapManager.getLayerColor(layer);
+        return layer.getColorAndroid();
     }
 
     @Override
@@ -34,17 +34,18 @@ public class DataLayerNameSettingsItem extends AbstractSettingsItem {
 
     @Override
     public String getSummary() {
-        return LocalLayerManager.getDataLayerName(layer);
+        return layer.getDescription();
     }
 
     @Override
     public void onClick(View view) {
         new MaterialDialog.Builder(getContext())
                 .title(R.string.layer_name)
-                .input(null, LocalLayerManager.getDataLayerName(layer), (dialog, input) -> {
+                .input(null, layer.getTitle(), (dialog, input) -> {
                     String name = input.toString().trim();
                     if (!name.isEmpty()) {
-                        LocalLayerManager.setDataLayerName(layer, name);
+                        layer.title(name);
+                        LayerDatabase.save();
                     }
                     refreshSummary();
                 })

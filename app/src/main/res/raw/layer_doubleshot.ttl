@@ -1,0 +1,76 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+@prefix s: <http://schema.org/> .
+@prefix ldm: <https://purl.org/ldm/> .
+@prefix ldmres: <https://purl.org/ldm/resource/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+ldmres:layer_ds
+
+    a ldm:Layer ;
+    a void:Dataset ;
+
+    dcterms:title "DoubleShot" ;
+    dcterms:description "Coffee shops serving DoubleShot coffee" ;
+    dcterms:publisher [ a s:Person ;
+                        s:name "Matej Snoha" ;
+                        s:email "matej@snoha.info" ] ;
+    dcterms:modified "2018-04-24"^^xsd:date ;
+    dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
+
+    ldm:service [ a sd:Service ;
+                  sd:endpoint "https://ldm.matej.snoha.info/fuseki/doubleshot/query" ;
+                  sd:supportedLanguage sd:SPARQL11Query ;
+                  ldm:jenaSpatial true ;
+               ];
+
+    s:color "#FF6600" .
+
+ldmres:mapLayer_ds
+
+    a ldm:MapLayer ;
+    a void:Dataset ;
+
+    dcterms:title "DoubleShot Map Layer" ;
+    dcterms:description "Coffee shops serving DoubleShot coffee" ;
+    dcterms:publisher [ a s:Person ;
+                        s:name "Matej Snoha" ;
+                        s:email "matej@snoha.info" ] ;
+    dcterms:modified "2017-10-18"^^xsd:date ;
+    dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
+
+    ldm:service [ a sd:Service ;
+                  sd:endpoint "https://ldm.matej.snoha.info/fuseki/doubleshot/query" ;
+                  sd:supportedLanguage sd:SPARQL11Query ;
+                  ldm:jenaSpatial true ;
+               ];
+
+    ldm:mapLayerStructure [ a ldm:MapLayerStructure ;
+                          ldm:addressPointType s:GeoCoordinates ;
+                          ldm:addressPath ( s:address s:description ) ;
+                          ldm:latitudePath s:latitude ;
+                          ldm:longitudePath s:longitude ] .
+
+ldmres:dataLayer_ds
+
+    a ldm:DataLayer ;
+    a void:Dataset ;
+
+    dcterms:title "DoubleShot Data layer" ;
+    dcterms:description "Coffee shops serving DoubleShot coffee" ;
+    dcterms:publisher [ a s:Person ;
+                        s:name "Matej Snoha" ;
+                        s:email "matej@snoha.info" ] ;
+    dcterms:modified "2017-10-18"^^xsd:date ;
+    dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
+
+    ldm:dataLayerStructure [ a ldm:DataLayerStructure ;
+                          ldm:dataPointType s:CafeOrCoffeeShop ;
+                          ldm:dataName s:name ;
+                          ldm:dataDescription ( "Rating " s:aggregateRating ) ;
+                          ldm:mapPointPath s:geo ] ;
+
+    ldm:mapLayer ldmres:mapLayer_ds .

@@ -36,13 +36,16 @@ import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.nearby.NearbyAdapter;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
+import info.snoha.matej.linkeddatamap.app.internal.layers.LayerDatabase;
 import info.snoha.matej.linkeddatamap.app.internal.map.MapManager;
 import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 
 import io.fabric.sdk.android.Fabric;
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -135,7 +138,7 @@ public class MapsActivity extends AppCompatActivity
 				.findFragmentById(R.id.map);
 		mapFragment.getMapAsync(this);
 
-		LocalLayerManager.with(this);
+		LayerDatabase.with(this);
 		MapManager.with(this, null, this::showProgress, this::hideProgress); // map initialized later
 
 		FloatingActionButton fab = findViewById(R.id.fab);
@@ -186,40 +189,37 @@ public class MapsActivity extends AppCompatActivity
 
 		((AppCompatButton) findViewById(R.id.button_clear)).setTextColor(Color.BLACK); // < API21
 		findViewById(R.id.button_clear).setOnClickListener(v -> {
-			MapManager.setDataLayers(cameraPosition, LocalLayerManager.LAYER_NONE);
+			MapManager.setDataLayers(cameraPosition, null);
 			hideNearby();
 		});
 
 		((AppCompatButton) findViewById(R.id.button_layers)).setTextColor(Color.BLACK); // < API21
 		findViewById(R.id.button_layers).setOnClickListener(v -> {
 
-			if (LocalLayerManager.getDataLayerIDs(true).size() == 0) {
+			if (LayerDatabase.getEnabledLayers().isEmpty()) {
 				UI.message(MapsActivity.this, "No layers.\n" +
 						"Please specify some in Settings --> Map Layers & Data Layers");
 				return;
 			}
 
-			List<String> enabledLayerNames = LocalLayerManager.getDataLayerNames(true);
+			List<Layer> enabledLayers = new ArrayList<>(LayerDatabase.getEnabledLayers());
+
 			List<Integer> selectedLayerDialogIndexes = new ArrayList<>();
-			for (int layerID : MapManager.getVisibleLayers()) {
-				if (layerID != LocalLayerManager.LAYER_NONE) {
-					selectedLayerDialogIndexes.add(enabledLayerNames.indexOf(
-							LocalLayerManager.getLayerName(layerID)
-					));
-				}
+			for (Layer layer : MapManager.getVisibleLayers()) {
+				selectedLayerDialogIndexes.add(enabledLayers.indexOf(layer));
 			}
 
 			new MaterialDialog.Builder(MapsActivity.this)
 					.title("Choose layers")
-					.items(enabledLayerNames)
+					.items(CollectionUtils.collect(enabledLayers, Layer::getTitle))
 					.itemsCallbackMultiChoice(selectedLayerDialogIndexes.toArray(new Integer[0]),
 							(dialog, which, text) -> {
 
-								List<String> layerNames = new ArrayList<>(text.length);
-								for (CharSequence name : text) {
-									layerNames.add(name.toString());
+								List<Layer> layers = new ArrayList<>(which.length);
+								for (Integer index : which) {
+									layers.add(enabledLayers.get(index));
 								}
-								MapManager.setDataLayers(cameraPosition, LocalLayerManager.getDataLayerIDs(layerNames));
+								MapManager.setDataLayers(cameraPosition, layers);
 								return true;
 							})
 					.positiveText("OK")

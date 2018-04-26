@@ -50,7 +50,7 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled true
+            //minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
@@ -97,6 +97,7 @@ dependencies {
     compile ('com.afollestad.material-dialogs:core:0.9.4.7') {
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'support-v13'
+        exclude group: 'com.android.support', module: 'design'
     }
 
     // OkHttp

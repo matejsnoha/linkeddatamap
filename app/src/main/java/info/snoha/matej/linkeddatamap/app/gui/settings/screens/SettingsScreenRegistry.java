@@ -12,8 +12,7 @@ public class SettingsScreenRegistry {
     public static void init(Context context) {
         add(GeneralSettingsScreen.class.getSimpleName(), new GeneralSettingsScreen(context));
         add(MapSettingsScreen.class.getSimpleName(), new MapSettingsScreen(context));
-        add(MapLayersSettingsScreen.class.getSimpleName(), new MapLayersSettingsScreen(context));
-        add(DataLayersSettingsScreen.class.getSimpleName(), new DataLayersSettingsScreen(context));
+        add(LayersSettingsScreen.class.getSimpleName(), new LayersSettingsScreen(context));
     }
 
     public static void add(String name, AbstractSettingsScreen screen) {

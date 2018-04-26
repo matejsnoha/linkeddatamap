@@ -5,13 +5,13 @@ import info.snoha.matej.linkeddatamap.app.gui.settings.items.DataLayerCloudSetti
 import info.snoha.matej.linkeddatamap.app.gui.settings.items.DataLayerDefinitionSettingsItem;
 import info.snoha.matej.linkeddatamap.app.gui.settings.items.DataLayerStateSettingsItem;
 import info.snoha.matej.linkeddatamap.app.gui.settings.items.DataLayerNameSettingsItem;
-import info.snoha.matej.linkeddatamap.app.internal.layers.LocalLayerManager;
+import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
 
-public class DataLayerDetailSettingsScreen extends AbstractSettingsScreen {
+public class LayerDetailSettingsScreen extends AbstractSettingsScreen {
 
-    private int layer;
+    private Layer layer;
 
-    public DataLayerDetailSettingsScreen(Context context, int layer) {
+    public LayerDetailSettingsScreen(Context context, Layer layer) {
         super(context);
         this.layer = layer;
         addSettingsItems(
@@ -24,6 +24,6 @@ public class DataLayerDetailSettingsScreen extends AbstractSettingsScreen {
 
     @Override
     public String getTitleString() {
-        return LocalLayerManager.getDataLayerName(layer);
+        return layer.getTitle();
     }
 }
