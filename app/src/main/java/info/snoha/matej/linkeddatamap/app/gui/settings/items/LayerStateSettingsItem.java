@@ -8,18 +8,18 @@ import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
 import info.snoha.matej.linkeddatamap.app.internal.layers.LayerDatabase;
 
-public class DataLayerStateSettingsItem extends AbstractSettingsItem {
+public class LayerStateSettingsItem extends AbstractSettingsItem {
 
     private Layer layer;
 
-    public DataLayerStateSettingsItem(Context context, Layer layer) {
+    public LayerStateSettingsItem(Context context, Layer layer) {
         super(context);
         this.layer = layer;
     }
 
     @Override
     public int getIcon() {
-        return R.raw.layers;
+        return layer.isEnabled() ? R.raw.layers : R.raw.layers_off;
     }
 
     @Override
@@ -48,6 +48,7 @@ public class DataLayerStateSettingsItem extends AbstractSettingsItem {
     public void onClick(View view) {
         layer.enabled(!layer.isEnabled());
         LayerDatabase.save();
+        refreshIcon();
         refreshSummary();
     }
 }

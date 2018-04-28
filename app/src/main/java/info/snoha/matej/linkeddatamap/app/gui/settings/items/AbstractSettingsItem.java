@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
@@ -21,17 +22,8 @@ public abstract class AbstractSettingsItem extends LinearLayout
             try {
                 setOnClickListener(this);
                 setOnLongClickListener(this);
-
                 inflate(getContext(), R.layout.settings_item, this);
-
-                LinearLayout iconLayout = getIconLayoutView();
-                SVGImageView icon = new SVGImageView(getContext()); // cannot inflate in xml, superclass lib is jar in gradle
-                icon.setImageResource(getIcon());
-                AndroidUtils.changeViewColor(icon, getIconColor());
-                iconLayout.addView(icon);
-
-                getNameView().setText(getTitle());
-                refreshSummary();
+                refresh();
             } catch (Exception e) {
                 Log.warn("Settings item could not be initialized", e);
             }
@@ -89,6 +81,32 @@ public abstract class AbstractSettingsItem extends LinearLayout
 
     public AppCompatTextView getSummaryView() {
         return findViewById(R.id.settings_item_summary);
+    }
+
+    public void refresh() {
+        refreshIcon();
+        refreshName();
+        refreshSummary();
+    }
+
+    public void refreshIcon() {
+        LinearLayout iconLayout = getIconLayoutView();
+        if (iconLayout == null) {
+            return;
+        }
+        SVGImageView icon = new SVGImageView(getContext()); // cannot inflate in xml, superclass lib is jar in gradle
+        icon.setImageResource(getIcon());
+        AndroidUtils.changeViewColor(icon, getIconColor());
+        iconLayout.removeAllViews();
+        iconLayout.addView(icon);
+    }
+
+    public void refreshName() {
+		TextView nameView = getNameView();
+		if (nameView == null) {
+			return;
+		}
+        nameView.setText(getTitle());
     }
 
     public void refreshSummary() {

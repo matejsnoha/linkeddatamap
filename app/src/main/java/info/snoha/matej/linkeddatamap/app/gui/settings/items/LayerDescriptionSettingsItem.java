@@ -8,18 +8,18 @@ import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
 import info.snoha.matej.linkeddatamap.app.internal.layers.LayerDatabase;
 
-public class DataLayerNameSettingsItem extends AbstractSettingsItem {
+public class LayerDescriptionSettingsItem extends AbstractSettingsItem {
 
     private Layer layer;
 
-    public DataLayerNameSettingsItem(Context context, Layer layer) {
+    public LayerDescriptionSettingsItem(Context context, Layer layer) {
         super(context);
         this.layer = layer;
     }
 
     @Override
     public int getIcon() {
-        return R.raw.layers;
+        return R.raw.square_edit_outline;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class DataLayerNameSettingsItem extends AbstractSettingsItem {
 
     @Override
     public int getTitleResource() {
-        return R.string.layer_name;
+        return R.string.layer_description;
     }
 
     @Override
@@ -40,11 +40,11 @@ public class DataLayerNameSettingsItem extends AbstractSettingsItem {
     @Override
     public void onClick(View view) {
         new MaterialDialog.Builder(getContext())
-                .title(R.string.layer_name)
-                .input(null, layer.getTitle(), (dialog, input) -> {
-                    String name = input.toString().trim();
-                    if (!name.isEmpty()) {
-                        layer.title(name);
+                .title(R.string.layer_description)
+                .input(null, layer.getDescription(), (dialog, input) -> {
+                    String inputStr = input.toString().trim();
+                    if (!inputStr.isEmpty()) {
+                        layer.description(inputStr);
                         LayerDatabase.save();
                     }
                     refreshSummary();

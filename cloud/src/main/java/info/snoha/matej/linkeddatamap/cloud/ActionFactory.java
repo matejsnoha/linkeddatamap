@@ -3,6 +3,7 @@ package info.snoha.matej.linkeddatamap.cloud;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.cloud.layers.DataLayerListAction;
 import info.snoha.matej.linkeddatamap.cloud.layers.LayerGetAction;
+import info.snoha.matej.linkeddatamap.cloud.layers.LayerListAction;
 import info.snoha.matej.linkeddatamap.cloud.layers.MapLayerListAction;
 import info.snoha.matej.linkeddatamap.cloud.status.StatusAction;
 
@@ -47,6 +48,10 @@ public class ActionFactory {
 		actions.put(
 				"GET/api/1/layers/.*",
 				new LayerGetAction());
+
+		actions.put(
+				"GET/api/1/layers",
+				new LayerListAction());
 		
 		// static web
 		

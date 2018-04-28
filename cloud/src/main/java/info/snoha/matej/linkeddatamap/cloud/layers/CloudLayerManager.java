@@ -19,7 +19,9 @@ public class CloudLayerManager {
     private static final String SARQL_QUERY_GET_LAYER = "/WEB-INF/query_get_layer.sparql";
 
     public enum LayerType {
-        MAP_LAYER("MapLayer"), DATA_LAYER("DataLayer");
+        LAYER("Layer"),
+        MAP_LAYER("MapLayer"),
+        DATA_LAYER("DataLayer");
 
         private String typeName;
 

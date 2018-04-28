@@ -54,7 +54,7 @@ public class SettingsFragment extends Fragment {
 
     public void refresh(){
         if (screen != null){
-            screen.refreshSummary();
+            screen.refresh();
         }
     }
 

@@ -49,9 +49,9 @@ public abstract class AbstractSettingsScreen extends LinearLayout {
         return settingsItems;
     }
 
-    public void refreshSummary() {
+    public void refresh() {
         for (AbstractSettingsItem item : getSettingsItems()) {
-            item.refreshSummary();
+            item.refresh();
         }
     }
 }

@@ -105,6 +105,15 @@ public class LayerDatabase {
 		return layer;
 	}
 
+	public static void removeLayer(Layer layer) {
+		if (layer != null) {
+			layers.remove(layer.getUri());
+			save();
+		} else {
+			Log.warn("Layer not removed from database");
+		}
+	}
+
     public static void getMarkers(Layer layer, BoundingBox geoLimits, Callback callback) {
         if (layer == null) {
 			callback.onFailure("No layer selected");

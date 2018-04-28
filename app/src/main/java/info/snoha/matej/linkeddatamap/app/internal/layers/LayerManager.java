@@ -5,8 +5,6 @@ import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.rdf.Jena;
 import info.snoha.matej.linkeddatamap.rdf.Prefixes;
 
-import java.io.InputStream;
-
 public class LayerManager extends AbstractLayerManager<Layer> {
 
 	@Override

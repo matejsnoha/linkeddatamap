@@ -6,7 +6,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.api.Layers;
-import info.snoha.matej.linkeddatamap.app.gui.settings.screens.LayerDetailSettingsScreen;
+import info.snoha.matej.linkeddatamap.app.gui.settings.screens.LayerSettingsScreen;
 import info.snoha.matej.linkeddatamap.app.gui.settings.screens.SettingsScreenRegistry;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
 import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
@@ -14,11 +14,11 @@ import info.snoha.matej.linkeddatamap.app.internal.layers.LayerDatabase;
 
 import java.util.List;
 
-public class DataLayerCloudSettingsItem extends AbstractSettingsItem {
+public class LayerCloudSettingsItem extends AbstractSettingsItem {
 
     private Layer layer;
 
-    public DataLayerCloudSettingsItem(Context context, Layer layer) {
+    public LayerCloudSettingsItem(Context context, Layer layer) {
         super(context);
         this.layer = layer;
     }
@@ -48,7 +48,7 @@ public class DataLayerCloudSettingsItem extends AbstractSettingsItem {
 
         new Thread(() -> {
             try {
-                Layers.LayerListResponse response = Layers.getDataLayers();
+                Layers.LayerListResponse response = Layers.getLayers();
                 if (response == null || !response.isSuccess()) {
                     UI.message(getContext(), "Could not load layers");
                     return;
@@ -94,8 +94,7 @@ public class DataLayerCloudSettingsItem extends AbstractSettingsItem {
                 if (layer != null) {
                     UI.message(getContext(), "Layer " + layer.getTitle() + " successfully loaded");
                     UI.run(() ->
-                            SettingsScreenRegistry.get(LayerDetailSettingsScreen.class.getSimpleName() + layer)
-                                    .refreshSummary()
+                            SettingsScreenRegistry.get(LayerSettingsScreen.getName(layer)).refresh()
                     );
                 } else {
                     UI.message(getContext(), "Could not load layer");

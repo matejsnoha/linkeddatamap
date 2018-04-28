@@ -15,8 +15,10 @@
     <string name="map_layers">Map Layers</string>
     <string name="data_layers">Data Layers</string>
     <string name="layer_name">Layer name</string>
+    <string name="layer_description">Layer description</string>
     <string name="load_from_cloud">Load from cloud</string>
     <string name="state">State</string>
+    <string name="delete_layer">Delete layer</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
     <string name="definition">Definition</string>

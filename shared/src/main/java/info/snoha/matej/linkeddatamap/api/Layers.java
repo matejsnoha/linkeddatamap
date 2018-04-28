@@ -26,13 +26,8 @@ public class Layers extends Api {
         }
     }
 
-    public static LayerListResponse getMapLayers() throws IOException {
-        return httpGet(CLOUD_URL + "layers/?type=map",
-                null, null, LayerListResponse.class);
-    }
-
-    public static LayerListResponse getDataLayers() throws IOException {
-        return httpGet(CLOUD_URL + "layers/?type=data",
+    public static LayerListResponse getLayers() throws IOException {
+        return httpGet(CLOUD_URL + "layers",
                 null, null, LayerListResponse.class);
     }
 
