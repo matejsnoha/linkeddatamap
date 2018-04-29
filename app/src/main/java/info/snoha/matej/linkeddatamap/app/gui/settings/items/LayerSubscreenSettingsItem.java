@@ -11,7 +11,7 @@ public class LayerSubscreenSettingsItem extends SubscreenSettingsItem {
 
     public LayerSubscreenSettingsItem(Context context, Layer layer) {
         super(context, R.raw.layers, layer.getTitle(), layer.getDescription(),
-                LayerSettingsScreen.getName(layer));
+                LayerSettingsScreen.getScreenName(layer));
         this.layer = layer;
     }
 

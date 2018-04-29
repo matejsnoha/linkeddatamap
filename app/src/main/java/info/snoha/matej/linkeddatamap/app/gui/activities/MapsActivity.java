@@ -189,7 +189,7 @@ public class MapsActivity extends AppCompatActivity
 
 		((AppCompatButton) findViewById(R.id.button_clear)).setTextColor(Color.BLACK); // < API21
 		findViewById(R.id.button_clear).setOnClickListener(v -> {
-			MapManager.setDataLayers(cameraPosition, null);
+			MapManager.setDataLayers(cameraPosition, Collections.emptyList());
 			hideNearby();
 		});
 
@@ -217,7 +217,9 @@ public class MapsActivity extends AppCompatActivity
 
 								List<Layer> layers = new ArrayList<>(which.length);
 								for (Integer index : which) {
-									layers.add(enabledLayers.get(index));
+									if (index >= 0 && index < enabledLayers.size()) {
+										layers.add(enabledLayers.get(index));
+									}
 								}
 								MapManager.setDataLayers(cameraPosition, layers);
 								return true;
@@ -225,7 +227,6 @@ public class MapsActivity extends AppCompatActivity
 					.positiveText("OK")
 					.neutralText("Cancel")
 					.show();
-
 		});
 
 		AppCompatButton nearbyButton = findViewById(R.id.button_nearby);

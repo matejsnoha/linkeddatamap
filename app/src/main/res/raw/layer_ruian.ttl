@@ -28,6 +28,9 @@ ldmres:layer_ruian
                       # ldm:jenaSpatial true ;
                    ];
 
+    ldm:mapLayer ldmres:mapLayer_ruian ;
+    ldm:dataLayer ldmres:dataLayer_ruian ;
+
     s:color "#4444FF" .
 
 ldmres:mapLayer_ruian

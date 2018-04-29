@@ -5,10 +5,10 @@ import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.rdf.Jena;
 import info.snoha.matej.linkeddatamap.rdf.Prefixes;
 
-public class LayerManager extends AbstractLayerManager<Layer> {
+public class LayerParser extends AbstractLayerParser<Layer> {
 
 	@Override
-	public Layer load(String definition) {
+	public Layer parse(String definition) {
 
 		try {
 
@@ -22,12 +22,12 @@ public class LayerManager extends AbstractLayerManager<Layer> {
 					.title(jena.propertyValue(r, Prefixes.DCTERMS + "title"))
 					.description(jena.propertyValue(r, Prefixes.DCTERMS + "description"))
 					.color(jena.propertyValue(r, Prefixes.SCHEMA_ORG + "color"))
-					.mapLayer(new MapLayerManager().load(definition))
-					.dataLayer(new DataLayerManager().load(definition))
+					.mapLayer(new MapLayerParser().parse(definition))
+					.dataLayer(new DataLayerParser().parse(definition))
 					;
 
 		} catch (Exception e) {
-			Log.warn("Could not load map layer", e);
+			Log.warn("Could not parse map layer", e);
 			return null;
 		}
 	}

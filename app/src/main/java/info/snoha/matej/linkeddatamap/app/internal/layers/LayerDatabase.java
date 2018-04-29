@@ -2,6 +2,7 @@ package info.snoha.matej.linkeddatamap.app.internal.layers;
 
 import android.content.Context;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.utils.UI;
@@ -40,16 +41,15 @@ public class LayerDatabase {
 		void onFailure(String reason);
 	}
 
-    public static void with(Context context) {
+    public static synchronized void with(Context context) {
         LayerDatabase.context = context;
 		load();
     }
 
-	public static void load() {
+	public static synchronized void load() {
 		try {
-			initIfEmpty();
 			String serializedLayers = getStringPreferenceValue(context, PREF_KEY_LAYERS);
-			List<Layer> storedLayers = new Gson().fromJson(serializedLayers, List.class);
+			List<Layer> storedLayers = new Gson().fromJson(serializedLayers, new TypeToken<List<Layer>>(){}.getType());
 			layers.clear();
 			if (storedLayers != null) {
 				for (Layer layer : storedLayers) {
@@ -59,43 +59,44 @@ public class LayerDatabase {
 		} catch (Exception e) {
 			Log.warn("Could not load layers", e);
 		}
+		initIfEmpty();
 	}
 
-	public static void save() {
+	public static synchronized void save() {
 		try {
-			String serializedLayers = new Gson().toJson(layers);
+			String serializedLayers = new Gson().toJson(new ArrayList<>(layers.values()));
 			setStringPreferenceValue(context, PREF_KEY_LAYERS, serializedLayers);
 		} catch (Exception e) {
 			Log.warn("Could not save layers", e);
 		}
 	}
 
-	public static Collection<Layer> getLayers() {
+	public static synchronized Collection<Layer> getLayers() {
 		return Collections.unmodifiableCollection(layers.values());
 	}
 
-	public static Collection<Layer> getEnabledLayers() {
+	public static synchronized Collection<Layer> getEnabledLayers() {
 		return CollectionUtils.select(layers.values(), Layer::isEnabled);
 	}
 
-	public static Collection<String> getLayerNames() {
+	public static synchronized Collection<String> getLayerNames() {
 		return CollectionUtils.collect(layers.values(), Layer::getTitle);
 	}
 
-	public static Collection<String> getLayerUris() {
+	public static synchronized Collection<String> getLayerUris() {
 		return CollectionUtils.collect(layers.values(), Layer::getUri);
 	}
 
-	public static Layer getLayer(String uri) {
+	public static synchronized Layer getLayer(String uri) {
 		return layers.get(uri);
 	}
 
-	public static Layer getLayerByName(String name) { // TODO what about duplicate names?
+	public static synchronized Layer getLayerByName(String name) { // TODO what about duplicate names?
 		return IterableUtils.find(layers.values(), (layer) -> layer.getTitle().equals(name));
 	}
 
-	public static Layer addLayer(String layerDefinition) {
-		Layer layer = new LayerManager().load(layerDefinition);
+	public static synchronized Layer addLayer(String layerDefinition) {
+		Layer layer = new LayerParser().parse(layerDefinition);
 		if (layer != null) {
 			layers.put(layer.getUri(), layer);
 			save();
@@ -105,7 +106,7 @@ public class LayerDatabase {
 		return layer;
 	}
 
-	public static void removeLayer(Layer layer) {
+	public static synchronized void removeLayer(Layer layer) {
 		if (layer != null) {
 			layers.remove(layer.getUri());
 			save();
@@ -114,8 +115,21 @@ public class LayerDatabase {
 		}
 	}
 
-    public static void getMarkers(Layer layer, BoundingBox geoLimits, Callback callback) {
-        if (layer == null) {
+    private static void initIfEmpty() {
+
+		if (!getBooleanPreferenceValue(context, "initialized") || layers.isEmpty()) {
+
+			Log.info("Loading example layers");
+
+			addLayer(readRawResource(context, R.raw.layer_doubleshot));
+			addLayer(readRawResource(context, R.raw.layer_ruian));
+
+			setBooleanPreferenceValue(context, "initialized", true);
+		}
+	}
+
+	public static void getMarkers(Layer layer, BoundingBox geoLimits, Callback callback) {
+		if (layer == null) {
 			callback.onFailure("No layer selected");
 			return;
 		}
@@ -152,18 +166,5 @@ public class LayerDatabase {
 				callback.onFailure(reason);
 			}
 		});
-    }
-
-    private static void initIfEmpty() {
-
-		//if (!getBooleanPreferenceValue(context, "initialized")) {
-
-			Log.info("Loading example layers");
-
-			addLayer(readRawResource(context, R.raw.layer_doubleshot));
-			addLayer(readRawResource(context, R.raw.layer_ruian));
-
-			setBooleanPreferenceValue(context, "initialized", true);
-		//}
 	}
 }

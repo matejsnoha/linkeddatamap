@@ -27,6 +27,9 @@ ldmres:layer_ds
                   ldm:jenaSpatial true ;
                ];
 
+	ldm:mapLayer ldmres:mapLayer_ds ;
+    ldm:dataLayer ldmres:dataLayer_ds ;
+
     s:color "#FF6600" .
 
 ldmres:mapLayer_ds

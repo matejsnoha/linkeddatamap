@@ -38,6 +38,11 @@ public abstract class AbstractSettingsScreen extends LinearLayout {
         }
     }
 
+    protected void removeAllSettingsItems() {
+        settingsItems.clear();
+        removeAllViews();
+    }
+
     protected void addSettingsItems(AbstractSettingsItem... items) {
         Collections.addAll(settingsItems, items);
         for (AbstractSettingsItem item : items) {

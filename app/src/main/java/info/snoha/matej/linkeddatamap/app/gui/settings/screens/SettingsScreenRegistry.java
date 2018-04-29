@@ -13,6 +13,7 @@ public class SettingsScreenRegistry {
         add(GeneralSettingsScreen.class.getSimpleName(), new GeneralSettingsScreen(context));
         add(MapSettingsScreen.class.getSimpleName(), new MapSettingsScreen(context));
         add(LayersSettingsScreen.class.getSimpleName(), new LayersSettingsScreen(context));
+        add(AddLayerSettingsScreen.class.getSimpleName(), new AddLayerSettingsScreen(context));
     }
 
     public static void add(String name, AbstractSettingsScreen screen) {
@@ -25,5 +26,9 @@ public class SettingsScreenRegistry {
 
     public static boolean contains(String name) {
         return screens.containsKey(name);
+    }
+
+    public static void remove(String name) {
+        screens.remove(name);
     }
 }

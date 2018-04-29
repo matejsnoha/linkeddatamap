@@ -60,7 +60,7 @@ public class MapManager {
     }
 
     public static List<Layer> getVisibleLayers() {
-        return visibleLayers;
+        return Collections.unmodifiableList(visibleLayers);
     }
 
     public static void setDataLayers(final CameraPosition cameraPosition, List<Layer> layers) {
@@ -72,6 +72,9 @@ public class MapManager {
 
 		UI.run(map::clear);
 
+		if (layers == null) {
+			layers = Collections.emptyList();
+		}
 		visibleLayers = layers;
 
         if (layers.isEmpty()) {
@@ -159,7 +162,7 @@ public class MapManager {
 		try {
 			doneSignal.await(MARKER_LOAD_TIMEOUT, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			Log.warn("Interrupted wait for marker load", e);
+			Log.warn("Interrupted wait for marker parse", e);
 		}
 
 		synchronized (newPreloadedMarkers) { // in case of timeout above

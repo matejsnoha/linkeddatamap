@@ -31,3 +31,9 @@
 -dontwarn com.caverock.**
 -dontwarn java.rmi.**
 -dontwarn org.w3c.**
+
+# embedded actionbar tabs reflection
+-keep class android.support.** { *; }
+
+# serialized over network
+-keep class info.snoha.matej.linkeddatamap.api.** { *; }

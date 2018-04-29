@@ -5,6 +5,7 @@ import android.view.View;
 import com.afollestad.materialdialogs.MaterialDialog;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.gui.activities.SettingsActivity;
+import info.snoha.matej.linkeddatamap.app.gui.settings.screens.LayerSettingsScreen;
 import info.snoha.matej.linkeddatamap.app.gui.settings.screens.LayersSettingsScreen;
 import info.snoha.matej.linkeddatamap.app.gui.settings.screens.SettingsScreenRegistry;
 import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
@@ -49,8 +50,9 @@ public class LayerDeleteSettingsItem extends AbstractSettingsItem {
                 .onPositive((dialog, which) -> {
                     LayerDatabase.removeLayer(layer);
                     if (getContext() instanceof SettingsActivity) {
+                        SettingsScreenRegistry.remove(LayerSettingsScreen.getScreenName(layer));
                         SettingsScreenRegistry.get(LayersSettingsScreen.class.getSimpleName()).refresh();
-                        ((SettingsActivity) getContext()).openSubscreen(LayersSettingsScreen.class.getSimpleName());
+                        ((SettingsActivity) getContext()).onBackPressed();
                     }
                 })
                 .show();

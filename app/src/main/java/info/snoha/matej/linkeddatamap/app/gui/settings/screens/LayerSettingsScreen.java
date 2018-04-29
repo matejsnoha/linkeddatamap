@@ -1,7 +1,6 @@
 package info.snoha.matej.linkeddatamap.app.gui.settings.screens;
 
 import android.content.Context;
-import info.snoha.matej.linkeddatamap.app.gui.settings.items.LayerCloudSettingsItem;
 import info.snoha.matej.linkeddatamap.app.gui.settings.items.LayerDeleteSettingsItem;
 import info.snoha.matej.linkeddatamap.app.gui.settings.items.LayerDescriptionSettingsItem;
 import info.snoha.matej.linkeddatamap.app.gui.settings.items.LayerStateSettingsItem;
@@ -19,7 +18,6 @@ public class LayerSettingsScreen extends AbstractSettingsScreen {
                 new LayerStateSettingsItem(context, layer),
                 new LayerNameSettingsItem(context, layer),
                 new LayerDescriptionSettingsItem(context, layer),
-                new LayerCloudSettingsItem(context, layer),
 				new LayerDeleteSettingsItem(context, layer)
         );
     }
@@ -29,7 +27,7 @@ public class LayerSettingsScreen extends AbstractSettingsScreen {
         return layer.getTitle();
     }
 
-    public static String getName(Layer layer) {
+    public static String getScreenName(Layer layer) {
         if (layer != null) {
             return LayerSettingsScreen.class.getSimpleName() + " " + layer.getUri();
         } else {
