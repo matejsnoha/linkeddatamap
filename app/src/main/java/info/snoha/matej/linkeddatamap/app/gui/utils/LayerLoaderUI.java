@@ -25,7 +25,7 @@ public class LayerLoaderUI {
 					UI.message(context, "Could not load layers");
 					return;
 				}
-				List<String> layers = response.layers;
+				List<Layers.LayerMetadata> layers = response.layers;
 				if (layers == null || layers.isEmpty()) {
 					UI.message(context, "Could not load layers: no layers available");
 					return;
@@ -35,8 +35,9 @@ public class LayerLoaderUI {
 							.title(R.string.add_from_cloud)
 							.items(layers)
 							.itemsCallbackSingleChoice(-1, (dialog, itemView, which, text) -> {
-								String url = text.toString();
-								loadFromCloudLink(context, url);
+								if (which >= 0 && which < layers.size()) {
+									loadFromCloud(context, layers.get(which));
+								}
 								return true;
 							})
 							.positiveText(R.string.ok)
@@ -50,10 +51,10 @@ public class LayerLoaderUI {
 		}, "List layers from cloud").start();
 	}
 
-	private static void loadFromCloudLink(Context context, String cloudUrl) {
+	private static void loadFromCloud(Context context, Layers.LayerMetadata layerMetadata) {
 		new Thread(() -> {
 			try {
-				Layers.LayerResponse response = Layers.getLayer(cloudUrl);
+				Layers.LayerResponse response = Layers.getLayer(layerMetadata.uri);
 				if (response == null || !response.isSuccess()) {
 					UI.message(context, "Could not load layer");
 					return;
@@ -76,7 +77,7 @@ public class LayerLoaderUI {
 					UI.message(context, "Could not load layer");
 				}
 			} catch (Exception e) {
-				Log.warn("Could not load layer " + cloudUrl, e);
+				Log.warn("Could not load layer " + layerMetadata.uri, e);
 				UI.message(context, "Could not load layer: " + e);
 			}
 		}, "Add layer from cloud").start();

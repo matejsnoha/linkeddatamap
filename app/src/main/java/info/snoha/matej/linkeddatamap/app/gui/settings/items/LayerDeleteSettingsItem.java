@@ -10,6 +10,7 @@ import info.snoha.matej.linkeddatamap.app.gui.settings.screens.LayersSettingsScr
 import info.snoha.matej.linkeddatamap.app.gui.settings.screens.SettingsScreenRegistry;
 import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
 import info.snoha.matej.linkeddatamap.app.internal.layers.LayerDatabase;
+import info.snoha.matej.linkeddatamap.app.internal.map.MapManager;
 
 public class LayerDeleteSettingsItem extends AbstractSettingsItem {
 
@@ -49,6 +50,7 @@ public class LayerDeleteSettingsItem extends AbstractSettingsItem {
                 .neutralText(R.string.cancel)
                 .onPositive((dialog, which) -> {
                     LayerDatabase.removeLayer(layer);
+                    MapManager.removeLayer(layer);
                     if (getContext() instanceof SettingsActivity) {
                         SettingsScreenRegistry.remove(LayerSettingsScreen.getScreenName(layer));
                         SettingsScreenRegistry.get(LayersSettingsScreen.class.getSimpleName()).refresh();

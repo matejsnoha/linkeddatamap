@@ -80,6 +80,13 @@ dependencies {
     // JENA - https://github.com/sbrunk/jena-android
     compile fileTree(dir: '../libs', include: '*.jar')
 
+    // compile error (core library):
+    // ... Please be prepared for angry customers ...
+    // ... your application ceases to function ...
+    // ... You will be to blame for this problem. ...
+    // ... the path you are on will ultimately lead to pain, suffering, grief, and lamentation.
+    //compile 'com.hp.hpl.jena:jena:2.13.0'
+
     // JENA dependencies
     compile 'org.slf4j:slf4j-api:1.7.12'
     compile 'org.slf4j:slf4j-log4j12:1.7.6'
@@ -101,11 +108,11 @@ dependencies {
     }
 
     // OkHttp
-    compile 'com.squareup.okhttp3:okhttp:3.8.0'
+    compile 'com.squareup.okhttp3:okhttp:3.10.0'
 
     // Google Play services
-    compile 'com.google.android.gms:play-services-maps:15.0.0'
-    compile 'com.google.android.gms:play-services-location:15.0.0'
+    compile 'com.google.android.gms:play-services-maps:15.0.1'
+    compile 'com.google.android.gms:play-services-location:15.0.1'
 
     // Google Maps
     compile 'com.google.maps.android:android-maps-utils:0.5'

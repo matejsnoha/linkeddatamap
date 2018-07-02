@@ -22,7 +22,9 @@ import android.view.View;
 import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -51,6 +53,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MapsActivity extends AppCompatActivity
 		implements OnMapReadyCallback {
@@ -58,6 +61,8 @@ public class MapsActivity extends AppCompatActivity
 	/** Activity singleton **/
 
 	private static MapsActivity instance;
+
+	private final AtomicBoolean activityVisible = new AtomicBoolean(false);
 
 	/** MAP **/
 
@@ -72,6 +77,7 @@ public class MapsActivity extends AppCompatActivity
 	private boolean locationTracking;
 	private Timer locationTrackingTimer;
 	private LocationSource.OnLocationChangedListener locationChangeListenerForMap;
+	private LocationCallback locationCallback;
 
 	/** Map camera tracking **/
 
@@ -98,20 +104,17 @@ public class MapsActivity extends AppCompatActivity
 
 	protected void onStart() {
 		super.onStart();
+		Log.info("Maps Activity started");
 		startLocationTracking();
+		synchronized (activityVisible) {
+			activityVisible.set(true);
+			activityVisible.notifyAll();
+		}
 	}
 
 	protected void onStop() {
 		super.onStop();
-		if (cameraTrackingTimer != null) {
-			cameraTrackingTimer.cancel();
-		}
-		if (nearbyTrackingTimer != null) {
-			nearbyTrackingTimer.cancel();
-		}
-		if (locationTrackingTimer != null) {
-			locationTrackingTimer.cancel();
-		}
+		activityVisible.set(false);
 		Log.info("Maps Activity stopped");
 	}
 
@@ -122,7 +125,7 @@ public class MapsActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		Fabric.with(this, new Crashlytics());
 
-		Log.info("Maps Activity starting");
+		Log.info("Maps Activity initializing");
 
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -170,7 +173,16 @@ public class MapsActivity extends AppCompatActivity
 									new TimerTask() {
 										@Override
 										public void run() {
-											// TODO
+
+											synchronized (activityVisible) {
+												if (!activityVisible.get()) {
+													try {
+														activityVisible.wait();
+													} catch (InterruptedException ignored) {
+													}
+												}
+											}
+
 											UI.run(fab::callOnClick);
 										}
 									}, 0, POSITION_TRACKING_FREQUENCY
@@ -189,7 +201,7 @@ public class MapsActivity extends AppCompatActivity
 
 		((AppCompatButton) findViewById(R.id.button_clear)).setTextColor(Color.BLACK); // < API21
 		findViewById(R.id.button_clear).setOnClickListener(v -> {
-			MapManager.setDataLayers(cameraPosition, Collections.emptyList());
+			MapManager.setLayers(cameraPosition, Collections.emptyList());
 			hideNearby();
 		});
 
@@ -221,7 +233,7 @@ public class MapsActivity extends AppCompatActivity
 										layers.add(enabledLayers.get(index));
 									}
 								}
-								MapManager.setDataLayers(cameraPosition, layers);
+								MapManager.setLayers(cameraPosition, layers);
 								return true;
 							})
 					.positiveText("OK")
@@ -243,6 +255,16 @@ public class MapsActivity extends AppCompatActivity
 
 					@Override
 					public void run() {
+
+						synchronized (activityVisible) {
+							if (!activityVisible.get()) {
+								try {
+									activityVisible.wait();
+								} catch (InterruptedException ignored) {
+								}
+							}
+						}
+
 						showAndRefreshNearby(firstRun);
 						firstRun = false;
 					}
@@ -286,7 +308,7 @@ public class MapsActivity extends AppCompatActivity
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.refresh:
-				MapManager.setDataLayers(cameraPosition, MapManager.getVisibleLayers());
+				MapManager.setLayers(cameraPosition, MapManager.getVisibleLayers());
 				return true;
 			case R.id.settings:
 				startActivity(new Intent(this, SettingsActivity.class));
@@ -329,17 +351,26 @@ public class MapsActivity extends AppCompatActivity
 
 		cameraPosition = map.getCameraPosition();
 		map.setOnCameraMoveListener(() -> cameraPosition = map.getCameraPosition());
-
-		MapManager.with(this, map, this::showProgress, this::hideProgress);
-
 		cameraTrackingTimer = new Timer("Camera Tracking Timer");
 		cameraTrackingTimer.scheduleAtFixedRate(new TimerTask() {
 
 			@Override
 			public void run() {
+
+				synchronized (activityVisible) {
+					if (!activityVisible.get()) {
+						try {
+							activityVisible.wait();
+						} catch (InterruptedException ignored) {
+						}
+					}
+				}
+
 				MapManager.updateMarkersOnMap(cameraPosition);
 			}
 		}, 0, CAMERA_TRACKING_FREQUENCY);
+
+		MapManager.with(this, map, this::showProgress, this::hideProgress);
 
 		Log.info("Map initialized");
 	}
@@ -355,10 +386,23 @@ public class MapsActivity extends AppCompatActivity
 		request.setInterval(POSITION_TRACKING_FREQUENCY);
 		request.setFastestInterval(POSITION_TRACKING_FREQUENCY);
 
+		if (locationCallback == null) {
+			locationCallback = new LocationCallback(){
+				@Override
+				public void onLocationResult(LocationResult locationResult) {
+					location = locationResult.getLastLocation();
+					if (location != null && locationChangeListenerForMap != null) {
+						locationChangeListenerForMap.onLocationChanged(location);
+					}
+				}
+			};
+		}
+
 		try {
 			if (map != null) {
 				map.setMyLocationEnabled(true);
 				map.setLocationSource(new LocationSource() {
+
 					@Override
 					public void activate(OnLocationChangedListener onLocationChangedListener) {
 						locationChangeListenerForMap = onLocationChangedListener;
@@ -374,20 +418,19 @@ public class MapsActivity extends AppCompatActivity
 				});
 			}
 
-			LocationServices.getFusedLocationProviderClient(this).getLastLocation()
-					.addOnSuccessListener(location -> {
-
-						this.location = location;
-						if (locationChangeListenerForMap != null) {
-							locationChangeListenerForMap.onLocationChanged(location);
-						}
-					});
+			LocationServices.getFusedLocationProviderClient(this)
+					.requestLocationUpdates(request, locationCallback, null);
 
 		} catch (SecurityException e) {
 			UI.message(this, "Missing location permission");
 		}
+	}
 
-
+	private void stopLocationTracking() {
+		if (locationCallback != null) {
+			LocationServices.getFusedLocationProviderClient(this)
+					.removeLocationUpdates(locationCallback);
+		}
 	}
 
 	private void hideNearby() {

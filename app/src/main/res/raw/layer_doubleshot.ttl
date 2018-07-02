@@ -13,8 +13,8 @@ ldmres:layer_ds
     a ldm:Layer ;
     a void:Dataset ;
 
-    dcterms:title "DoubleShot" ;
-    dcterms:description "Coffee shops serving DoubleShot coffee" ;
+    dcterms:title "DoubleShot"@en ;
+    dcterms:description "Coffee shops serving DoubleShot coffee"@en ;
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
@@ -37,8 +37,8 @@ ldmres:mapLayer_ds
     a ldm:MapLayer ;
     a void:Dataset ;
 
-    dcterms:title "DoubleShot Map Layer" ;
-    dcterms:description "Coffee shops serving DoubleShot coffee" ;
+    dcterms:title "DoubleShot Map Layer"@en ;
+    dcterms:description "Coffee shops serving DoubleShot coffee"@en ;
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
@@ -62,8 +62,8 @@ ldmres:dataLayer_ds
     a ldm:DataLayer ;
     a void:Dataset ;
 
-    dcterms:title "DoubleShot Data layer" ;
-    dcterms:description "Coffee shops serving DoubleShot coffee" ;
+    dcterms:title "DoubleShot Data layer"@en ;
+    dcterms:description "Coffee shops serving DoubleShot coffee"@en ;
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;

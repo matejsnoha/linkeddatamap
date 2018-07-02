@@ -1,9 +1,14 @@
 PREFIX ldm:  <https://purl.org/ldm/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX s: <http://schema.org/>
 
-SELECT ?layer
+SELECT ?layer ?name ?publisher
 
 FROM <{{graph}}>
 
 WHERE {
-	?layer a ldm:{{layerType}} .
+	?layer	a ldm:{{layerType}} ;
+			dcterms:title ?name ;
+			dcterms:publisher [ s:name ?publisher ] .
+
 }

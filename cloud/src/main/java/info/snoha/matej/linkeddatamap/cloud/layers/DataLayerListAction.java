@@ -15,7 +15,7 @@ public class DataLayerListAction implements Action {
 
         Log.info("Sending data layer list");
 
-        List<String> layers = CloudLayerManager.getLayerUris(context.getServletContext(),
+        List<Layers.LayerMetadata> layers = CloudLayerManager.getLayerUris(context.getServletContext(),
                 CloudLayerManager.LayerType.DATA_LAYER);
 
         ApiResponse response = new Layers.LayerListResponse("OK", layers);

@@ -11,12 +11,12 @@
 
 ldm:
     a owl:Ontology ;
-    dcterms:title "Linked Data Map Ontology"@en ;
-    dcterms:description "Linked Data Map - visualizing Linked Data on a map"@en ;
+    dcterms:title "Linked Data Map Vocabulary"@en ;
+    dcterms:description "Linked Data Map - visualizing Linked Data on maps"@en ;
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha"@en ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2017-09-20"^^xsd:date ;
+    dcterms:modified "2018-07-01"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> .
 
 #################################################################
@@ -28,7 +28,14 @@ ldm:Layer
     a rdfs:Class ;
     rdfs:subClassOf void:DataSet ;
     rdfs:label "Layer"@en ;
-    rdfs:comment "Base abstract class for Layers"@en .
+    rdfs:comment "Layer class that contains Map Layer and Data Layer definitions"@en .
+
+###  https://purl.org/ldm/AbstractLayer
+ldm:Layer
+    a rdfs:Class ;
+    rdfs:subClassOf void:DataSet ;
+    rdfs:label "Abstract Layer"@en ;
+    rdfs:comment "Abstract base class for Map Layers and Data Layers"@en .
 
 ###  https://purl.org/ldm/MapLayer
 ldm:MapLayer

@@ -19,6 +19,7 @@ import info.snoha.matej.linkeddatamap.app.internal.model.MarkerModel;
 import info.snoha.matej.linkeddatamap.app.internal.model.Position;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class MapManager {
         return Collections.unmodifiableList(visibleLayers);
     }
 
-    public static void setDataLayers(final CameraPosition cameraPosition, List<Layer> layers) {
+    public static void setLayers(final CameraPosition cameraPosition, List<Layer> layers) {
 
 		if (map == null || cameraPosition == null) {
 			Log.warn("Map not initialized yet");
@@ -84,6 +85,14 @@ public class MapManager {
 
         new Thread(() -> updateMarkersOnMap(cameraPosition, true)).start();
     }
+
+    public static void removeLayer(Layer layer) {
+    	if (visibleLayers != null && visibleLayers.contains(layer)) {
+    		List<Layer> newLayers = new ArrayList<>(visibleLayers);
+    		newLayers.remove(layer);
+    		setLayers(currentPosition, newLayers);
+		}
+	}
 
     private static void setPreloadedMarkers(List<MarkerModel> markers) {
 

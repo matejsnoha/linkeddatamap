@@ -34,22 +34,24 @@ dependencies {
     // Apache Commons IO, Apache2
     compile 'commons-io:commons-io:2.5'
 
+    // JENA - https://github.com/sbrunk/jena-android
     compile fileTree(dir: '../libs', include: '*.jar')
-    compile 'org.slf4j:slf4j-api:1.7.7'
-    compile 'org.slf4j:slf4j-log4j12:1.7.6'
 
     // compile error (core library):
     // ... Please be prepared for angry customers ...
     // ... your application ceases to function ...
     // ... You will be to blame for this problem. ...
     // ... the path you are on will ultimately lead to pain, suffering, grief, and lamentation.
-    //compile 'mobi.seus.jena:jena-android-core:2.13.0'
+    //compile 'com.hp.hpl.jena:jena:2.13.0'
+
+    compile 'org.slf4j:slf4j-api:1.7.12'
+    compile 'org.slf4j:slf4j-log4j12:1.7.6'
 
     // Android Logging Log4J, Apache2
     compile 'de.mindpipe.android:android-logging-log4j:1.0.3'
 
     compile 'org.apache.commons:commons-lang3:3.5'
     compile 'org.apache.commons:commons-csv:1.4'
-    compile 'com.squareup.okhttp3:okhttp:3.8.0'
+    compile 'com.squareup.okhttp3:okhttp:3.10.0'
     compile 'com.google.code.gson:gson:2.8.1'
 }

@@ -15,7 +15,7 @@ public class MapLayerListAction implements Action {
 
         Log.info("Sending map layer list");
 
-        List<String> layers = CloudLayerManager.getLayerUris(context.getServletContext(),
+        List<Layers.LayerMetadata> layers = CloudLayerManager.getLayerUris(context.getServletContext(),
                 CloudLayerManager.LayerType.MAP_LAYER);
 
         ApiResponse response = new Layers.LayerListResponse("OK", layers);

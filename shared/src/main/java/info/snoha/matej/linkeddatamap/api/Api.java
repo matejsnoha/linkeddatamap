@@ -17,7 +17,7 @@ public class Api {
     protected static OkHttpClient httpClient = Http.getClient();
     protected static Gson gson = new Gson();
 
-    protected static final String CLOUD_URL = "https://ldm.matej.snoha.info/api/1/";
+    protected static final String CLOUD_URL = "http://192.168.56.1:8080/api/1/"; //"https://ldm.matej.snoha.info/api/1/";
 
     public static Response httpRequest(String requestType, String url, Map<String, String> parameters,
                                        Map<String, String> headers) {
