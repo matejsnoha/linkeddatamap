@@ -18,7 +18,7 @@ ldmres:layer_ds
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha" ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2018-04-24"^^xsd:date ;
+    dcterms:modified "2018-07-20"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> ;
 
     ldm:service [ a sd:Service ;
@@ -52,7 +52,7 @@ ldmres:mapLayer_ds
                ];
 
     ldm:mapLayerStructure [ a ldm:MapLayerStructure ;
-                          ldm:addressPointType s:GeoCoordinates ;
+                          ldm:mapPointType s:GeoCoordinates ;
                           ldm:addressPath ( s:address s:description ) ;
                           ldm:latitudePath s:latitude ;
                           ldm:longitudePath s:longitude ] .
@@ -72,8 +72,6 @@ ldmres:dataLayer_ds
 
     ldm:dataLayerStructure [ a ldm:DataLayerStructure ;
                           ldm:dataPointType s:CafeOrCoffeeShop ;
-                          ldm:dataName s:name ;
-                          ldm:dataDescription ( "Rating " s:aggregateRating ) ;
-                          ldm:mapPointPath s:geo ] ;
-
-    ldm:mapLayer ldmres:mapLayer_ds .
+                          ldm:dataPointName s:name ;
+                          ldm:dataPointDescription ( "Rating " s:aggregateRating ) ;
+                          ldm:mapPointPath s:geo ] .

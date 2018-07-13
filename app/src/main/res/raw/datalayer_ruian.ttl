@@ -24,8 +24,8 @@ ldmres:dataLayer_ruian
 
     ldm:dataLayerStructure [ a ldm:DataLayerStructure ;
                           ldm:dataPointType ruian:StavebníObjekt ;
-                          ldm:dataName s:name ;
-                          ldm:dataDescription ( "Pocet bytu " ruian:početBytů ", Pocet podlazi " ruian:početPodlaží ) ;
+                          ldm:dataPointName s:name ;
+                          ldm:dataPointDescription ( "Pocet bytu " ruian:početBytů ", Pocet podlazi " ruian:početPodlaží ) ;
                           ldm:mapPointPath [ sh:inversePath ruian:stavebníObjekt ] ] ;
 
     ldm:mapLayer ldmres:mapLayer_ruian .

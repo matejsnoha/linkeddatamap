@@ -151,4 +151,8 @@ public class Layer {
 				", title='" + title + '\'' +
 				'}';
 	}
+
+	public boolean isValid() {
+		return dataLayer != null && mapLayer != null && title != null;
+	}
 }

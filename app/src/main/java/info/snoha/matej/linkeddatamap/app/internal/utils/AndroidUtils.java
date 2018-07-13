@@ -1,9 +1,11 @@
 package info.snoha.matej.linkeddatamap.app.internal.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.Preference;
@@ -74,6 +76,15 @@ public class AndroidUtils {
                 .edit()
                 .putString(key, value)
                 .commit();
+    }
+
+    public static void openUriInBrowser(Context context, String uri) {
+        try {
+            Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            context.startActivity(myIntent);
+        } catch (Exception e) {
+            Log.error("No web browser, cannot open " + uri, e);
+        }
     }
 
     public static File getFile(String path) {

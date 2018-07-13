@@ -29,7 +29,7 @@ ldmres:mapLayer_ruian
                ];
 
     ldm:mapLayerStructure [  a ldm:MapLayerStructure ;
-                          ldm:addressPointType ruian:AdresníMisto ;
+                          ldm:mapPointType ruian:AdresníMisto ;
                           ldm:addressPath s:name ; #TODO multiple items similar as data description
                           ldm:latitudePath ( ruian:adresníBod s:geo s:latitude ) ;
                           ldm:longitudePath ( ruian:adresníBod s:geo s:longitude ) ] .

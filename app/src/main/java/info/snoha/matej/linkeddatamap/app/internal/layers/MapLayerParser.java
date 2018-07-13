@@ -27,7 +27,7 @@ public class MapLayerParser extends AbstractLayerParser<MapLayer> {
 					.sparqlEndpoint(jena.propertyValue(service, Prefixes.SD + "endpoint"))
 					.sparqlNamedGraph(jena.propertyValue(graph, Prefixes.SD + "name"))
 					.sparqlJenaSpatial(jena.propertyValue(service, Prefixes.LDM + "jenaSpatial"))
-					.addressPointType(jena.propertyValue(structure, Prefixes.LDM + "addressPointType"))
+					.mapPointType(jena.propertyValue(structure, Prefixes.LDM + "mapPointType"))
 					.addressPath(Shacl.parseToString(jena, structure, Prefixes.LDM + "addressPath"))
 					.latitudePath(Shacl.parseToString(jena, structure, Prefixes.LDM + "latitudePath"))
 					.longitudePath(Shacl.parseToString(jena, structure, Prefixes.LDM + "longitudePath"))

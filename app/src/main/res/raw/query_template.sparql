@@ -4,14 +4,14 @@ SELECT
 	?latitude
 	?longitude
 	?name
-	{{dataDescriptionSelect}}
+	{{dataPointDescriptionSelect}}
 
 {{from}}
 
 WHERE {
 
 	?dataPoint	a {{dataPointType}} ;
-				{{dataName}} ?name ;
+				{{dataPointName}} ?name ;
 				{{mapPointPath}} ?mapPoint .
 
 	?mapPoint	{{addressPath}} ?address ;
@@ -28,5 +28,5 @@ WHERE {
 		&& ?longitude <= {{maxLong}}
 	)
 
-	{{dataDescriptionOptional}}
+	{{dataPointDescriptionOptional}}
 }

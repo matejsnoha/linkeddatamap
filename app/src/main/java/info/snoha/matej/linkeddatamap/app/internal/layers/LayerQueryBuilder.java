@@ -1,6 +1,7 @@
 package info.snoha.matej.linkeddatamap.app.internal.layers;
 
 import android.content.Context;
+import info.snoha.matej.linkeddatamap.FrameworkConfiguration;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.internal.model.BoundingBox;
@@ -22,20 +23,21 @@ public class LayerQueryBuilder {
 			template = template.replace("{{from}}", dataLayer.getSparqlNamedGraph() != null ?
 						"FROM <" + dataLayer.getSparqlNamedGraph() + ">" : "");
 			template = template.replace("{{dataPointType}}", dataLayer.getDataPointType());
-			template = template.replace("{{dataName}}", dataLayer.getDataName());
+			template = template.replace("{{dataPointName}}", dataLayer.getdataPointName());
 			template = template.replace("{{mapPointPath}}", dataLayer.getMapPointPath());
 			template = template.replace("{{addressPath}}", mapLayer.getAddressPath());
 			template = template.replace("{{latitudePath}}", mapLayer.getLatitudePath());
 			template = template.replace("{{longitudePath}}", mapLayer.getLongitudePath());
+			template = template.replace("{{spatialLimit}}", String.valueOf(FrameworkConfiguration.SPARQL_MAX_RESULTS));
 
 			// fill-in description template
-			if (dataLayer.getDataDescription() != null && !dataLayer.getDataDescription().isEmpty()) {
+			if (dataLayer.getdataPointDescription() != null && !dataLayer.getdataPointDescription().isEmpty()) {
 				int descriptionItemCount = 0;
 				int descriptionUriItemCount = 0;
 				String select = "?description";
 				String where = "?dataPoint ";
 				String bind = "BIND (CONCAT(";
-				for (String descriptionItem : dataLayer.getDataDescription()) {
+				for (String descriptionItem : dataLayer.getdataPointDescription()) {
 					descriptionItemCount++;
 					if (Uris.isUri(descriptionItem)) {
 						descriptionUriItemCount++;
@@ -52,8 +54,8 @@ public class LayerQueryBuilder {
 				bind += ") AS ?description) .";
 				String optional = "OPTIONAL {\n\t\t" + where + "\n\t\t" + bind + "\n\t}";
 
-				template = template.replace("{{dataDescriptionSelect}}", select);
-				template = template.replace("{{dataDescriptionOptional}}",
+				template = template.replace("{{dataPointDescriptionSelect}}", select);
+				template = template.replace("{{dataPointDescriptionOptional}}",
 						descriptionUriItemCount != 0 ? optional : "");
 			}
 

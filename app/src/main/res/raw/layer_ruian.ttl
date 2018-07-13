@@ -53,8 +53,8 @@ ldmres:mapLayer_ruian
                ];
 
     ldm:mapLayerStructure [  a ldm:MapLayerStructure ;
-                          ldm:addressPointType ruian:AdresníMisto ;
-                          ldm:addressPath s:name ; #TODO multiple items similar as data description
+                          ldm:mapPointType ruian:AdresníMisto ;
+                          ldm:addressPath s:name ;
                           ldm:latitudePath ( ruian:adresníBod s:geo s:latitude ) ;
                           ldm:longitudePath ( ruian:adresníBod s:geo s:longitude ) ] .
 
@@ -73,8 +73,6 @@ ldmres:dataLayer_ruian
 
     ldm:dataLayerStructure [ a ldm:DataLayerStructure ;
                           ldm:dataPointType ruian:StavebníObjekt ;
-                          ldm:dataName s:name ;
-                          ldm:dataDescription ( "Pocet bytu " ruian:početBytů ", Pocet podlazi " ruian:početPodlaží ) ;
-                          ldm:mapPointPath [ sh:inversePath ruian:stavebníObjekt ] ] ;
-
-    ldm:mapLayer ldmres:mapLayer_ruian .
+                          ldm:dataPointName s:name ;
+                          ldm:dataPointDescription ( "Pocet bytu " ruian:početBytů ", Pocet podlazi " ruian:početPodlaží ) ;
+                          ldm:mapPointPath [ sh:inversePath ruian:stavebníObjekt ] ] .

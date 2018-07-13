@@ -5,23 +5,23 @@ SELECT
 	?latitude
 	?longitude
 	?name
-	{{dataDescriptionSelect}}
+	{{dataPointDescriptionSelect}}
 
 {{from}}
 
 WHERE {
 
-	?mapPoint	{{addressPath}} ?address ;
-				{{latitudePath}} ?lat ;
-				{{longitudePath}} ?long ;
-				spatial:withinBox ( {{minLat}} {{minLong}} {{maxLat}} {{maxLong}} ) .
+	?mapPoint	spatial:withinBox ( {{minLat}} {{minLong}} {{maxLat}} {{maxLong}} {{spatialLimit}}) ;
+				{{addressPath}} ?address ;
+    			{{latitudePath}} ?lat ;
+    			{{longitudePath}} ?long .
 
 	?dataPoint	a {{dataPointType}} ;
-				{{dataName}} ?name ;
+				{{dataPointName}} ?name ;
 				{{mapPointPath}} ?mapPoint .
 
 	BIND (xsd:float(?lat) AS ?latitude) .
 	BIND (xsd:float(?long) AS ?longitude) .
 
-	{{dataDescriptionOptional}}
+	{{dataPointDescriptionOptional}}
 }

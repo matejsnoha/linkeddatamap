@@ -19,6 +19,7 @@
     <string name="add_from_cloud">Add from cloud</string>
     <string name="add_from_text">Add from text</string>
     <string name="add_from_link">Add from link</string>
+    <string name="feedback">Feedback</string>
     <string name="state">State</string>
     <string name="add_layer">Add layer</string>
     <string name="delete_layer">Delete layer</string>

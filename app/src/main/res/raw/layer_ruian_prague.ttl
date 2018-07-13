@@ -53,8 +53,8 @@ ldmres:mapLayer_ruian_prague
 			   ];
 
 	ldm:mapLayerStructure [  a ldm:MapLayerStructure ;
-						  ldm:addressPointType ruian:AdresniMisto ;
-						  ldm:addressPath ( s:name ) ; #TODO similar as data description
+						  ldm:mapPointType ruian:AdresniMisto ;
+						  ldm:addressPath ( s:name ) ;
 						  ldm:latitudePath ( ruian:adresniBod s:geo s:latitude ) ;
 						  ldm:longitudePath ( ruian:adresniBod s:geo s:longitude) ] .
 
@@ -73,8 +73,6 @@ ldmres:dataLayer_ruian_prague
 
 	ldm:dataLayerStructure [ a ldm:DataLayerStructure ;
 						  ldm:dataPointType ruian:StavebniObjekt ;
-						  ldm:dataName s:name ;
-						  ldm:dataDescription ( "Pocet bytu " ruian:pocetBytu ", Pocet podlazi " ruian:pocetPodlazi ) ;
-						  ldm:mapPointPath [ sh:inversePath ruian:stavebniObjekt ] ] ;
-
-	ldm:mapLayer ldmres:mapLayer_ruian_prague .
+						  ldm:dataPointName s:name ;
+						  ldm:dataPointDescription ( "Pocet bytu " ruian:pocetBytu ", Pocet podlazi " ruian:pocetPodlazi ) ;
+						  ldm:mapPointPath [ sh:inversePath ruian:stavebniObjekt ] ] .

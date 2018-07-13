@@ -5,9 +5,11 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import info.snoha.matej.linkeddatamap.Log;
+import org.apache.commons.validator.routines.UrlValidator;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -20,12 +22,17 @@ public class Jena {
 
 	private Model model;
 
-	public Jena withModel(String definition) {
+	public Jena withModel(String definitionOrUri) {
 		model = ModelFactory.createDefaultModel();
 		try {
-			model.read(new ByteArrayInputStream(definition.getBytes("UTF-8")), null, "TURTLE");
+			if (UrlValidator.getInstance().isValid((definitionOrUri))) {
+				Log.debug("Jena loading using HTTP content negotiation: " + definitionOrUri);
+				new RDFReaderFImpl().getReader("Turtle").read(model, definitionOrUri);
+			} else {
+				model.read(new ByteArrayInputStream(definitionOrUri.getBytes("UTF-8")), null, "TURTLE");
+			}
 		} catch (Exception e) {
-			Log.warn("Jena could not load mode");
+			Log.warn("Jena could not load model", e);
 		}
 		return this;
 	}

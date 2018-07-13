@@ -27,8 +27,8 @@ public class DataLayer {
 
 	// data structure
 	private String dataPointType;
-	private String dataName;
-	private List<String> dataDescription;
+	private String dataPointName;
+	private List<String> dataPointDescription;
 	private String mapPointPath;
 
 	// map layer
@@ -133,21 +133,21 @@ public class DataLayer {
 		return this;
 	}
 
-	public String getDataName() {
-		return dataName;
+	public String getdataPointName() {
+		return dataPointName;
 	}
 
-	public DataLayer dataName(String dataName) {
-		this.dataName = dataName;
+	public DataLayer dataPointName(String dataPointName) {
+		this.dataPointName = dataPointName;
 		return this;
 	}
 
-	public List<String> getDataDescription() {
-		return dataDescription;
+	public List<String> getdataPointDescription() {
+		return dataPointDescription;
 	}
 
-	public DataLayer dataDescription(List<String> dataDescription) {
-		this.dataDescription = dataDescription;
+	public DataLayer dataPointDescription(List<String> dataPointDescription) {
+		this.dataPointDescription = dataPointDescription;
 		return this;
 	}
 

@@ -1,5 +1,6 @@
 package info.snoha.matej.linkeddatamap.sparql;
 
+import info.snoha.matej.linkeddatamap.FrameworkConfiguration;
 import info.snoha.matej.linkeddatamap.Log;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -23,7 +24,7 @@ public class CsvSparqlClient {
 
 	private static final int CONNECT_TIMEOUT = 5_000;
 	private static final int DATA_TIMEOUT = 180_000; // TODO configurable in settings
-	private static final int MAX_RESULTS = 100_000; // TODO report limit reached -> load more when zoomed in
+	private static final int MAX_RESULTS = FrameworkConfiguration.SPARQL_MAX_RESULTS; // TODO report limit reached
 	private static final SparqlProtocolOperationType OPERATION_TYPE = SparqlProtocolOperationType.POST_ENCODED;
 
 	private enum SparqlProtocolOperationType {

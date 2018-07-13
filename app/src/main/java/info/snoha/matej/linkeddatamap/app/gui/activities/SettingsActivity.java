@@ -15,6 +15,7 @@ import info.snoha.matej.linkeddatamap.app.gui.fragments.SettingsFragment;
 import info.snoha.matej.linkeddatamap.app.gui.settings.screens.GeneralSettingsScreen;
 import info.snoha.matej.linkeddatamap.app.gui.settings.screens.SettingsScreenRegistry;
 import info.snoha.matej.linkeddatamap.app.internal.utils.AndroidUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -98,7 +99,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onTitleChanged(CharSequence newTitle, int color) {
         super.onTitleChanged(newTitle, color);
-        if (!title.equals(newTitle)) {
+        if (!ObjectUtils.equals(title, newTitle)) {
             title = newTitle;
             titleSwitcher.setText(newTitle);
         }

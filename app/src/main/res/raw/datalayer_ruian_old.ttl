@@ -24,8 +24,8 @@ ldmres:dataLayer_ruian-old
 
     ldm:dataLayerStructure [ a ldm:DataLayerStructure ;
                           ldm:dataPointType ruian:StavebniObjekt ;
-                          ldm:dataName s:name ;
-                          ldm:dataDescription ( "Pocet bytu " ruian:pocetBytu ", Pocet podlazi " ruian:pocetPodlazi ) ;
+                          ldm:dataPointName s:name ;
+                          ldm:dataPointDescription ( "Pocet bytu " ruian:pocetBytu ", Pocet podlazi " ruian:pocetPodlazi ) ;
                           ldm:mapPointPath [ sh:inversePath ruian:stavebniObjekt ] ] ;
 
     ldm:mapLayer ldmres:mapLayer_ruian-old .

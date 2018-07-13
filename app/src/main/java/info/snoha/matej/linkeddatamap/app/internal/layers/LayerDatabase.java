@@ -97,7 +97,7 @@ public class LayerDatabase {
 
 	public static synchronized Layer addLayer(String layerDefinition) {
 		Layer layer = new LayerParser().parse(layerDefinition);
-		if (layer != null) {
+		if (layer != null && layer.isValid()) {
 			layers.put(layer.getUri(), layer);
 			save();
 		} else {

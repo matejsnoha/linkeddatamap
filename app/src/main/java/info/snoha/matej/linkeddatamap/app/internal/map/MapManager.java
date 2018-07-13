@@ -86,7 +86,7 @@ public class MapManager {
         new Thread(() -> updateMarkersOnMap(cameraPosition, true)).start();
     }
 
-    public static void removeLayer(Layer layer) {
+    public static void hideLayer(Layer layer) {
     	if (visibleLayers != null && visibleLayers.contains(layer)) {
     		List<Layer> newLayers = new ArrayList<>(visibleLayers);
     		newLayers.remove(layer);

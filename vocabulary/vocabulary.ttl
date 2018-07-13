@@ -16,38 +16,39 @@ ldm:
     dcterms:publisher [ a s:Person ;
                         s:name "Matej Snoha"@en ;
                         s:email "matej@snoha.info" ] ;
-    dcterms:modified "2018-07-01"^^xsd:date ;
+    dcterms:modified "2018-07-20"^^xsd:date ;
     dcterms:license <http://www.opendatacommons.org/licenses/by/> .
 
 #################################################################
 #    Classes
 #################################################################
 
-###  https://purl.org/ldm/Layer
-ldm:Layer
-    a rdfs:Class ;
-    rdfs:subClassOf void:DataSet ;
-    rdfs:label "Layer"@en ;
-    rdfs:comment "Layer class that contains Map Layer and Data Layer definitions"@en .
-
 ###  https://purl.org/ldm/AbstractLayer
-ldm:Layer
+ldm:AbstractLayer
     a rdfs:Class ;
     rdfs:subClassOf void:DataSet ;
     rdfs:label "Abstract Layer"@en ;
-    rdfs:comment "Abstract base class for Map Layers and Data Layers"@en .
+    rdfs:comment "Abstract base class for all layer types"@en .
+
+###  https://purl.org/ldm/Layer
+ldm:Layer
+    a rdfs:Class ;
+    rdfs:subClassOf ldm:AbstractLayer ;
+    rdfs:label "Layer"@en ;
+    rdfs:comment "Layer class that contains Map Layer and Data Layer definitions"@en .
+
 
 ###  https://purl.org/ldm/MapLayer
 ldm:MapLayer
     a rdfs:Class ;
-    rdfs:subClassOf ldm:Layer ;
+    rdfs:subClassOf ldm:AbstractLayer ;
     rdfs:label "Map Layer"@en ;
-    rdfs:comment "Map Layer with address points with address/lat/lng"@en .
+    rdfs:comment "Map Layer with map points with address/lat/lng"@en .
 
 ###  https://purl.org/ldm/DataLayer
 ldm:DataLayer
     a rdfs:Class ;
-    rdfs:subClassOf ldm:Layer ;
+    rdfs:subClassOf ldm:AbstractLayer ;
     rdfs:label "Data Layer"@en ;
     rdfs:comment "Data Layer with data points with name/description linked to a Map Layer"@en .
 
@@ -56,7 +57,7 @@ ldm:MapLayerStructure
     a rdfs:Class ;
     rdfs:subClassOf void:DataSet ;
     rdfs:label "Map Layer structure"@en ;
-    rdfs:comment "Structure of the Map Layer: address point type, address path, latitude path, longitude path"@en .
+    rdfs:comment "Structure of the Map Layer: map point type, address path, latitude path, longitude path"@en .
 
 ###  https://purl.org/ldm/DataLayerStructure
 ldm:DataLayerStructure
@@ -72,7 +73,7 @@ ldm:DataLayerStructure
 ###  https://purl.org/ldm/service
 ldm:service
     a rdf:Property ;
-    rdfs:domain ldm:Layer ;
+    rdfs:domain ldm:AbstractLayer ;
     rdfs:range sd:Service ;
     rdfs:label "SPARQL service description"@en ;
     rdfs:comment "Property for a SPARQL service description (endpoint, named graph, etc.)"@en .
@@ -85,13 +86,13 @@ ldm:jenaSpatial
     rdfs:label "Jena Spatial support"@en ;
     rdfs:comment "Property (flag) that indicates if the SPARQL endpoint supports Jena Spatial"@en .
 
-###  https://purl.org/ldm/addressPointType
-ldm:addressPointType
+###  https://purl.org/ldm/mapPointType
+ldm:mapPointType
     a rdf:Property ;
     rdfs:domain ldm:MapLayerStructure ;
     rdfs:range rdfs:Class ;
-    rdfs:label "Address Point type"@en ;
-    rdfs:comment "Class of address points"@en .
+    rdfs:label "Map point type"@en ;
+    rdfs:comment "Class of map points"@en .
 
 ###  https://purl.org/ldm/addressPath
 ldm:addressPath
@@ -99,7 +100,7 @@ ldm:addressPath
     rdfs:domain ldm:MapLayerStructure ;
     rdfs:range xsd:string ;
     rdfs:label "Address path"@en ;
-    rdfs:comment "Property path to address points"@en .
+    rdfs:comment "Property path to map points"@en .
 
 ###  https://purl.org/ldm/latitudePath
 ldm:latitudePath
@@ -122,39 +123,45 @@ ldm:dataPointType
     a rdf:Property ;
     rdfs:domain ldm:DataLayerStructure ;
     rdfs:range rdfs:Class ;
-    rdfs:label "Data Point type"@en ;
+    rdfs:label "Data point type"@en ;
     rdfs:comment "Class of data points"@en .
 
-###  https://purl.org/ldm/dataName
-ldm:dataName
+###  https://purl.org/ldm/dataPointName
+ldm:dataPointName
     a rdf:Property ;
     rdfs:domain ldm:DataLayerStructure ;
     rdfs:range xsd:string ;
-    rdfs:label "Data name"@en ;
-    rdfs:comment "Property path to data name"@en .
+    rdfs:label "Data point name"@en ;
+    rdfs:comment "Property path to data point name"@en .
 
-###  https://purl.org/ldm/dataDescription
-ldm:dataDescription
+###  https://purl.org/ldm/dataPointDescription
+ldm:dataPointDescription
     a rdf:Property ;
     rdfs:domain ldm:DataLayerStructure ;
     rdfs:range rdf:List ;
-    rdfs:label "Data description"@en ;
-    rdfs:comment "List of literals and property paths to build a description"@en .
+    rdfs:label "Data point description"@en ;
+    rdfs:comment "List of literals and property paths to build a data point description"@en .
 
 ###  https://purl.org/ldm/mapPointPath
 ldm:mapPointPath
     a rdf:Property ;
     rdfs:domain ldm:DataLayerStructure ;
     rdfs:range xsd:string ;
-    rdfs:label "Map Address Point path"@en ;
+    rdfs:label "Map point path"@en ;
     rdfs:comment "Property path to linked map points"@en .
 
 ###  https://purl.org/ldm/mapLayer
 ldm:mapLayer
     a rdf:Property ;
-    rdfs:domain ldm:DataLayer ;
+    rdfs:domain ldm:Layer ;
     rdfs:range ldm:MapLayer ;
     rdfs:label "Map Layer"@en ;
-    rdfs:comment "Property for linking a map layer to a data layer"@en .
+    rdfs:comment "Property for including the map layer in a layer"@en .
 
-#################################################################
+###  https://purl.org/ldm/dataLayer
+ldm:dataLayer
+	a rdf:Property ;
+	rdfs:domain ldm:Layer ;
+	rdfs:range ldm:DataLayer ;
+	rdfs:label "Data Layer"@en ;
+	rdfs:comment "Property for including the data layer in a layer"@en .

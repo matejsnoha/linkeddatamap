@@ -7,6 +7,7 @@ import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.R;
 import info.snoha.matej.linkeddatamap.app.internal.layers.Layer;
 import info.snoha.matej.linkeddatamap.app.internal.layers.LayerDatabase;
+import info.snoha.matej.linkeddatamap.app.internal.map.MapManager;
 
 public class LayerStateSettingsItem extends AbstractSettingsItem {
 
@@ -48,6 +49,9 @@ public class LayerStateSettingsItem extends AbstractSettingsItem {
     public void onClick(View view) {
         layer.enabled(!layer.isEnabled());
         LayerDatabase.save();
+        if (!layer.isEnabled()) {
+            MapManager.hideLayer(layer);
+        }
         refreshIcon();
         refreshSummary();
     }

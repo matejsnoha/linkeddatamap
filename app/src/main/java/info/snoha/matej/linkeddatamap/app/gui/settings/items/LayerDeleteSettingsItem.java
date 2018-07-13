@@ -50,7 +50,7 @@ public class LayerDeleteSettingsItem extends AbstractSettingsItem {
                 .neutralText(R.string.cancel)
                 .onPositive((dialog, which) -> {
                     LayerDatabase.removeLayer(layer);
-                    MapManager.removeLayer(layer);
+                    MapManager.hideLayer(layer);
                     if (getContext() instanceof SettingsActivity) {
                         SettingsScreenRegistry.remove(LayerSettingsScreen.getScreenName(layer));
                         SettingsScreenRegistry.get(LayersSettingsScreen.class.getSimpleName()).refresh();

@@ -210,7 +210,7 @@ public class MapsActivity extends AppCompatActivity
 
 			if (LayerDatabase.getEnabledLayers().isEmpty()) {
 				UI.message(MapsActivity.this, "No layers.\n" +
-						"Please specify some in Settings --> Map Layers & Data Layers");
+						"Please specify some in Settings --> Layers --> Add layer");
 				return;
 			}
 

@@ -27,8 +27,8 @@ public class DataLayerParser extends AbstractLayerParser<DataLayer> {
 					.sparqlEndpoint(jena.propertyValue(service, Prefixes.SD + "endpoint"))
 					.sparqlNamedGraph(jena.propertyValue(graph, Prefixes.SD + "name"))
 					.dataPointType(jena.propertyValue(structure, Prefixes.LDM + "dataPointType"))
-					.dataName(jena.propertyValue(structure, Prefixes.LDM + "dataName"))
-					.dataDescription(jena.propertyList(structure, Prefixes.LDM + "dataDescription"))
+					.dataPointName(jena.propertyValue(structure, Prefixes.LDM + "dataPointName"))
+					.dataPointDescription(jena.propertyList(structure, Prefixes.LDM + "dataPointDescription"))
 					.mapPointPath(Shacl.parseToString(jena, structure, Prefixes.LDM + "mapPointPath"))
 					.mapLayer(jena.propertyValue(r, Prefixes.LDM + "mapLayer"))
 					;

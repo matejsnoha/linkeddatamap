@@ -25,7 +25,7 @@ public class MapLayer {
 	private boolean sparqlJenaSpatial;
 
 	// map structure
-	private String addressPointType;
+	private String mapPointType;
 	private String addressPath;
 	private String latitudePath;
 	private String longitudePath;
@@ -129,12 +129,12 @@ public class MapLayer {
 		return this;
 	}
 
-	public String getAddressPointType() {
-		return addressPointType;
+	public String getmapPointType() {
+		return mapPointType;
 	}
 
-	public MapLayer addressPointType(String addressPointType) {
-		this.addressPointType = addressPointType;
+	public MapLayer mapPointType(String mapPointType) {
+		this.mapPointType = mapPointType;
 		return this;
 	}
 
