@@ -45,12 +45,12 @@ public class Layers extends Api {
     }
 
     public static LayerListResponse getLayers() throws IOException {
-        return httpGet(CLOUD_URL + "layers",
+        return httpGet(CLOUD_URI + "layers",
                 null, null, LayerListResponse.class);
     }
 
     public static LayerResponse getLayer(String url) throws IOException {
-        return httpGet(CLOUD_URL + "layers/" + URLEncoder.encode(url, "UTF-8"),
+        return httpGet(CLOUD_URI + "layers/" + URLEncoder.encode(url, "UTF-8"),
                 null, null, LayerResponse.class);
     }
 }

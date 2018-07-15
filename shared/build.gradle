@@ -55,4 +55,12 @@ dependencies {
     compile 'commons-validator:commons-validator:1.6'
     compile 'com.squareup.okhttp3:okhttp:3.10.0'
     compile 'com.google.code.gson:gson:2.8.1'
+
+    // junit5
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.1.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.1'
+}
+
+test {
+    useJUnitPlatform()
 }

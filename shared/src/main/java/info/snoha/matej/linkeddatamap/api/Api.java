@@ -1,6 +1,7 @@
 package info.snoha.matej.linkeddatamap.api;
 
 import com.google.gson.Gson;
+import info.snoha.matej.linkeddatamap.FrameworkConfiguration;
 import info.snoha.matej.linkeddatamap.Http;
 import info.snoha.matej.linkeddatamap.Log;
 import okhttp3.Call;
@@ -17,7 +18,7 @@ public class Api {
     protected static OkHttpClient httpClient = Http.getClient();
     protected static Gson gson = new Gson();
 
-    protected static final String CLOUD_URL = "http://192.168.56.1:8080/api/1/"; //"https://ldm.matej.snoha.info/api/1/";
+    protected static final String CLOUD_URI = FrameworkConfiguration.CLOUD_URI;
 
     public static Response httpRequest(String requestType, String url, Map<String, String> parameters,
                                        Map<String, String> headers) {

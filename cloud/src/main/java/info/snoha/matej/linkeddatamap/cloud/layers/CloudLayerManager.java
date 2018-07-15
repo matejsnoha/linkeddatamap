@@ -1,5 +1,6 @@
 package info.snoha.matej.linkeddatamap.cloud.layers;
 
+import info.snoha.matej.linkeddatamap.FrameworkConfiguration;
 import info.snoha.matej.linkeddatamap.Log;
 import info.snoha.matej.linkeddatamap.api.Layers;
 import info.snoha.matej.linkeddatamap.sparql.CsvSparqlClient;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class CloudLayerManager {
 
-    private static final String SPARQL_QUERY_URL = "https://ldm.matej.snoha.info/fuseki/cloud/query";
+    private static final String SPARQL_QUERY_URL = FrameworkConfiguration.CLOUD_STORE_QUERY;
     private static final String SPARQL_GRAPH = "http://layers";
 
     private static final String SARQL_QUERY_LIST_LAYERS = "/WEB-INF/query_list_layers.sparql";
