@@ -68,6 +68,12 @@ android {
     }
 }
 
+configurations {
+    all {
+        exclude module: 'commons-logging'
+    }
+}
+
 dependencies {
 
     ext.supportLibVersion = "27.1.1"
